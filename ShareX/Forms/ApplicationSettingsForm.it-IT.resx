@@ -183,17 +183,11 @@
   <data name="cbShellContextMenu.Text" xml:space="preserve">
     <value>Mostra il Pulsante "Carica con ShareX" nel Menu Contestiale di Windows Explorer</value>
   </data>
-  <data name="cbStartWithWindows.Text" xml:space="preserve">
-    <value>Esegui ShareX all'Avvio di Windows</value>
-  </data>
   <data name="cbSendToMenu.Text" xml:space="preserve">
     <value>Mostra ShareX nel Menu "Invia a"</value>
   </data>
   <data name="tpIntegration.Text" xml:space="preserve">
     <value>Integrazione</value>
-  </data>
-  <data name="lblNotePersonalFolderPath.Text" xml:space="preserve">
-    <value>Nota: È necessario riavviare ShareX per applicare i cambiamenti per la Cartella Personale.</value>
   </data>
   <data name="btnOpenScreenshotsFolder.Text" xml:space="preserve">
     <value>Apri...</value>
@@ -218,15 +212,6 @@
   </data>
   <data name="btnResetSettings.Text" xml:space="preserve">
     <value>Ripristina Impostazioni...</value>
-  </data>
-  <data name="cbExportLogs.Text" xml:space="preserve">
-    <value>Esporta Log</value>
-  </data>
-  <data name="cbExportHistory.Text" xml:space="preserve">
-    <value>Esporta Cronologia</value>
-  </data>
-  <data name="cbExportSettings.Text" xml:space="preserve">
-    <value>Esporta Impostazioni</value>
   </data>
   <data name="btnExport.Text" xml:space="preserve">
     <value>Esporta...</value>

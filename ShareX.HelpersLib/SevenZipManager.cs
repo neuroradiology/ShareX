@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace ShareX.HelpersLib
@@ -43,13 +44,6 @@ namespace ShareX.HelpersLib
             SevenZipPath = sevenZipPath;
         }
 
-        public bool Compress(string archivePath, List<string> files, string workingDirectory = "")
-        {
-            string fileArgs = string.Join(" ", files.Select(x => $"\"{x}\""));
-            string arguments = $"a -tzip \"{archivePath}\" {fileArgs} -mx=9";
-            return Run(arguments, workingDirectory) == 0;
-        }
-
         public bool Extract(string archivePath, string destination)
         {
             string arguments = $"x \"{archivePath}\" -o\"{destination}\" -y";
@@ -63,27 +57,41 @@ namespace ShareX.HelpersLib
             return Run(arguments) == 0;
         }
 
-        private int Run(string arguments, string workingDirectory = "")
+        public bool Compress(string archivePath, List<string> files, string workingDirectory = "")
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo()
+            if (File.Exists(archivePath))
             {
-                FileName = SevenZipPath,
-                Arguments = arguments,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            if (!string.IsNullOrEmpty(workingDirectory))
-            {
-                startInfo.WorkingDirectory = workingDirectory;
+                File.Delete(archivePath);
             }
 
-            Process process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-            process.WaitForExit();
+            string fileArgs = string.Join(" ", files.Select(x => $"\"{x}\""));
+            string arguments = $"a -tzip \"{archivePath}\" {fileArgs} -mx=9";
+            return Run(arguments, workingDirectory) == 0;
+        }
 
-            return process.ExitCode;
+        private int Run(string arguments, string workingDirectory = "")
+        {
+            using (Process process = new Process())
+            {
+                ProcessStartInfo psi = new ProcessStartInfo()
+                {
+                    FileName = SevenZipPath,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                if (!string.IsNullOrEmpty(workingDirectory))
+                {
+                    psi.WorkingDirectory = workingDirectory;
+                }
+
+                process.StartInfo = psi;
+                process.Start();
+                process.WaitForExit();
+
+                return process.ExitCode;
+            }
         }
     }
 }

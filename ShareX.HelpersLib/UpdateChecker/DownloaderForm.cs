@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -150,26 +150,36 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    ProcessStartInfo psi = new ProcessStartInfo(DownloadLocation);
-
-                    if (InstallType == InstallType.Silent)
+                    using (Process process = new Process())
                     {
-                        psi.Arguments = "/SILENT";
-                    }
-                    else if (InstallType == InstallType.VerySilent)
-                    {
-                        psi.Arguments = "/VERYSILENT";
-                    }
+                        ProcessStartInfo psi = new ProcessStartInfo()
+                        {
+                            FileName = DownloadLocation,
+                            Arguments = "/UPDATE",
+                            UseShellExecute = true
+                        };
 
-                    if (Helpers.IsDefaultInstallDir())
-                    {
-                        psi.Verb = "runas";
-                    }
+                        if (InstallType == InstallType.Silent)
+                        {
+                            psi.Arguments += " /SILENT";
+                        }
+                        else if (InstallType == InstallType.VerySilent)
+                        {
+                            psi.Arguments += " /VERYSILENT";
+                        }
 
-                    psi.UseShellExecute = true;
-                    Process.Start(psi);
+                        if (Helpers.IsDefaultInstallDir())
+                        {
+                            psi.Verb = "runas";
+                        }
+
+                        process.StartInfo = psi;
+                        process.Start();
+                    }
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
 
@@ -213,7 +223,7 @@ namespace ShareX.HelpersLib
                 fileDownloader.DownloadStarted += (v1, v2) => ChangeStatus(Resources.DownloaderForm_StartDownload_Downloading_);
                 fileDownloader.ProgressChanged += (v1, v2) => ChangeProgress();
                 fileDownloader.DownloadCompleted += fileDownloader_DownloadCompleted;
-                fileDownloader.ExceptionThrowed += (v1, v2) => ChangeStatus(fileDownloader.LastException.Message);
+                fileDownloader.ExceptionThrown += (v1, v2) => ChangeStatus(fileDownloader.LastException.Message);
                 fileDownloader.StartDownload();
 
                 ChangeStatus(Resources.DownloaderForm_StartDownload_Getting_file_size_);

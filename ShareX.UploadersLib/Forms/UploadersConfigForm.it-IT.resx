@@ -138,19 +138,7 @@
   <data name="rbFTPTransferModeActive.Text" xml:space="preserve">
     <value>Attiva</value>
   </data>
-  <data name="btnCustomUploaderHeaderAdd.Text" xml:space="preserve">
-    <value>Aggiungi</value>
-  </data>
-  <data name="btnCustomUploaderRegexpAdd.Text" xml:space="preserve">
-    <value>Aggiungi</value>
-  </data>
   <data name="btnFTPAdd.Text" xml:space="preserve">
-    <value>Aggiungi</value>
-  </data>
-  <data name="btnCustomUploaderArgAdd.Text" xml:space="preserve">
-    <value>Aggiungi</value>
-  </data>
-  <data name="btnCustomUploaderAdd.Text" xml:space="preserve">
     <value>Aggiungi</value>
   </data>
   <data name="btnTwitterAdd.Text" xml:space="preserve">
@@ -158,21 +146,6 @@
   </data>
   <data name="btnPhotobucketAddAlbum.Text" xml:space="preserve">
     <value>Aggiungi Album</value>
-  </data>
-  <data name="btnMinusFolderAdd.Text" xml:space="preserve">
-    <value>Aggiungi Cartella</value>
-  </data>
-  <data name="btnCustomUploaderXmlSyntaxAdd.Text" xml:space="preserve">
-    <value>Aggiungi Sintassi a Campo URL</value>
-  </data>
-  <data name="btnCustomUploaderRegexAddSyntax.Text" xml:space="preserve">
-    <value>Aggiungi Sintassi a Campo URL</value>
-  </data>
-  <data name="btnCustomUploaderJsonAddSyntax.Text" xml:space="preserve">
-    <value>Aggiungi Sintassi a Campo URL</value>
-  </data>
-  <data name="btnCustomUploadersExportAll.Text" xml:space="preserve">
-    <value>Tutto...</value>
   </data>
   <data name="cbStreamableAnonymous.Text" xml:space="preserve">
     <value>Anonimo</value>
@@ -195,9 +168,6 @@
   <data name="lblCheveretoAPIKey.Text" xml:space="preserve">
     <value>Chiave API:</value>
   </data>
-  <data name="lblSomeImageAPIKey.Text" xml:space="preserve">
-    <value>Chiave API:</value>
-  </data>
   <data name="lblPolrAPIKey.Text" xml:space="preserve">
     <value>Chiave API:</value>
   </data>
@@ -207,23 +177,11 @@
   <data name="lblPlikAPIKey.Text" xml:space="preserve">
     <value>Chiave API:</value>
   </data>
-  <data name="lblUpleaApiKey.Text" xml:space="preserve">
-    <value>Chiave API:</value>
-  </data>
   <data name="lblPicasaAlbumID.Text" xml:space="preserve">
     <value>ID Album per il Caricamento (Vuoto = No caricamento album)</value>
   </data>
-  <data name="tpCustomUploaderArguments.Text" xml:space="preserve">
-    <value>Parametri:</value>
-  </data>
   <data name="lblPolrAPIHostname.Text" xml:space="preserve">
     <value>URL API: (es. "http://demo.polr.me/api/v2/action/shorten")</value>
-  </data>
-  <data name="gbMinusUserPass.Text" xml:space="preserve">
-    <value>Autenticazione</value>
-  </data>
-  <data name="btnMinusAuth.Text" xml:space="preserve">
-    <value>Autorizza</value>
   </data>
   <data name="lblSeafileAuthToken.Text" xml:space="preserve">
     <value>Token Autenticazione:</value>
@@ -243,14 +201,8 @@
   <data name="chGoogleDriveDescription.Text" xml:space="preserve">
     <value>Descrizione</value>
   </data>
-  <data name="mbCustomUploaderDestinationType.Text" xml:space="preserve">
-    <value>Tipo Destinazione</value>
-  </data>
   <data name="lblPushbulletDevices.Text" xml:space="preserve">
     <value>Disposotivo:</value>
-  </data>
-  <data name="cbSomeImageDirectURL.Text" xml:space="preserve">
-    <value>URL Diretto</value>
   </data>
   <data name="cbCheveretoDirectURL.Text" xml:space="preserve">
     <value>URL Diretto</value>
@@ -263,9 +215,6 @@
   </data>
   <data name="tpEmail.Text" xml:space="preserve">
     <value>Email</value>
-  </data>
-  <data name="lblUpleaEmailAddress.Text" xml:space="preserve">
-    <value>Indirizzo Email:</value>
   </data>
   <data name="lblSeafileAccInfoEmail.Text" xml:space="preserve">
     <value>Email:</value>
@@ -318,23 +267,8 @@
   <data name="lblGistCustomURLExample.Text" xml:space="preserve">
     <value>Esempio: https://api.github.com</value>
   </data>
-  <data name="lblCustomUploaderXPathExample.Text" xml:space="preserve">
-    <value>Esempi:
-
-/Files/File[1]/URL
-/store/book[1]/title</value>
-  </data>
-  <data name="lblCustomUploaderJsonPathExample.Text" xml:space="preserve">
-    <value>Esempi:
-
-Files[0].URL
-store.book[0].title</value>
-  </data>
   <data name="lblPastebinExpiration.Text" xml:space="preserve">
     <value>Scadenza:</value>
-  </data>
-  <data name="lblCustomUploaderFileUploader.Text" xml:space="preserve">
-    <value>Servizio Caricamento File:</value>
   </data>
   <data name="tpFileUploaders.Text" xml:space="preserve">
     <value>Caricamento File</value>
@@ -360,20 +294,11 @@ store.book[0].title</value>
   <data name="btnSeafileGetAuthToken.Text" xml:space="preserve">
     <value>Ottieni</value>
   </data>
-  <data name="btnUpleaLogin.Text" xml:space="preserve">
-    <value>Ottieni Chiave API</value>
-  </data>
   <data name="btnLithiioGetAPIKey.Text" xml:space="preserve">
     <value>Ottieni Chiave API...</value>
   </data>
   <data name="btnPushbulletGetDeviceList.Text" xml:space="preserve">
     <value>Ottieni Lista Dispositivi</value>
-  </data>
-  <data name="tpCustomUploaderHeaders.Text" xml:space="preserve">
-    <value>Intestazioni</value>
-  </data>
-  <data name="btnCustomUploaderHelp.Text" xml:space="preserve">
-    <value>Aiuto...</value>
   </data>
   <data name="lblPlikURL.Text" xml:space="preserve">
     <value>Host</value>
@@ -387,9 +312,6 @@ store.book[0].title</value>
   <data name="cbSeafileIgnoreInvalidCert.Text" xml:space="preserve">
     <value>Ignora Certificato SSL non Valido</value>
   </data>
-  <data name="lblCustomUploaderImageUploader.Text" xml:space="preserve">
-    <value>Servizio Caricamento Immagini:</value>
-  </data>
   <data name="tpImageUploaders.Text" xml:space="preserve">
     <value>Caricamento Immagini</value>
   </data>
@@ -398,12 +320,6 @@ store.book[0].title</value>
   </data>
   <data name="lblFTPImage.Text" xml:space="preserve">
     <value>Immagine:</value>
-  </data>
-  <data name="cbUpleaInstantDownloadEnabled.Text" xml:space="preserve">
-    <value>Scaricamento Istantaneo Attivo</value>
-  </data>
-  <data name="cbUpleaIsPremium.Text" xml:space="preserve">
-    <value>Membro Premium?</value>
   </data>
   <data name="cbGfycatIsPublic.Text" xml:space="preserve">
     <value>Caricamento Pubblico?</value>
@@ -459,17 +375,11 @@ store.book[0].title</value>
   <data name="gbPlikLoginCredentials.Text" xml:space="preserve">
     <value>Credenziali Accesso</value>
   </data>
-  <data name="gbUpleaLoginCredentials.Text" xml:space="preserve">
-    <value>Credenziali Accesso</value>
-  </data>
   <data name="lblPhotobucketAccountStatus.Text" xml:space="preserve">
     <value>Accesso richiesto.</value>
   </data>
   <data name="lblGe_ttStatus.Text" xml:space="preserve">
     <value>Accesso richiesto.</value>
-  </data>
-  <data name="lblMinusAuthStatus.Text" xml:space="preserve">
-    <value>Stato Accesso:</value>
   </data>
   <data name="cbxPlikTTLUnit.Items2" xml:space="preserve">
     <value>minuti</value>
@@ -478,12 +388,6 @@ store.book[0].title</value>
     <value>Nome</value>
   </data>
   <data name="chPicasaName.Text" xml:space="preserve">
-    <value>Nome</value>
-  </data>
-  <data name="chCustomUploaderHeadersName.Text" xml:space="preserve">
-    <value>Nome</value>
-  </data>
-  <data name="chCustomUploaderArgumentsName.Text" xml:space="preserve">
     <value>Nome</value>
   </data>
   <data name="lblFTPName.Text" xml:space="preserve">
@@ -516,9 +420,6 @@ store.book[0].title</value>
   <data name="lblEmailPassword.Text" xml:space="preserve">
     <value>Password:</value>
   </data>
-  <data name="lblUpleaPassword.Text" xml:space="preserve">
-    <value>Password:</value>
-  </data>
   <data name="lblGe_ttPassword.Text" xml:space="preserve">
     <value>Password:</value>
   </data>
@@ -535,9 +436,6 @@ store.book[0].title</value>
     <value>Password:</value>
   </data>
   <data name="lblSendSpacePassword.Text" xml:space="preserve">
-    <value>Password:</value>
-  </data>
-  <data name="lblMinusPassword.Text" xml:space="preserve">
     <value>Password:</value>
   </data>
   <data name="lblMegaPassword.Text" xml:space="preserve">
@@ -579,9 +477,6 @@ store.book[0].title</value>
   <data name="lblFTPProtocol.Text" xml:space="preserve">
     <value>Protocollo</value>
   </data>
-  <data name="cbMinusPublic.Text" xml:space="preserve">
-    <value>Pubblico</value>
-  </data>
   <data name="btnRefreshSeafileAccInfo.Text" xml:space="preserve">
     <value>Aggiorna</value>
   </data>
@@ -596,12 +491,6 @@ store.book[0].title</value>
   </data>
   <data name="btnImgurRefreshAlbumList.Text" xml:space="preserve">
     <value>Aggiorna Lista Album</value>
-  </data>
-  <data name="btnMinusRefreshAuth.Text" xml:space="preserve">
-    <value>Aggiorna Autorizzazione</value>
-  </data>
-  <data name="btnFlickrCheckToken.Text" xml:space="preserve">
-    <value>Aggiorna Autorizzazione</value>
   </data>
   <data name="btnGoogleDriveRefreshFolders.Text" xml:space="preserve">
     <value>Aggiorna Lista Cartelle</value>
@@ -621,17 +510,11 @@ store.book[0].title</value>
   <data name="btnMegaRegister.Text" xml:space="preserve">
     <value>Registrati...</value>
   </data>
-  <data name="btnMinusReadFolderList.Text" xml:space="preserve">
-    <value>Aggiorna Lista Cartella</value>
-  </data>
   <data name="lblFTPRemoteDirectory.Text" xml:space="preserve">
     <value>Cartella Remota:</value>
   </data>
   <data name="cbPlikRemovable.Text" xml:space="preserve">
     <value>Rimovibile</value>
-  </data>
-  <data name="btnCustomUploaderArgRemove.Text" xml:space="preserve">
-    <value>Rimuovi</value>
   </data>
   <data name="btnFTPRemove.Text" xml:space="preserve">
     <value>Rimuovi</value>
@@ -639,32 +522,11 @@ store.book[0].title</value>
   <data name="btnTwitterRemove.Text" xml:space="preserve">
     <value>Rimuovi</value>
   </data>
-  <data name="btnCustomUploaderHeaderRemove.Text" xml:space="preserve">
-    <value>Rimuovi</value>
-  </data>
-  <data name="btnCustomUploaderRemove.Text" xml:space="preserve">
-    <value>Rimuovi</value>
-  </data>
-  <data name="btnCustomUploaderRegexpRemove.Text" xml:space="preserve">
-    <value>Rimuovi</value>
-  </data>
   <data name="btnPhotobucketRemoveAlbum.Text" xml:space="preserve">
     <value>Rimuovi Album</value>
   </data>
   <data name="cbFTPRemoveFileExtension.Text" xml:space="preserve">
     <value>Rimuovi Estensione File dal Percorso URL</value>
-  </data>
-  <data name="btnMinusFolderRemove.Text" xml:space="preserve">
-    <value>Rimuovi Cartella</value>
-  </data>
-  <data name="lblCustomUploaderRequestType.Text" xml:space="preserve">
-    <value>Tipo Richiesta:</value>
-  </data>
-  <data name="lblCustomUploaderRequestURL.Text" xml:space="preserve">
-    <value>URL Richiesta:</value>
-  </data>
-  <data name="lblCustomUploaderResponseType.Text" xml:space="preserve">
-    <value>Tipo Risposta:</value>
   </data>
   <data name="lblPomfResultURL.Text" xml:space="preserve">
     <value>Risultato URL:</value>
@@ -690,9 +552,6 @@ store.book[0].title</value>
   <data name="$this.Text" xml:space="preserve">
     <value>ShareX - Impostazioni Destinazione</value>
   </data>
-  <data name="btnCustomUploaderShowLastResponse.Text" xml:space="preserve">
-    <value>Mostra Ultima Risposta...</value>
-  </data>
   <data name="lblYourlsSignature.Text" xml:space="preserve">
     <value>Firma:</value>
   </data>
@@ -708,19 +567,7 @@ store.book[0].title</value>
   <data name="lblMegaStatusTitle.Text" xml:space="preserve">
     <value>Stato:</value>
   </data>
-  <data name="btnCustomUploaderImageUploaderTest.Text" xml:space="preserve">
-    <value>Prova</value>
-  </data>
   <data name="btnFTPTest.Text" xml:space="preserve">
-    <value>Prova</value>
-  </data>
-  <data name="btnCustomUploaderURLShortenerTest.Text" xml:space="preserve">
-    <value>Prova</value>
-  </data>
-  <data name="btnCustomUploaderFileUploaderTest.Text" xml:space="preserve">
-    <value>Prova</value>
-  </data>
-  <data name="btnCustomUploaderTextUploaderTest.Text" xml:space="preserve">
     <value>Prova</value>
   </data>
   <data name="btnPomfTest.Text" xml:space="preserve">
@@ -728,12 +575,6 @@ store.book[0].title</value>
   </data>
   <data name="btnCheveretoTestAll.Text" xml:space="preserve">
     <value>Prova Tutto</value>
-  </data>
-  <data name="lblCustomUploaderTestResult.Text" xml:space="preserve">
-    <value>Prova Risultato:</value>
-  </data>
-  <data name="lblCustomUploaderTextUploader.Text" xml:space="preserve">
-    <value>Servizio Caricamento Testo:</value>
   </data>
   <data name="tpTextUploaders.Text" xml:space="preserve">
     <value>Caricamento Testo</value>
@@ -747,9 +588,6 @@ store.book[0].title</value>
   <data name="lblImgurThumbnailType.Text" xml:space="preserve">
     <value>Tipo Miniatura:</value>
   </data>
-  <data name="lblCustomUploaderThumbnailURL.Text" xml:space="preserve">
-    <value>URL Miniatura:</value>
-  </data>
   <data name="chImgurTitle.Text" xml:space="preserve">
     <value>Titolo</value>
   </data>
@@ -762,26 +600,11 @@ store.book[0].title</value>
   <data name="txtJiraConfigHelp.Text" xml:space="preserve">
     <value>Modello</value>
   </data>
-  <data name="btnCustomUploaderUpdate.Text" xml:space="preserve">
-    <value>Aggiorna</value>
-  </data>
   <data name="btnTwitterNameUpdate.Text" xml:space="preserve">
-    <value>Aggiorna</value>
-  </data>
-  <data name="btnCustomUploaderRegexpUpdate.Text" xml:space="preserve">
-    <value>Aggiorna</value>
-  </data>
-  <data name="btnCustomUploaderArgUpdate.Text" xml:space="preserve">
-    <value>Aggiorna</value>
-  </data>
-  <data name="btnCustomUploaderHeaderUpdate.Text" xml:space="preserve">
     <value>Aggiorna</value>
   </data>
   <data name="lblFTPTransferMode.Text" xml:space="preserve">
     <value>Modalità Trasferimento:</value>
-  </data>
-  <data name="llSomeImageAPIKey.Text" xml:space="preserve">
-    <value>Per ottenere la chiave API visita "To get API key visit https://someimage.com/api"</value>
   </data>
   <data name="lblLambdaInfo.Text" xml:space="preserve">
     <value>Per ottenere la chiave API accedi a Lambda ("https://lambda.sx/"), clicca sul tuo nome utente e poi su "Manage Account".</value>
@@ -801,9 +624,6 @@ store.book[0].title</value>
   <data name="lblCheveretoUploadURL.Text" xml:space="preserve">
     <value>URL Caricamento:</value>
   </data>
-  <data name="gbCustomUploaders.Text" xml:space="preserve">
-    <value>Servizi Caricamento</value>
-  </data>
   <data name="lblCheveretoUploaders.Text" xml:space="preserve">
     <value>Servizi Caricamento:</value>
   </data>
@@ -819,14 +639,8 @@ store.book[0].title</value>
   <data name="lblAmazonS3PathPreviewLabel.Text" xml:space="preserve">
     <value>Anteprima URL:</value>
   </data>
-  <data name="lblCustomUploaderURLShortener.Text" xml:space="preserve">
-    <value>Servizio Accorciamento URL:</value>
-  </data>
   <data name="tpURLShorteners.Text" xml:space="preserve">
     <value>Accorciamento URL</value>
-  </data>
-  <data name="lblMinusURLType.Text" xml:space="preserve">
-    <value>Tipo URL:</value>
   </data>
   <data name="lblOwnCloudHost.Text" xml:space="preserve">
     <value>URL:</value>
@@ -834,13 +648,7 @@ store.book[0].title</value>
   <data name="lblSeafileAccInfoUsage.Text" xml:space="preserve">
     <value>Utilizzo:</value>
   </data>
-  <data name="cbImgurUseHTTPS.Text" xml:space="preserve">
-    <value>Usa Collegamenti "https://"</value>
-  </data>
   <data name="gbPhotobucketAlbumPath.Text" xml:space="preserve">
-    <value>Carica Immagini in</value>
-  </data>
-  <data name="gbMinusUpload.Text" xml:space="preserve">
     <value>Carica Immagini in</value>
   </data>
   <data name="cbImgurUploadSelectedAlbum.Text" xml:space="preserve">
@@ -848,12 +656,6 @@ store.book[0].title</value>
   </data>
   <data name="cbGoogleDriveUseFolder.Text" xml:space="preserve">
     <value>Carica Immagini nella Cartella Selezionato</value>
-  </data>
-  <data name="chCustomUploaderArgumentsValue.Text" xml:space="preserve">
-    <value>Valore</value>
-  </data>
-  <data name="chCustomUploaderHeadersValue.Text" xml:space="preserve">
-    <value>Valore</value>
   </data>
   <data name="lblPhotobucketVerificationCode.Text" xml:space="preserve">
     <value>Codice Verifica (Ottienilo dalla pagina di autorizzazione):</value>
@@ -864,13 +666,7 @@ store.book[0].title</value>
   <data name="llVgymeAccountDetailsPage.Text" xml:space="preserve">
     <value>Puoi teovare la chiave utente sulla pagina Dettagli dell'account</value>
   </data>
-  <data name="btnFlickrOpenImages.Text" xml:space="preserve">
-    <value>Il Tuo Photostream...</value>
-  </data>
   <data name="lblPlikUsername.Text" xml:space="preserve">
-    <value>Nome Utente:</value>
-  </data>
-  <data name="lblUpleaUsername.Text" xml:space="preserve">
     <value>Nome Utente:</value>
   </data>
   <data name="lblFTPUsername.Text" xml:space="preserve">
@@ -891,9 +687,6 @@ store.book[0].title</value>
   <data name="lblImageShackUsername.Text" xml:space="preserve">
     <value>Nome Utente:</value>
   </data>
-  <data name="lblMinusUsername.Text" xml:space="preserve">
-    <value>Nome Utente:</value>
-  </data>
   <data name="lblYourlsUsername.Text" xml:space="preserve">
     <value>Nome Utente:</value>
   </data>
@@ -905,9 +698,6 @@ store.book[0].title</value>
   </data>
   <data name="lblUpasteUserKey.Text" xml:space="preserve">
     <value>Chiave Utente:</value>
-  </data>
-  <data name="gbUpleaUserInformation.Text" xml:space="preserve">
-    <value>Informazioni Utente</value>
   </data>
   <data name="lblPaste_eeUserAPIKey.Text" xml:space="preserve">
     <value>Chiave API Utente:</value>
@@ -972,14 +762,8 @@ store.book[0].title</value>
   <data name="grpSeafileShareSettings.Text" xml:space="preserve">
     <value>Impostazioni Condivisione Seafile</value>
   </data>
-  <data name="btnFlickrCompleteAuth.Text" xml:space="preserve">
-    <value>2: Completa Autorizzazione</value>
-  </data>
   <data name="btnPhotobucketAuthComplete.Text" xml:space="preserve">
     <value>2: Completa Autorizzazione</value>
-  </data>
-  <data name="btnFlickrOpenAuthorize.Text" xml:space="preserve">
-    <value>1: Apri Pagina Autorizzazione...</value>
   </data>
   <data name="btnPhotobucketAuthOpen.Text" xml:space="preserve">
     <value>1: Apri Pagina Autorizzazione...</value>
@@ -1042,9 +826,6 @@ Usare una library criptata disabilita la condivisione.</value>
   <data name="cbPlikOneShot.Text" xml:space="preserve">
     <value>Distruggi Dopo il Primo Scaricamento</value>
   </data>
-  <data name="lblCustomUploaderDeletionURL.Text" xml:space="preserve">
-    <value>Eliminazione URL:</value>
-  </data>
   <data name="lblTwitterDefaultMessage.Text" xml:space="preserve">
     <value>Tweet Predefinito:</value>
   </data>
@@ -1063,29 +844,11 @@ Usare una library criptata disabilita la condivisione.</value>
   <data name="lblGistCustomURL.Text" xml:space="preserve">
     <value>Dominio Personalizzato:</value>
   </data>
-  <data name="tpCustomUploaders.Text" xml:space="preserve">
-    <value>Servizi Personalizzati</value>
-  </data>
-  <data name="btnCustomUploaderExamples.Text" xml:space="preserve">
-    <value>Servizi Personalizzati...</value>
-  </data>
   <data name="lblSeafileDaysToExpire.Text" xml:space="preserve">
     <value>Giorni alla Scadenza:</value>
   </data>
   <data name="lblFTPSCertificateLocation.Text" xml:space="preserve">
     <value>Posizione Certificato:</value>
-  </data>
-  <data name="btnCustomUploaderClear.Text" xml:space="preserve">
-    <value>Pulisci Campi Precedenti</value>
-  </data>
-  <data name="btnCustomUploaderClearUploaders.Text" xml:space="preserve">
-    <value>Pulisci Servizi Caricamento</value>
-  </data>
-  <data name="sulKeyLink.Text" xml:space="preserve">
-    <value>Clicca per Ottenere la Chiave API</value>
-  </data>
-  <data name="btnFTPClient.Text" xml:space="preserve">
-    <value>Client...</value>
   </data>
   <data name="cbPlikComment.Text" xml:space="preserve">
     <value>Commento (Markdown)</value>
@@ -1098,9 +861,6 @@ Usare una library criptata disabilita la condivisione.</value>
   </data>
   <data name="btnPhotobucketCreateAlbum.Text" xml:space="preserve">
     <value>Crea Album</value>
-  </data>
-  <data name="llPuushCreateAccount.Text" xml:space="preserve">
-    <value>Crea Account...</value>
   </data>
   <data name="gbPhotobucketAlbums.Text" xml:space="preserve">
     <value>Crea Nuovo Album</value>
@@ -1126,25 +886,11 @@ Usare una library criptata disabilita la condivisione.</value>
   <data name="lblHastebinCustomDomain.Text" xml:space="preserve">
     <value>Dominio Personalizzato:</value>
   </data>
-  <data name="mbCustomUploaderDestinationType.ToolTip" xml:space="preserve">
-    <value>Al momento il tipo di destinazione è usato quando gli utenti importano servizi di caricamento personalizzati tramite doppio click sul file ".sxcu".</value>
-  </data>
   <data name="cbPolrUseAPIv1.Text" xml:space="preserve">
     <value>Usa API v1 (sconsigliato)</value>
   </data>
-  <data name="lblCustomUploaderFileForm.Text" xml:space="preserve">
-    <value>Nome Modulo File:</value>
-  </data>
   <data name="lblPlikTTL.Text" xml:space="preserve">
     <value>File Rimossi Automaticamente in </value>
-  </data>
-  <data name="cbAmazonS3UseRRS.ToolTip" xml:space="preserve">
-    <value>Utilizzare una classe di ridondanza storage inferiore per gli oggetti memorizzati.
-Con questa opzione gli oggetti sono più economici da memorizzare, ma hanno una resistenza del 99,99%, invece che del 99,999999999%.
-Significa che ad un certo punto possono essere persi da Amazon S3.</value>
-  </data>
-  <data name="cbAmazonS3UseRRS.Text" xml:space="preserve">
-    <value>Usa Ridondanza Storage Ridotta</value>
   </data>
   <data name="cbAmazonS3CustomCNAME.ToolTip" xml:space="preserve">
     <value>Usa questa opzione se hai un bucket impostato con un dominio personalizzato.
@@ -1162,15 +908,6 @@ Ad esempio, se il bucket si chiama "bucket.example.com", l'URL sarà "http://buc
   </data>
   <data name="btnAzureStoragePortal.Text" xml:space="preserve">
     <value>...</value>
-  </data>
-  <data name="btnCustomUploaderRegexHelp.Text" xml:space="preserve">
-    <value>?</value>
-  </data>
-  <data name="btnCustomUploaderXPathHelp.Text" xml:space="preserve">
-    <value>?</value>
-  </data>
-  <data name="btnCustomUploadJsonPathHelp.Text" xml:space="preserve">
-    <value>?</value>
   </data>
   <data name="btnFTPSCertificateLocationBrowse.Text" xml:space="preserve">
     <value>...</value>
@@ -1196,18 +933,6 @@ Ad esempio, se il bucket si chiama "bucket.example.com", l'URL sarà "http://buc
   <data name="lblAzureStorageCustomDomain.Text" xml:space="preserve">
     <value>Dominio Personalizzato:</value>
   </data>
-  <data name="lblCoinURLUUID.Text" xml:space="preserve">
-    <value>UUID:</value>
-  </data>
-  <data name="lblCustomUploaderJsonPath.Text" xml:space="preserve">
-    <value>JsonPath:</value>
-  </data>
-  <data name="lblCustomUploaderURL.Text" xml:space="preserve">
-    <value>URL:</value>
-  </data>
-  <data name="lblCustomUploaderXPath.Text" xml:space="preserve">
-    <value>XPath:</value>
-  </data>
   <data name="lblSeafileAPIURL.Text" xml:space="preserve">
     <value>URL API:</value>
   </data>
@@ -1223,35 +948,11 @@ Ad esempio, se il bucket si chiama "bucket.example.com", l'URL sarà "http://buc
   <data name="rbFTPProtocolSFTP.Text" xml:space="preserve">
     <value>SFTP</value>
   </data>
-  <data name="tpCustomUploaderJsonParse.Text" xml:space="preserve">
-    <value>JSON</value>
-  </data>
-  <data name="tpCustomUploaderRegexParse.Text" xml:space="preserve">
-    <value>RegEx</value>
-  </data>
-  <data name="tpCustomUploaderXmlParse.Text" xml:space="preserve">
-    <value>XML</value>
-  </data>
-  <data name="tpPicasa.Text" xml:space="preserve">
-    <value>Google Foto (Picasa)</value>
-  </data>
   <data name="txtJiraHost.Text" xml:space="preserve">
     <value>http://</value>
   </data>
   <data name="txtJiraIssuePrefix.Text" xml:space="preserve">
     <value>PROJECT-</value>
-  </data>
-  <data name="btnCustomUploaderDuplicate.Text" xml:space="preserve">
-    <value>Duplica</value>
-  </data>
-  <data name="lblCustomUploaderName.Text" xml:space="preserve">
-    <value>Nome:</value>
-  </data>
-  <data name="btnCustomUploaderURLSharingServiceTest.Text" xml:space="preserve">
-    <value>Test</value>
-  </data>
-  <data name="lblCustomUploaderURLSharingService.Text" xml:space="preserve">
-    <value>Servizio Condivisione URL</value>
   </data>
   <data name="btnPaste_eeGetUserKey.Text" xml:space="preserve">
     <value>Ottieni chiave utente...</value>

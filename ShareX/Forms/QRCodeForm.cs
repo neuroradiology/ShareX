@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -29,7 +29,6 @@ using ShareX.ScreenCaptureLib;
 using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -46,24 +45,32 @@ namespace ShareX
         public QRCodeForm(string text = null)
         {
             InitializeComponent();
-            Icon = ShareXResources.Icon;
+            ShareXResources.ApplyTheme(this);
 
             if (!string.IsNullOrEmpty(text))
             {
                 txtQRCode.Text = text;
             }
-            else
-            {
-                if (Clipboard.ContainsText())
-                {
-                    text = Clipboard.GetText();
+        }
 
-                    if (text.Length <= 1000)
-                    {
-                        txtQRCode.Text = text;
-                    }
-                }
+        public static QRCodeForm EncodeClipboard()
+        {
+            string text = ClipboardHelpers.GetText(true);
+
+            if (!string.IsNullOrEmpty(text) && TaskHelpers.CheckQRCodeContent(text))
+            {
+                return new QRCodeForm(text);
             }
+
+            return new QRCodeForm();
+        }
+
+        public static QRCodeForm DecodeFile(string filePath)
+        {
+            QRCodeForm form = new QRCodeForm();
+            form.tcMain.SelectedTab = form.tpDecode;
+            form.DecodeFromFile(filePath);
+            return form;
         }
 
         private void QRCodeForm_Shown(object sender, EventArgs e)
@@ -91,7 +98,9 @@ namespace ShareX
             {
                 ClearQRCode();
 
-                pbQRCode.Image = TaskHelpers.QRCodeEncode(text, pbQRCode.Width, pbQRCode.Height);
+                int size = Math.Min(pbQRCode.Width, pbQRCode.Height);
+                pbQRCode.Image = TaskHelpers.CreateQRCode(text, size);
+                pbQRCode.BackColor = Color.White;
             }
         }
 
@@ -99,14 +108,28 @@ namespace ShareX
         {
             string output = "";
 
-            string[] results = TaskHelpers.QRCodeDecode(bmp);
+            string[] results = TaskHelpers.BarcodeScan(bmp);
 
             if (results != null)
             {
-                output = string.Join(Environment.NewLine + Environment.NewLine, results.Where(x => !string.IsNullOrEmpty(x)));
+                output = string.Join(Environment.NewLine + Environment.NewLine, results);
             }
 
-            txtDecodeResult.Text = output;
+            rtbDecodeResult.Text = output;
+        }
+
+        private void DecodeFromFile(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath))
+            {
+                using (Bitmap bmp = ImageHelpers.LoadImage(filePath))
+                {
+                    if (bmp != null)
+                    {
+                        DecodeImage(bmp);
+                    }
+                }
+            }
         }
 
         private void QRCodeForm_Resize(object sender, EventArgs e)
@@ -131,15 +154,15 @@ namespace ShareX
         {
             if (!string.IsNullOrEmpty(txtQRCode.Text))
             {
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                using (SaveFileDialog sfd = new SaveFileDialog())
                 {
-                    saveFileDialog.Filter = @"PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|Bitmap (*.bmp)|*.bmp|SVG (*.svg)|*.svg";
-                    saveFileDialog.FileName = txtQRCode.Text;
-                    saveFileDialog.DefaultExt = "png";
+                    sfd.Filter = @"PNG (*.png)|*.png|JPEG (*.jpg)|*.jpg|Bitmap (*.bmp)|*.bmp|SVG (*.svg)|*.svg";
+                    sfd.FileName = txtQRCode.Text;
+                    sfd.DefaultExt = "png";
 
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    if (sfd.ShowDialog() == DialogResult.OK)
                     {
-                        string filePath = saveFileDialog.FileName;
+                        string filePath = sfd.FileName;
 
                         if (filePath.EndsWith("svg", StringComparison.InvariantCultureIgnoreCase))
                         {
@@ -167,6 +190,15 @@ namespace ShareX
             }
         }
 
+        private void tsmiUpload_Click(object sender, EventArgs e)
+        {
+            if (pbQRCode.Image != null)
+            {
+                Bitmap bmp = (Bitmap)pbQRCode.Image.Clone();
+                UploadManager.UploadImage(bmp);
+            }
+        }
+
         private void tsmiDecode_Click(object sender, EventArgs e)
         {
             if (pbQRCode.Image != null)
@@ -184,11 +216,13 @@ namespace ShareX
                 Hide();
                 Thread.Sleep(250);
 
-                using (Image img = RegionCaptureTasks.GetRegionImage(null))
+                TaskSettings taskSettings = TaskSettings.GetDefaultTaskSettings();
+
+                using (Bitmap bmp = RegionCaptureTasks.GetRegionImage(taskSettings.CaptureSettings.SurfaceOptions))
                 {
-                    if (img != null)
+                    if (bmp != null)
                     {
-                        DecodeImage((Bitmap)img);
+                        DecodeImage(bmp);
                     }
                 }
             }
@@ -202,16 +236,12 @@ namespace ShareX
         {
             string filePath = ImageHelpers.OpenImageFileDialog();
 
-            if (!string.IsNullOrEmpty(filePath))
-            {
-                using (Image img = ImageHelpers.LoadImage(filePath))
-                {
-                    if (img != null)
-                    {
-                        DecodeImage((Bitmap)img);
-                    }
-                }
-            }
+            DecodeFromFile(filePath);
+        }
+
+        private void rtbDecodeResult_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            URLHelpers.OpenURL(e.LinkText);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -31,20 +31,13 @@ namespace ShareX.UploadersLib
         public static readonly string ImgurClientID = "";
         public static readonly string ImgurClientSecret = "";
         public static readonly string ImageShackKey = "";
-        public static readonly string TinyPicID = "";
-        public static readonly string TinyPicKey = "";
         public static readonly string FlickrKey = "";
         public static readonly string FlickrSecret = "";
         public static readonly string PhotobucketConsumerKey = "";
         public static readonly string PhotobucketConsumerSecret = "";
-        public static readonly string TwitsnapsKey = "";
-        public static readonly string TwitPicKey = "";
-        public static readonly string SlimgClientID = "";
-        public static readonly string SlimgClientSecret = "";
 
         // Text uploaders
         public static readonly string PastebinKey = "";
-        public static readonly string PastebinCaKey = "";
         public static readonly string GitHubID = "";
         public static readonly string GitHubSecret = "";
         public static readonly string Paste_eeApplicationKey = "";
@@ -52,10 +45,6 @@ namespace ShareX.UploadersLib
         // File uploaders
         public static readonly string DropboxConsumerKey = "";
         public static readonly string DropboxConsumerSecret = "";
-        public static readonly string CopyConsumerKey = "";
-        public static readonly string CopyConsumerSecret = "";
-        public static readonly string HubicClientID = "";
-        public static readonly string HubicClientSecret = "";
         public static readonly string BoxClientID = "";
         public static readonly string BoxClientSecret = "";
         public static readonly string SendSpaceKey = "";
@@ -67,13 +56,14 @@ namespace ShareX.UploadersLib
         public static readonly string OneDriveClientSecret = "";
         public static readonly string GfycatClientID = "";
         public static readonly string GfycatClientSecret = "";
+        public static readonly string TeknikClientID = "";
+        public static readonly string TeknikClientSecret = "";
 
         // URL shorteners
         public static readonly string BitlyClientID = "";
         public static readonly string BitlyClientSecret = "";
 
         // Other services
-        public static readonly string GoogleAPIKey = "";
         public static readonly string GoogleClientID = "";
         public static readonly string GoogleClientSecret = "";
         public static readonly string TwitterConsumerKey = "";

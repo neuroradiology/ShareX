@@ -19,7 +19,7 @@ namespace ShareX.MediaLib.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -57,6 +57,60 @@ namespace ShareX.MediaLib.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FFmpeg error.
+        /// </summary>
+        internal static string FFmpegError {
+            get {
+                return ResourceManager.GetString("FFmpegError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Higher quality/size.
+        /// </summary>
+        internal static string HigherQualitySize {
+            get {
+                return ResourceManager.GetString("HigherQualitySize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lower quality/size.
+        /// </summary>
+        internal static string LowerQualitySize {
+            get {
+                return ResourceManager.GetString("LowerQualitySize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Start encoding.
+        /// </summary>
+        internal static string StartEncoding {
+            get {
+                return ResourceManager.GetString("StartEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop encoding.
+        /// </summary>
+        internal static string StopEncoding {
+            get {
+                return ResourceManager.GetString("StopEncoding", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thumbnails successfully generated..
+        /// </summary>
+        internal static string ThumbnailsSuccessfullyGenerated {
+            get {
+                return ResourceManager.GetString("ThumbnailsSuccessfullyGenerated", resourceCulture);
             }
         }
         

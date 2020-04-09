@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -51,20 +51,23 @@ namespace ShareX.ImageEffectsLib
             Height = height;
         }
 
-        public override Image Apply(Image img)
+        public override Bitmap Apply(Bitmap bmp)
         {
-            if (Width <= 0 && Height <= 0) return img;
-
-            int width = Width <= 0 ? (int)((float)Height / img.Height * img.Width) : Width;
-            int height = Height <= 0 ? (int)((float)Width / img.Width * img.Height) : Height;
-
-            if ((Mode == ResizeMode.ResizeIfBigger && img.Width <= width && img.Height <= height) ||
-                (Mode == ResizeMode.ResizeIfSmaller && img.Width >= width && img.Height >= height))
+            if (Width <= 0 && Height <= 0)
             {
-                return img;
+                return bmp;
             }
 
-            return ImageHelpers.ResizeImage(img, width, height);
+            int width = Width <= 0 ? (int)((float)Height / bmp.Height * bmp.Width) : Width;
+            int height = Height <= 0 ? (int)((float)Width / bmp.Width * bmp.Height) : Height;
+
+            if ((Mode == ResizeMode.ResizeIfBigger && bmp.Width <= width && bmp.Height <= height) ||
+                (Mode == ResizeMode.ResizeIfSmaller && bmp.Width >= width && bmp.Height >= height))
+            {
+                return bmp;
+            }
+
+            return ImageHelpers.ResizeImage(bmp, width, height);
         }
     }
 }

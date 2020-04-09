@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -84,20 +84,46 @@ namespace ShareX.ScreenCaptureLib
 
     public enum FFmpegVideoCodec
     {
-        [Description("x264 (mp4)")]
+        [Description("H.264 / x264")]
         libx264,
-        [Description("VP8 (webm)")]
-        libvpx,
-        [Description("Xvid (avi)")]
-        libxvid,
-        [Description("Animated GIF (gif)")]
-        gif,
-        [Description("x265 (mp4)")]
+        [Description("H.265 / x265")]
         libx265,
-        [Description("H.264 NVENC (mp4)")]
+        [Description("VP8 (WebM)")]
+        libvpx,
+        [Description("VP9 (WebM)")]
+        libvpx_vp9,
+        [Description("MPEG-4 / Xvid")]
+        libxvid,
+        [Description("H.264 / NVENC")]
         h264_nvenc,
-        [Description("HEVC NVENC (mp4)")]
-        hevc_nvenc
+        [Description("HEVC / NVENC")]
+        hevc_nvenc,
+        [Description("H.264 / AMF")]
+        h264_amf,
+        [Description("HEVC / AMF")]
+        hevc_amf,
+        [Description("H.264 / Quick Sync")]
+        h264_qsv,
+        [Description("HEVC / Quick Sync")]
+        hevc_qsv,
+        [Description("GIF")]
+        gif,
+        [Description("WebP")]
+        libwebp,
+        [Description("APNG")]
+        apng
+    }
+
+    public enum FFmpegAudioCodec
+    {
+        [Description("AAC")]
+        libvoaacenc,
+        [Description("Opus")]
+        libopus,
+        [Description("Vorbis")]
+        libvorbis,
+        [Description("MP3")]
+        libmp3lame
     }
 
     public enum FFmpegPreset
@@ -150,19 +176,49 @@ namespace ShareX.ScreenCaptureLib
         losslesshp
     }
 
+    public enum FFmpegAMFUsage
+    {
+        [Description("Generic Transcoding")]
+        transcoding = 0,
+        [Description("Ultra Low Latency")]
+        ultralowlatency = 1,
+        [Description("Low Latency")]
+        lowlatency = 2,
+        [Description("Webcam")]
+        webcam = 3
+    }
+
+    public enum FFmpegAMFQuality
+    {
+        [Description("Prefer Speed")]
+        speed = 0,
+        [Description("Balanced")]
+        balanced = 1,
+        [Description("Prefer Quality")]
+        quality = 2
+    }
+
+    public enum FFmpegQSVPreset
+    {
+        [Description("Very fast")]
+        veryfast,
+        [Description("Faster")]
+        faster,
+        [Description("Fast")]
+        fast,
+        [Description("Medium")]
+        medium,
+        [Description("Slow")]
+        slow,
+        [Description("Slower")]
+        slower,
+        [Description("Very slow")]
+        veryslow
+    }
+
     public enum FFmpegTune
     {
         film, animation, grain, stillimage, psnr, ssim, fastdecode, zerolatency
-    }
-
-    public enum FFmpegAudioCodec
-    {
-        [Description("AAC")]
-        libvoaacenc,
-        [Description("Vorbis")]
-        libvorbis,
-        [Description("MP3")]
-        libmp3lame
     }
 
     public enum FFmpegPaletteGenStatsMode
@@ -215,6 +271,7 @@ namespace ShareX.ScreenCaptureLib
         RegionRectangle,
         RegionEllipse,
         RegionFreehand,
+        ToolSelect,
         DrawingRectangle,
         DrawingEllipse,
         DrawingFreehand,
@@ -224,21 +281,16 @@ namespace ShareX.ScreenCaptureLib
         DrawingTextBackground,
         DrawingSpeechBalloon,
         DrawingStep,
+        DrawingMagnify,
         DrawingImage,
         DrawingImageScreen,
         DrawingSticker,
         DrawingCursor,
+        DrawingSmartEraser,
         EffectBlur,
         EffectPixelate,
         EffectHighlight,
         ToolCrop
-    }
-
-    public enum RegionAnnotateMode
-    {
-        Capture,
-        Rectangle,
-        Pen
     }
 
     public enum ScrollingCaptureScrollMethod // Localized
@@ -273,5 +325,12 @@ namespace ShareX.ScreenCaptureLib
         HighQualityBilinear,
         Bilinear,
         NearestNeighbor
+    }
+
+    public enum ImageInsertMethod
+    {
+        Center,
+        CanvasExpandDown,
+        CanvasExpandRight
     }
 }

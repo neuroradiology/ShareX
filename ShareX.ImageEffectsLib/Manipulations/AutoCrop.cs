@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -26,15 +26,24 @@
 using ShareX.HelpersLib;
 using System.ComponentModel;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace ShareX.ImageEffectsLib
 {
     [Description("Auto crop")]
     internal class AutoCrop : ImageEffect
     {
-        public override Image Apply(Image img)
+        [DefaultValue(AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right)]
+        public AnchorStyles Sides { get; set; }
+
+        public AutoCrop()
         {
-            return ImageHelpers.AutoCropImage((Bitmap)img);
+            this.ApplyDefaultPropertyValues();
+        }
+
+        public override Bitmap Apply(Bitmap bmp)
+        {
+            return ImageHelpers.AutoCropImage(bmp, false, Sides);
         }
     }
 }

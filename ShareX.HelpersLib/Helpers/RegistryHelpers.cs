@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -31,14 +31,14 @@ namespace ShareX.HelpersLib
 {
     public static class RegistryHelpers
     {
-        public static void CreateRegistry(string path, string value)
+        public static void CreateRegistry(string path, string value, RegistryHive root = RegistryHive.CurrentUser)
         {
-            CreateRegistry(path, null, value);
+            CreateRegistry(path, null, value, root);
         }
 
-        public static void CreateRegistry(string path, string name, string value)
+        public static void CreateRegistry(string path, string name, string value, RegistryHive root = RegistryHive.CurrentUser)
         {
-            using (RegistryKey rk = Registry.CurrentUser.CreateSubKey(path))
+            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
             {
                 if (rk != null)
                 {
@@ -47,14 +47,14 @@ namespace ShareX.HelpersLib
             }
         }
 
-        public static void CreateRegistry(string path, int value)
+        public static void CreateRegistry(string path, int value, RegistryHive root = RegistryHive.CurrentUser)
         {
-            CreateRegistry(path, null, value);
+            CreateRegistry(path, null, value, root);
         }
 
-        public static void CreateRegistry(string path, string name, int value)
+        public static void CreateRegistry(string path, string name, int value, RegistryHive root = RegistryHive.CurrentUser)
         {
-            using (RegistryKey rk = Registry.CurrentUser.CreateSubKey(path))
+            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).CreateSubKey(path))
             {
                 if (rk != null)
                 {
@@ -63,39 +63,27 @@ namespace ShareX.HelpersLib
             }
         }
 
-        public static void RemoveRegistry(string path, bool recursive = false)
+        public static void RemoveRegistry(string path, bool recursive = false, RegistryHive root = RegistryHive.CurrentUser)
         {
-            using (RegistryKey rk = Registry.CurrentUser.OpenSubKey(path))
+            if (!string.IsNullOrEmpty(path))
             {
-                if (rk != null)
+                using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default))
                 {
                     if (recursive)
                     {
-                        Registry.CurrentUser.DeleteSubKeyTree(path);
+                        rk.DeleteSubKeyTree(path, false);
                     }
                     else
                     {
-                        Registry.CurrentUser.DeleteSubKey(path);
+                        rk.DeleteSubKey(path, false);
                     }
                 }
             }
         }
 
-        public static bool CheckRegistry(string path, string name = null, string value = null)
+        public static string GetRegistryValue(string path, string name = null, RegistryHive root = RegistryHive.CurrentUser)
         {
-            string registryValue = GetRegistryValue(path, name);
-
-            if (registryValue != null)
-            {
-                return value == null || registryValue.Equals(value, StringComparison.InvariantCultureIgnoreCase);
-            }
-
-            return false;
-        }
-
-        public static string GetRegistryValue(string path, string name = null)
-        {
-            using (RegistryKey rk = Registry.CurrentUser.OpenSubKey(path))
+            using (RegistryKey rk = RegistryKey.OpenBaseKey(root, RegistryView.Default).OpenSubKey(path))
             {
                 if (rk != null)
                 {
@@ -106,7 +94,14 @@ namespace ShareX.HelpersLib
             return null;
         }
 
-        public static ExternalProgram FindProgram(string name, string filename)
+        public static bool CheckRegistry(string path, string name = null, string value = null, RegistryHive root = RegistryHive.CurrentUser)
+        {
+            string registryValue = GetRegistryValue(path, name, root);
+
+            return registryValue != null && (value == null || registryValue.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public static string SearchProgramPath(string fileName)
         {
             // First method: HKEY_CLASSES_ROOT\Applications\{filename}\shell\{command}\command
 
@@ -114,7 +109,7 @@ namespace ShareX.HelpersLib
 
             foreach (string command in commands)
             {
-                string path = string.Format(@"HKEY_CLASSES_ROOT\Applications\{0}\shell\{1}\command", filename, command);
+                string path = $@"HKEY_CLASSES_ROOT\Applications\{fileName}\shell\{command}\command";
                 string value = Registry.GetValue(path, null, null) as string;
 
                 if (!string.IsNullOrEmpty(value))
@@ -124,7 +119,7 @@ namespace ShareX.HelpersLib
                     if (File.Exists(filePath))
                     {
                         DebugHelper.WriteLine("Found program with first method: " + filePath);
-                        return new ExternalProgram(name, filePath);
+                        return filePath;
                     }
                 }
             }
@@ -137,14 +132,22 @@ namespace ShareX.HelpersLib
                 {
                     foreach (string filePath in programs.GetValueNames())
                     {
-                        if (!string.IsNullOrEmpty(filePath) && programs.GetValueKind(filePath) == RegistryValueKind.String)
-                        {
-                            string programName = programs.GetValue(filePath, null) as string;
+                        string programPath = filePath;
 
-                            if (!string.IsNullOrEmpty(programName) && programName.Equals(name, StringComparison.InvariantCultureIgnoreCase) && File.Exists(filePath))
+                        if (!string.IsNullOrEmpty(programPath))
+                        {
+                            foreach (string trim in new string[] { ".ApplicationCompany", ".FriendlyAppName" })
                             {
-                                DebugHelper.WriteLine("Found program with second method: " + filePath);
-                                return new ExternalProgram(name, filePath);
+                                if (programPath.EndsWith(trim, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    programPath = programPath.Remove(programPath.Length - trim.Length);
+                                }
+                            }
+
+                            if (programPath.EndsWith(fileName, StringComparison.OrdinalIgnoreCase) && File.Exists(programPath))
+                            {
+                                DebugHelper.WriteLine("Found program with second method: " + programPath);
+                                return programPath;
                             }
                         }
                     }

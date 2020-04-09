@@ -239,4 +239,19 @@
   <data name="lblNVENCBitrate.Text" xml:space="preserve">
     <value>Битрейт:</value>
   </data>
+  <data name="lblQSVBitrate.Text" xml:space="preserve">
+    <value>Битрейт:</value>
+  </data>
+  <data name="lblQSVPreset.Text" xml:space="preserve">
+    <value>Настройка:</value>
+  </data>
+  <data name="lblAMFQuality.Text" xml:space="preserve">
+    <value>Качество:</value>
+  </data>
+  <data name="lblAMFUsage.Text" xml:space="preserve">
+    <value>Использование:</value>
+  </data>
+  <data name="tbOpusBitrate.ToolTip" xml:space="preserve">
+    <value>По умолчанию 128k.</value>
+  </data>
 </root>

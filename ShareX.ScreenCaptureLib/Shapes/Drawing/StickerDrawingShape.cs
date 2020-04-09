@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,11 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace ShareX.ScreenCaptureLib
@@ -55,7 +51,7 @@ namespace ShareX.ScreenCaptureLib
             Point pos = InputManager.ClientMousePosition;
             Rectangle = new Rectangle(pos.X, pos.Y, 1, 1);
 
-            if (Manager.IsCornerMoving && LoadSticker(AnnotationOptions.LastStickerPath, AnnotationOptions.StickerSize))
+            if (Manager.IsCtrlModifier && LoadSticker(AnnotationOptions.LastStickerPath, AnnotationOptions.StickerSize))
             {
                 OnCreated();
                 Manager.IsMoving = true;
@@ -88,7 +84,7 @@ namespace ShareX.ScreenCaptureLib
             {
                 using (StickerForm stickerForm = new StickerForm(AnnotationOptions.StickerPacks, AnnotationOptions.SelectedStickerPack, AnnotationOptions.StickerSize))
                 {
-                    if (stickerForm.ShowDialog() == DialogResult.OK)
+                    if (stickerForm.ShowDialog(Manager.Form) == DialogResult.OK)
                     {
                         AnnotationOptions.SelectedStickerPack = stickerForm.SelectedStickerPack;
                         AnnotationOptions.StickerSize = stickerForm.StickerSize;
@@ -109,15 +105,15 @@ namespace ShareX.ScreenCaptureLib
         {
             if (!string.IsNullOrEmpty(filePath))
             {
-                Image img = ImageHelpers.LoadImage(filePath);
+                Bitmap bmp = ImageHelpers.LoadImage(filePath);
 
-                if (img != null)
+                if (bmp != null)
                 {
                     AnnotationOptions.LastStickerPath = filePath;
 
-                    img = ImageHelpers.ResizeImageLimit(img, stickerSize);
+                    bmp = ImageHelpers.ResizeImageLimit(bmp, stickerSize);
 
-                    SetImage(img, true);
+                    SetImage(bmp, true);
 
                     return true;
                 }

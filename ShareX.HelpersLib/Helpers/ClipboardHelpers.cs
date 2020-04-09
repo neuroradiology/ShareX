@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -36,7 +36,8 @@ namespace ShareX.HelpersLib
 {
     public static class ClipboardHelpers
     {
-        private const int RetryTimes = 20, RetryDelay = 100;
+        private const int RetryTimes = 20;
+        private const int RetryDelay = 100;
         private const string FORMAT_PNG = "PNG";
         private const string FORMAT_17 = "Format17";
 
@@ -108,11 +109,6 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    if (HelpersOptions.UseAlternativeCopyImage)
-                    {
-                        return CopyImageAlternative(img);
-                    }
-
                     if (HelpersOptions.DefaultCopyImageFillBackground)
                     {
                         return CopyImageDefaultFillBackground(img, Color.White);
@@ -201,6 +197,26 @@ namespace ShareX.HelpersLib
             return false;
         }
 
+        public static bool CopyImageFromFile(string path)
+        {
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+            {
+                try
+                {
+                    using (Bitmap bmp = ImageHelpers.LoadImage(path))
+                    {
+                        return CopyImage(bmp);
+                    }
+                }
+                catch (Exception e)
+                {
+                    DebugHelper.WriteException(e, "Clipboard copy image from file failed.");
+                }
+            }
+
+            return false;
+        }
+
         public static bool CopyTextFromFile(string path)
         {
             if (!string.IsNullOrEmpty(path) && File.Exists(path))
@@ -219,38 +235,16 @@ namespace ShareX.HelpersLib
             return false;
         }
 
-        public static bool CopyImageFromFile(string path)
-        {
-            if (!string.IsNullOrEmpty(path) && File.Exists(path))
-            {
-                try
-                {
-                    using (Image img = ImageHelpers.LoadImage(path))
-                    {
-                        return CopyImage(img);
-                    }
-                }
-                catch (Exception e)
-                {
-                    DebugHelper.WriteException(e, "Clipboard copy image from file failed.");
-                }
-            }
-
-            return false;
-        }
-
-        public static Image GetImage()
+        public static Bitmap GetImage(bool checkContainsImage = false)
         {
             try
             {
                 lock (ClipboardLock)
                 {
-                    if (HelpersOptions.UseAlternativeGetImage)
+                    if (!checkContainsImage || Clipboard.ContainsImage())
                     {
-                        return GetImageAlternative();
+                        return (Bitmap)Clipboard.GetImage();
                     }
-
-                    return Clipboard.GetImage();
                 }
             }
             catch (Exception e)
@@ -294,12 +288,7 @@ namespace ShareX.HelpersLib
                                 {
                                     try
                                     {
-                                        Image img = GetDIBImage(ms);
-
-                                        if (img != null)
-                                        {
-                                            return img;
-                                        }
+                                        return GetDIBImage(ms);
                                     }
                                     catch (Exception e)
                                     {
@@ -340,7 +329,7 @@ namespace ShareX.HelpersLib
 
                 using (Bitmap bmp = new Bitmap(infoHeader.biWidth, infoHeader.biHeight, -(int)(infoHeader.biSizeImage / infoHeader.biHeight),
                     infoHeader.biBitCount == 32 ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                    new IntPtr((long)handle.AddrOfPinnedObject() + infoHeader.OffsetToPixels + (infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight))))
+                    new IntPtr((long)handle.AddrOfPinnedObject() + infoHeader.OffsetToPixels + ((infoHeader.biHeight - 1) * (int)(infoHeader.biSizeImage / infoHeader.biHeight)))))
                 {
                     return new Bitmap(bmp);
                 }
@@ -352,6 +341,46 @@ namespace ShareX.HelpersLib
                     GCHandle.FromIntPtr(gcHandle).Free();
                 }
             }
+        }
+
+        public static string GetText(bool checkContainsText = false)
+        {
+            try
+            {
+                lock (ClipboardLock)
+                {
+                    if (!checkContainsText || Clipboard.ContainsText())
+                    {
+                        return Clipboard.GetText();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                DebugHelper.WriteException(e, "Clipboard get text failed.");
+            }
+
+            return null;
+        }
+
+        public static string[] GetFileDropList(bool checkContainsFileDropList = false)
+        {
+            try
+            {
+                lock (ClipboardLock)
+                {
+                    if (!checkContainsFileDropList || Clipboard.ContainsFileDropList())
+                    {
+                        return Clipboard.GetFileDropList().Cast<string>().ToArray();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                DebugHelper.WriteException(e, "Clipboard get file drop list failed.");
+            }
+
+            return null;
         }
     }
 }

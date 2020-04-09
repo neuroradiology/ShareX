@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
@@ -40,25 +39,13 @@ namespace ShareX.ImageEffectsLib
         [DefaultValue(ContentAlignment.BottomRight)]
         public ContentAlignment Placement { get; set; }
 
-        private Point offset;
-
         [DefaultValue(typeof(Point), "5, 5")]
-        public Point Offset
-        {
-            get
-            {
-                return offset;
-            }
-            set
-            {
-                offset = new Point(value.X.Min(0), value.Y.Min(0));
-            }
-        }
+        public Point Offset { get; set; }
 
         [DefaultValue(true), Description("If text watermark size bigger than source image then don't draw it.")]
         public bool AutoHide { get; set; }
 
-        [DefaultValue("getsharex.com"), Editor(typeof(NameParserEditor), typeof(UITypeEditor))]
+        [DefaultValue("Text watermark"), Editor(typeof(NameParserEditor), typeof(UITypeEditor))]
         public string Text { get; set; }
 
         private FontSafe textFontSafe = new FontSafe();
@@ -103,7 +90,7 @@ namespace ShareX.ImageEffectsLib
             }
             set
             {
-                cornerRadius = value.Min(0);
+                cornerRadius = value.Max(0);
             }
         }
 
@@ -131,7 +118,7 @@ namespace ShareX.ImageEffectsLib
         [DefaultValue(LinearGradientMode.Vertical)]
         public LinearGradientMode GradientType { get; set; }
 
-        [DefaultValue(typeof(Color), "0, 20, 40"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
+        [DefaultValue(typeof(Color), "0, 30, 80"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
         public Color BackgroundColor2 { get; set; }
 
         [DefaultValue(false)]
@@ -155,41 +142,41 @@ namespace ShareX.ImageEffectsLib
             Gradient.Colors.Add(new GradientStop(Color.FromArgb(23, 89, 174), 100f));
         }
 
-        public override Image Apply(Image img)
+        public override Bitmap Apply(Bitmap bmp)
         {
             if (string.IsNullOrEmpty(Text))
             {
-                return img;
+                return bmp;
             }
 
             using (Font textFont = TextFont)
             {
                 if (textFont == null || textFont.Size < 1)
                 {
-                    return img;
+                    return bmp;
                 }
 
                 NameParser parser = new NameParser(NameParserType.Text);
 
-                if (img != null)
+                if (bmp != null)
                 {
-                    parser.ImageWidth = img.Width;
-                    parser.ImageHeight = img.Height;
+                    parser.ImageWidth = bmp.Width;
+                    parser.ImageHeight = bmp.Height;
                 }
 
                 string parsedText = parser.Parse(Text);
 
                 Size textSize = Helpers.MeasureText(parsedText, textFont);
                 Size watermarkSize = new Size(Padding.Left + textSize.Width + Padding.Right, Padding.Top + textSize.Height + Padding.Bottom);
-                Point watermarkPosition = Helpers.GetPosition(Placement, Offset, img.Size, watermarkSize);
+                Point watermarkPosition = Helpers.GetPosition(Placement, Offset, bmp.Size, watermarkSize);
                 Rectangle watermarkRectangle = new Rectangle(watermarkPosition, watermarkSize);
 
-                if (AutoHide && !new Rectangle(0, 0, img.Width, img.Height).Contains(watermarkRectangle))
+                if (AutoHide && !new Rectangle(0, 0, bmp.Width, bmp.Height).Contains(watermarkRectangle))
                 {
-                    return img;
+                    return bmp;
                 }
 
-                using (Graphics g = Graphics.FromImage(img))
+                using (Graphics g = Graphics.FromImage(bmp))
                 {
                     g.SmoothingMode = SmoothingMode.HighQuality;
 
@@ -207,12 +194,7 @@ namespace ShareX.ImageEffectsLib
                                 {
                                     if (UseCustomGradient && Gradient != null && Gradient.IsValid)
                                     {
-                                        backgroundBrush = new LinearGradientBrush(watermarkRectangle, Color.Transparent, Color.Transparent, Gradient.Type);
-                                        ColorBlend colorBlend = new ColorBlend();
-                                        IEnumerable<GradientStop> gradient = Gradient.Colors.OrderBy(x => x.Location);
-                                        colorBlend.Colors = gradient.Select(x => x.Color).ToArray();
-                                        colorBlend.Positions = gradient.Select(x => x.Location / 100).ToArray();
-                                        ((LinearGradientBrush)backgroundBrush).InterpolationColors = colorBlend;
+                                        backgroundBrush = Gradient.GetGradientBrush(watermarkRectangle);
                                     }
                                     else
                                     {
@@ -234,7 +216,7 @@ namespace ShareX.ImageEffectsLib
 
                         if (DrawBorder)
                         {
-                            int borderSize = BorderSize.Min(1);
+                            int borderSize = BorderSize.Max(1);
 
                             if (borderSize.IsEvenNumber())
                             {
@@ -266,7 +248,7 @@ namespace ShareX.ImageEffectsLib
                 }
             }
 
-            return img;
+            return bmp;
         }
     }
 }

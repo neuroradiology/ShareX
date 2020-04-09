@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
@@ -32,14 +33,20 @@ namespace ShareX.ScreenCaptureLib
     public class LineDrawingShape : BaseDrawingShape
     {
         public const int MaximumCenterPointCount = 5;
+        private const int MinimumCollisionSize = 10;
 
         public override ShapeType ShapeType { get; } = ShapeType.DrawingLine;
 
-        public Point[] Points { get; private set; }
+        public Point[] Points { get; private set; } = new Point[2];
         public bool CenterNodeActive { get; private set; }
         public int CenterPointCount { get; private set; }
 
-        public override bool IsValidShape => Rectangle.Width > 1 || Rectangle.Height > 1;
+        public override bool IsValidShape => Rectangle.Width >= Options.MinimumSize || Rectangle.Height >= Options.MinimumSize;
+
+        protected override void UseLightResizeNodes()
+        {
+            ChangeNodeShape(NodeShape.Circle);
+        }
 
         private void AdjustPoints(int centerPointCount)
         {
@@ -49,11 +56,6 @@ namespace ShareX.ScreenCaptureLib
             {
                 newPoints[0] = Points[0];
                 newPoints[newPoints.Length - 1] = Points[Points.Length - 1];
-            }
-
-            for (int i = 0; i < newPoints.Length; i++)
-            {
-                if (newPoints[i] == null) newPoints[i] = new Point();
             }
 
             Points = newPoints;
@@ -76,12 +78,11 @@ namespace ShareX.ScreenCaptureLib
             base.OnConfigLoad();
 
             int previousCenterPointCount = CenterPointCount;
-            CenterPointCount = AnnotationOptions.LineCenterPointCount.Between(0, MaximumCenterPointCount);
-
-            AdjustPoints(CenterPointCount);
+            CenterPointCount = AnnotationOptions.LineCenterPointCount.Clamp(0, MaximumCenterPointCount);
 
             if (CenterPointCount != previousCenterPointCount)
             {
+                AdjustPoints(CenterPointCount);
                 CenterNodeActive = false;
                 AutoPositionCenterPoints();
             }
@@ -110,7 +111,22 @@ namespace ShareX.ScreenCaptureLib
             else
             {
                 AutoPositionCenterPoints();
-                Rectangle = Points.CreateRectangle();
+                CalculateRectangle();
+            }
+        }
+
+        private void CalculateRectangle()
+        {
+            Rectangle = Points.CreateRectangle();
+
+            if (Rectangle.Width < MinimumCollisionSize)
+            {
+                Rectangle = new Rectangle(Rectangle.X - (MinimumCollisionSize / 2), Rectangle.Y, Rectangle.Width + MinimumCollisionSize, Rectangle.Height);
+            }
+
+            if (Rectangle.Height < MinimumCollisionSize)
+            {
+                Rectangle = new Rectangle(Rectangle.X, Rectangle.Y - (MinimumCollisionSize / 2), Rectangle.Width, Rectangle.Height + MinimumCollisionSize);
             }
         }
 
@@ -121,6 +137,8 @@ namespace ShareX.ScreenCaptureLib
 
         protected void DrawLine(Graphics g)
         {
+            int borderSize = Math.Max(BorderSize, 1);
+
             if (Shadow)
             {
                 Point[] shadowPoints = new Point[Points.Length];
@@ -130,10 +148,10 @@ namespace ShareX.ScreenCaptureLib
                     shadowPoints[i] = Points[i].Add(ShadowOffset);
                 }
 
-                DrawLine(g, ShadowColor, BorderSize, shadowPoints);
+                DrawLine(g, ShadowColor, borderSize, shadowPoints);
             }
 
-            DrawLine(g, BorderColor, BorderSize, Points);
+            DrawLine(g, BorderColor, borderSize, Points);
         }
 
         protected void DrawLine(Graphics g, Color borderColor, int borderSize, Point[] points)

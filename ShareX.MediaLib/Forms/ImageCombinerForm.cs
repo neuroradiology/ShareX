@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -34,18 +34,42 @@ namespace ShareX.MediaLib
 {
     public partial class ImageCombinerForm : Form
     {
-        public event Action<Image> ProcessRequested;
+        public event Action<Bitmap> ProcessRequested;
 
         public ImageCombinerOptions Options { get; private set; }
 
         public ImageCombinerForm(ImageCombinerOptions options)
         {
             Options = options;
+
             InitializeComponent();
-            Icon = ShareXResources.Icon;
+            ShareXResources.ApplyTheme(this);
+
             cbOrientation.Items.AddRange(Enum.GetNames(typeof(Orientation)));
             cbOrientation.SelectedIndex = (int)Options.Orientation;
+            UpdateAlignmentComboBox();
             nudSpace.SetValue(Options.Space);
+        }
+
+        private void UpdateAlignmentComboBox()
+        {
+            cbAlignment.Items.Clear();
+
+            // TODO: Translate
+            if (Options.Orientation == Orientation.Horizontal)
+            {
+                cbAlignment.Items.Add("Top");
+                cbAlignment.Items.Add("Center");
+                cbAlignment.Items.Add("Bottom");
+            }
+            else
+            {
+                cbAlignment.Items.Add("Left");
+                cbAlignment.Items.Add("Center");
+                cbAlignment.Items.Add("Right");
+            }
+
+            cbAlignment.SelectedIndex = (int)Options.Alignment;
         }
 
         public ImageCombinerForm(ImageCombinerOptions options, IEnumerable<string> imageFiles) : this(options)
@@ -102,6 +126,12 @@ namespace ShareX.MediaLib
         private void cbOrientation_SelectedIndexChanged(object sender, EventArgs e)
         {
             Options.Orientation = (Orientation)cbOrientation.SelectedIndex;
+            UpdateAlignmentComboBox();
+        }
+
+        private void cbAlignment_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Options.Alignment = (ImageCombinerAlignment)cbAlignment.SelectedIndex;
         }
 
         private void nudSpace_ValueChanged(object sender, EventArgs e)
@@ -113,7 +143,7 @@ namespace ShareX.MediaLib
         {
             if (lvImages.Items.Count > 0)
             {
-                List<Image> images = new List<Image>();
+                List<Bitmap> images = new List<Bitmap>();
 
                 try
                 {
@@ -123,18 +153,18 @@ namespace ShareX.MediaLib
 
                         if (File.Exists(filePath))
                         {
-                            Image img = ImageHelpers.LoadImage(filePath);
+                            Bitmap bmp = ImageHelpers.LoadImage(filePath);
 
-                            if (img != null)
+                            if (bmp != null)
                             {
-                                images.Add(img);
+                                images.Add(bmp);
                             }
                         }
                     }
 
                     if (images.Count > 1)
                     {
-                        Image output = ImageHelpers.CombineImages(images, Options.Orientation, Options.Space);
+                        Bitmap output = ImageHelpers.CombineImages(images, Options.Orientation, Options.Alignment, Options.Space);
 
                         OnProcessRequested(output);
                     }
@@ -148,7 +178,7 @@ namespace ShareX.MediaLib
                 {
                     if (images != null)
                     {
-                        foreach (Image image in images)
+                        foreach (Bitmap image in images)
                         {
                             if (image != null)
                             {
@@ -160,11 +190,11 @@ namespace ShareX.MediaLib
             }
         }
 
-        protected void OnProcessRequested(Image image)
+        protected void OnProcessRequested(Bitmap bmp)
         {
             if (ProcessRequested != null)
             {
-                ProcessRequested(image);
+                ProcessRequested(bmp);
             }
         }
 

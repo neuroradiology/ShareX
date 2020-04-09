@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ShareX.HelpersLib
@@ -37,17 +38,29 @@ namespace ShareX.HelpersLib
         public delegate void SettingsSavedEventHandler(T settings, string filePath, bool result);
         public event SettingsSavedEventHandler SettingsSaved;
 
-        [Browsable(false)]
+        public delegate void SettingsSaveFailedEventHandler(Exception e);
+        public event SettingsSaveFailedEventHandler SettingsSaveFailed;
+
+        [Browsable(false), JsonIgnore]
         public string FilePath { get; private set; }
 
         [Browsable(false)]
         public string ApplicationVersion { get; set; }
 
-        [Browsable(false)]
+        [Browsable(false), JsonIgnore]
         public bool IsFirstTimeRun { get; private set; }
 
-        [Browsable(false)]
+        [Browsable(false), JsonIgnore]
         public bool IsUpgrade { get; private set; }
+
+        [Browsable(false), JsonIgnore]
+        public string BackupFolder { get; set; }
+
+        [Browsable(false), JsonIgnore]
+        public bool CreateBackup { get; set; }
+
+        [Browsable(false), JsonIgnore]
+        public bool CreateWeeklyBackup { get; set; }
 
         public bool IsUpgradeFrom(string version)
         {
@@ -62,12 +75,20 @@ namespace ShareX.HelpersLib
             }
         }
 
+        protected virtual void OnSettingsSaveFailed(Exception e)
+        {
+            if (SettingsSaveFailed != null)
+            {
+                SettingsSaveFailed(e);
+            }
+        }
+
         public bool Save(string filePath)
         {
             FilePath = filePath;
             ApplicationVersion = Application.ProductVersion;
 
-            bool result = SaveInternal(this, FilePath, true);
+            bool result = SaveInternal(FilePath);
 
             OnSettingsSaved(FilePath, result);
 
@@ -81,7 +102,7 @@ namespace ShareX.HelpersLib
 
         public void SaveAsync(string filePath)
         {
-            TaskEx.Run(() => Save(filePath));
+            Task.Run(() => Save(filePath));
         }
 
         public void SaveAsync()
@@ -89,24 +110,27 @@ namespace ShareX.HelpersLib
             SaveAsync(FilePath);
         }
 
-        public static T Load(string filePath)
+        public static T Load(string filePath, string backupFolder = null, bool createBackup = false, bool createWeeklyBackup = false)
         {
-            T setting = LoadInternal(filePath, true);
+            T setting = LoadInternal(filePath, backupFolder);
 
             if (setting != null)
             {
                 setting.FilePath = filePath;
                 setting.IsFirstTimeRun = string.IsNullOrEmpty(setting.ApplicationVersion);
                 setting.IsUpgrade = !setting.IsFirstTimeRun && Helpers.CompareApplicationVersion(setting.ApplicationVersion) < 0;
+                setting.BackupFolder = backupFolder;
+                setting.CreateBackup = createBackup;
+                setting.CreateWeeklyBackup = createWeeklyBackup;
             }
 
             return setting;
         }
 
-        private static bool SaveInternal(object obj, string filePath, bool createBackup)
+        private bool SaveInternal(string filePath)
         {
-            string typeName = obj.GetType().Name;
-            DebugHelper.WriteLine("{0} save started: {1}", typeName, filePath);
+            string typeName = GetType().Name;
+            DebugHelper.WriteLine($"{typeName} save started: {filePath}");
 
             bool isSuccess = false;
 
@@ -114,7 +138,7 @@ namespace ShareX.HelpersLib
             {
                 if (!string.IsNullOrEmpty(filePath))
                 {
-                    lock (obj)
+                    lock (this)
                     {
                         Helpers.CreateDirectoryFromFilePath(filePath);
 
@@ -124,27 +148,31 @@ namespace ShareX.HelpersLib
                         using (StreamWriter streamWriter = new StreamWriter(fileStream))
                         using (JsonTextWriter jsonWriter = new JsonTextWriter(streamWriter))
                         {
-                            jsonWriter.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                            jsonWriter.Formatting = Formatting.Indented;
-
                             JsonSerializer serializer = new JsonSerializer();
                             serializer.ContractResolver = new WritablePropertiesOnlyResolver();
                             serializer.Converters.Add(new StringEnumConverter());
-                            serializer.Serialize(jsonWriter, obj);
+                            serializer.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                            serializer.Formatting = Formatting.Indented;
+                            serializer.Serialize(jsonWriter, this);
                             jsonWriter.Flush();
                         }
 
                         if (File.Exists(filePath))
                         {
-                            if (createBackup)
+                            if (CreateBackup)
                             {
-                                File.Copy(filePath, filePath + ".bak", true);
+                                Helpers.CopyFile(filePath, BackupFolder);
                             }
 
                             File.Delete(filePath);
                         }
 
                         File.Move(tempFilePath, filePath);
+
+                        if (CreateWeeklyBackup && !string.IsNullOrEmpty(BackupFolder))
+                        {
+                            Helpers.BackupFileWeekly(filePath, BackupFolder);
+                        }
 
                         isSuccess = true;
                     }
@@ -153,71 +181,89 @@ namespace ShareX.HelpersLib
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
+
+                OnSettingsSaveFailed(e);
             }
             finally
             {
-                DebugHelper.WriteLine("{0} save {1}: {2}", typeName, isSuccess ? "successful" : "failed", filePath);
+                string status = isSuccess ? "successful" : "failed";
+                DebugHelper.WriteLine($"{typeName} save {status}: {filePath}");
             }
 
             return isSuccess;
         }
 
-        private static T LoadInternal(string filePath, bool checkBackup)
+        private static T LoadInternal(string filePath, string backupFolder = null)
         {
             string typeName = typeof(T).Name;
 
-            if (!string.IsNullOrEmpty(filePath))
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
-                DebugHelper.WriteLine("{0} load started: {1}", typeName, filePath);
+                DebugHelper.WriteLine($"{typeName} load started: {filePath}");
 
                 try
                 {
-                    if (File.Exists(filePath))
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        if (fileStream.Length > 0)
                         {
-                            if (fileStream.Length > 0)
+                            T settings;
+
+                            using (StreamReader streamReader = new StreamReader(fileStream))
+                            using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
                             {
-                                T settings;
-
-                                using (StreamReader streamReader = new StreamReader(fileStream))
-                                using (JsonTextReader jsonReader = new JsonTextReader(streamReader))
-                                {
-                                    jsonReader.DateTimeZoneHandling = DateTimeZoneHandling.Local;
-
-                                    JsonSerializer serializer = new JsonSerializer();
-                                    serializer.Converters.Add(new StringEnumConverter());
-                                    serializer.ObjectCreationHandling = ObjectCreationHandling.Replace;
-                                    serializer.Error += (sender, e) => e.ErrorContext.Handled = true;
-                                    settings = serializer.Deserialize<T>(jsonReader);
-                                }
-
-                                if (settings == null)
-                                {
-                                    throw new Exception(typeName + " object is null.");
-                                }
-
-                                DebugHelper.WriteLine("{0} load finished: {1}", typeName, filePath);
-
-                                return settings;
+                                JsonSerializer serializer = new JsonSerializer();
+                                serializer.Converters.Add(new StringEnumConverter());
+                                serializer.DateTimeZoneHandling = DateTimeZoneHandling.Local;
+                                serializer.ObjectCreationHandling = ObjectCreationHandling.Replace;
+                                serializer.Error += Serializer_Error;
+                                settings = serializer.Deserialize<T>(jsonReader);
                             }
+
+                            if (settings == null)
+                            {
+                                throw new Exception($"{typeName} object is null.");
+                            }
+
+                            DebugHelper.WriteLine($"{typeName} load finished: {filePath}");
+
+                            return settings;
+                        }
+                        else
+                        {
+                            throw new Exception($"{typeName} file stream length is 0.");
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    DebugHelper.WriteException(e, typeName + " load failed: " + filePath);
-                }
-
-                if (checkBackup)
-                {
-                    return LoadInternal(filePath + ".bak", false);
+                    DebugHelper.WriteException(e, $"{typeName} load failed: {filePath}");
                 }
             }
+            else
+            {
+                DebugHelper.WriteLine($"{typeName} file does not exist: {filePath}");
+            }
 
-            DebugHelper.WriteLine("{0} not found. Loading new instance.", typeName);
+            if (!string.IsNullOrEmpty(backupFolder))
+            {
+                string fileName = Path.GetFileName(filePath);
+                string backupFilePath = Path.Combine(backupFolder, fileName);
+                return LoadInternal(backupFilePath);
+            }
+
+            DebugHelper.WriteLine($"Loading new {typeName} instance.");
 
             return new T();
+        }
+
+        private static void Serializer_Error(object sender, Newtonsoft.Json.Serialization.ErrorEventArgs e)
+        {
+            // Handle missing enum values
+            if (e.ErrorContext.Error.Message.StartsWith("Error converting value"))
+            {
+                e.ErrorContext.Handled = true;
+            }
         }
     }
 }

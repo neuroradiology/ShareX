@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -26,12 +26,9 @@
 using ShareX.HelpersLib;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace ShareX.ScreenCaptureLib
@@ -52,8 +49,9 @@ namespace ShareX.ScreenCaptureLib
             StickerSize = stickerSize;
 
             InitializeComponent();
-            Icon = ShareXResources.Icon;
-            tsMain.Renderer = new CustomToolStripProfessionalRenderer();
+            tsMain.Renderer = new ToolStripRoundedEdgeRenderer();
+            ShareXResources.ApplyTheme(this);
+
             tsnudSize.NumericUpDownControl.Minimum = 16;
             tsnudSize.NumericUpDownControl.Maximum = 256;
             tsnudSize.NumericUpDownControl.Increment = 16;
@@ -183,7 +181,7 @@ namespace ShareX.ScreenCaptureLib
         {
             using (StickerPackForm stickerPackForm = new StickerPackForm(StickerPacks))
             {
-                stickerPackForm.ShowDialog();
+                stickerPackForm.ShowDialog(this);
 
                 UpdateStickerPacks();
             }

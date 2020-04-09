@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
+using ShareX.HistoryLib;
 using ShareX.ScreenCaptureLib;
 using ShareX.UploadersLib;
 using ShareX.UploadersLib.FileUploaders;
@@ -31,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ShareX
@@ -95,7 +97,7 @@ namespace ShareX
             }
         }
 
-        private static string BackupFolder => Path.Combine(Program.PersonalFolder, "Backup");
+        public static string BackupFolder => Path.Combine(Program.PersonalFolder, "Backup");
 
         private static ApplicationConfig Settings { get => Program.Settings; set => Program.Settings = value; }
         private static TaskSettings DefaultTaskSettings { get => Program.DefaultTaskSettings; set => Program.DefaultTaskSettings = value; }
@@ -105,18 +107,17 @@ namespace ShareX
         private static ManualResetEvent uploadersConfigResetEvent = new ManualResetEvent(false);
         private static ManualResetEvent hotkeysConfigResetEvent = new ManualResetEvent(false);
 
+        private const int SettingsSaveFailWarningLimit = 3;
+        private static int settingsSaveFailWarningCount;
+
         public static void LoadInitialSettings()
         {
             LoadApplicationConfig();
 
-            ApplicationConfigBackwardCompatibilityTasks();
-
-            TaskEx.Run(() =>
+            Task.Run(() =>
             {
                 LoadUploadersConfig();
                 uploadersConfigResetEvent.Set();
-
-                UploadersConfigBackwardCompatibilityTasks();
 
                 LoadHotkeysConfig();
                 hotkeysConfigResetEvent.Set();
@@ -141,18 +142,47 @@ namespace ShareX
 
         public static void LoadApplicationConfig()
         {
-            Settings = ApplicationConfig.Load(ApplicationConfigFilePath);
+            Settings = ApplicationConfig.Load(ApplicationConfigFilePath, BackupFolder, true, true);
+            Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
             DefaultTaskSettings = Settings.DefaultTaskSettings;
+            ApplicationConfigBackwardCompatibilityTasks();
+            MigrateHistoryFile();
+        }
+
+        private static void Settings_SettingsSaveFailed(Exception e)
+        {
+            if (settingsSaveFailWarningCount == SettingsSaveFailWarningLimit) return;
+
+            string message;
+
+            if (e is UnauthorizedAccessException || e is FileNotFoundException)
+            {
+                message = "Your anti-virus software or the controlled folder access feature in Windows 10 could be blocking ShareX.";
+            }
+            else
+            {
+                message = e.Message;
+            }
+
+            BalloonTipAction action = new BalloonTipAction()
+            {
+                ClickAction = BalloonTipClickAction.OpenDebugLog
+            };
+
+            TaskHelpers.ShowBalloonTip(message, ToolTipIcon.Warning, 5000, "ShareX failed to save settings", action);
+
+            settingsSaveFailWarningCount++;
         }
 
         public static void LoadUploadersConfig()
         {
-            UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath);
+            UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, BackupFolder, true, true);
+            UploadersConfigBackwardCompatibilityTasks();
         }
 
         public static void LoadHotkeysConfig()
         {
-            HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath);
+            HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, BackupFolder, true, true);
         }
 
         public static void LoadAllSettings()
@@ -178,6 +208,33 @@ namespace ShareX
                 {
                     IntegrationHelpers.CreateChromeExtensionSupport(true);
                 }
+            }
+
+            if (Settings.IsUpgradeFrom("13.0.2"))
+            {
+                Settings.UseCustomTheme = Settings.UseDarkTheme;
+            }
+        }
+
+        private static void MigrateHistoryFile()
+        {
+            if (File.Exists(Program.HistoryFilePathOld))
+            {
+                if (!File.Exists(Program.HistoryFilePath))
+                {
+                    DebugHelper.WriteLine($"Migrating XML history file \"{Program.HistoryFilePathOld}\" to JSON history file \"{Program.HistoryFilePath}\"");
+
+                    HistoryManagerXML historyManagerXML = new HistoryManagerXML(Program.HistoryFilePathOld);
+                    List<HistoryItem> historyItems = historyManagerXML.GetHistoryItems();
+
+                    if (historyItems.Count > 0)
+                    {
+                        HistoryManagerJSON historyManagerJSON = new HistoryManagerJSON(Program.HistoryFilePath);
+                        historyManagerJSON.AppendHistoryItems(historyItems);
+                    }
+                }
+
+                Helpers.MoveFile(Program.HistoryFilePathOld, BackupFolder);
             }
         }
 
@@ -211,6 +268,14 @@ namespace ShareX
                     }
                 }
             }
+
+            if (UploadersConfig.CustomUploadersList != null)
+            {
+                foreach (CustomUploaderItem cui in UploadersConfig.CustomUploadersList)
+                {
+                    cui.CheckBackwardCompatibility();
+                }
+            }
         }
 
         public static void SaveAllSettings()
@@ -242,52 +307,38 @@ namespace ShareX
             SaveHotkeysConfigAsync();
         }
 
-        public static void BackupSettings()
-        {
-            Helpers.BackupFileWeekly(ApplicationConfigFilePath, BackupFolder);
-            Helpers.BackupFileWeekly(UploadersConfigFilePath, BackupFolder);
-            Helpers.BackupFileWeekly(HotkeysConfigFilePath, BackupFolder);
-            Helpers.BackupFileWeekly(Program.HistoryFilePath, BackupFolder);
-        }
-
         public static void ResetSettings()
         {
-            Settings = new ApplicationConfig();
-            DefaultTaskSettings = Settings.DefaultTaskSettings;
-            UploadersConfig = new UploadersConfig();
-            HotkeysConfig = new HotkeysConfig();
+            if (File.Exists(ApplicationConfigFilePath)) File.Delete(ApplicationConfigFilePath);
+            LoadApplicationConfig();
+
+            if (File.Exists(UploadersConfigFilePath)) File.Delete(UploadersConfigFilePath);
+            LoadUploadersConfig();
+
+            if (File.Exists(HotkeysConfigFilePath)) File.Delete(HotkeysConfigFilePath);
+            LoadHotkeysConfig();
         }
 
-        public static bool Export(string archivePath)
+        public static bool Export(string archivePath, bool settings, bool history)
         {
             try
             {
-                if (File.Exists(archivePath))
-                {
-                    File.Delete(archivePath);
-                }
-
                 List<string> files = new List<string>();
 
-                if (Settings.ExportSettings)
+                if (settings)
                 {
                     files.Add(ApplicationConfigFilename);
                     files.Add(HotkeysConfigFilename);
                     files.Add(UploadersConfigFilename);
                 }
 
-                if (Settings.ExportHistory)
+                if (history)
                 {
                     files.Add(Program.HistoryFilename);
                 }
 
-                if (Settings.ExportLogs)
-                {
-                    files.Add($"{Program.LogsFoldername}\\*.txt");
-                }
-
-                SevenZipManager sevenZipManager = new SevenZipManager();
-                return sevenZipManager.Compress(archivePath, files, Program.PersonalFolder);
+                ZipManager.Compress(archivePath, files, Program.PersonalFolder);
+                return true;
             }
             catch (Exception e)
             {
@@ -302,8 +353,8 @@ namespace ShareX
         {
             try
             {
-                SevenZipManager sevenZipManager = new SevenZipManager();
-                return sevenZipManager.Extract(archivePath, Program.PersonalFolder);
+                ZipManager.Extract(archivePath, Program.PersonalFolder);
+                return true;
             }
             catch (Exception e)
             {

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
@@ -33,10 +32,9 @@ namespace ShareX.ScreenCaptureLib
 {
     public static class RegionCaptureTasks
     {
-        public static Image GetRegionImage(RegionCaptureOptions options)
+        public static Bitmap GetRegionImage(RegionCaptureOptions options)
         {
             RegionCaptureOptions newOptions = GetRegionCaptureOptions(options);
-            newOptions.ShowHotkeys = false;
 
             using (RegionCaptureForm form = new RegionCaptureForm(RegionCaptureMode.Default, newOptions))
             {
@@ -49,7 +47,6 @@ namespace ShareX.ScreenCaptureLib
         public static bool GetRectangleRegion(out Rectangle rect, RegionCaptureOptions options)
         {
             RegionCaptureOptions newOptions = GetRegionCaptureOptions(options);
-            newOptions.ShowHotkeys = false;
 
             using (RegionCaptureForm form = new RegionCaptureForm(RegionCaptureMode.Default, newOptions))
             {
@@ -90,14 +87,29 @@ namespace ShareX.ScreenCaptureLib
             return false;
         }
 
-        public static PointInfo GetPointInfo(RegionCaptureOptions options)
+
+        public static bool GetRectangleRegionTransparent(out Rectangle rect)
+        {
+            using (RegionCaptureTransparentForm regionCaptureTransparentForm = new RegionCaptureTransparentForm())
+            {
+                if (regionCaptureTransparentForm.ShowDialog() == DialogResult.OK)
+                {
+                    rect = regionCaptureTransparentForm.SelectionRectangle;
+                    return true;
+                }
+            }
+
+            rect = Rectangle.Empty;
+            return false;
+        }
+
+        public static PointInfo GetPointInfo(RegionCaptureOptions options, Bitmap canvas = null)
         {
             RegionCaptureOptions newOptions = GetRegionCaptureOptions(options);
             newOptions.DetectWindows = false;
-            newOptions.ShowHotkeys = false;
             newOptions.UseDimming = false;
 
-            using (RegionCaptureForm form = new RegionCaptureForm(RegionCaptureMode.ScreenColorPicker, newOptions))
+            using (RegionCaptureForm form = new RegionCaptureForm(RegionCaptureMode.ScreenColorPicker, newOptions, canvas))
             {
                 form.ShowDialog();
 
@@ -105,7 +117,7 @@ namespace ShareX.ScreenCaptureLib
                 {
                     PointInfo pointInfo = new PointInfo();
                     pointInfo.Position = form.CurrentPosition;
-                    pointInfo.Color = form.CurrentColor;
+                    pointInfo.Color = form.ShapeManager.GetCurrentColor();
                     return pointInfo;
                 }
             }
@@ -118,7 +130,6 @@ namespace ShareX.ScreenCaptureLib
             RegionCaptureOptions newOptions = GetRegionCaptureOptions(options);
             newOptions.UseDimming = false;
             newOptions.ShowMagnifier = false;
-            newOptions.ShowHotkeys = false;
 
             using (RegionCaptureForm form = new RegionCaptureForm(RegionCaptureMode.OneClick, newOptions))
             {
@@ -133,11 +144,29 @@ namespace ShareX.ScreenCaptureLib
             return null;
         }
 
+        public static void ShowScreenColorPickerDialog(RegionCaptureOptions options, bool checkClipboard = true)
+        {
+            Color color = Color.Red;
+
+            if (checkClipboard)
+            {
+                string text = ClipboardHelpers.GetText(true);
+
+                if (!string.IsNullOrEmpty(text) && ColorHelpers.ParseColor(text, out Color clipboardColor))
+                {
+                    color = clipboardColor;
+                }
+            }
+
+            ColorPickerForm colorPickerForm = new ColorPickerForm(color, true);
+            colorPickerForm.EnableScreenColorPickerButton(() => GetPointInfo(options));
+            colorPickerForm.Show();
+        }
+
         public static void ShowScreenRuler(RegionCaptureOptions options)
         {
             RegionCaptureOptions newOptions = GetRegionCaptureOptions(options);
             newOptions.QuickCrop = false;
-            newOptions.ShowHotkeys = false;
 
             using (RegionCaptureForm form = new RegionCaptureForm(RegionCaptureMode.Ruler, newOptions))
             {
@@ -145,9 +174,9 @@ namespace ShareX.ScreenCaptureLib
             }
         }
 
-        public static Image ApplyRegionPathToImage(Image img, GraphicsPath gp, out Rectangle resultArea)
+        public static Bitmap ApplyRegionPathToImage(Bitmap bmp, GraphicsPath gp, out Rectangle resultArea)
         {
-            if (img != null && gp != null)
+            if (bmp != null && gp != null)
             {
                 Rectangle regionArea = Rectangle.Round(gp.GetBounds());
                 Rectangle screenRectangle = CaptureHelpers.GetScreenBounds0Based();
@@ -155,16 +184,16 @@ namespace ShareX.ScreenCaptureLib
 
                 if (resultArea.IsValid())
                 {
-                    using (Bitmap bmp = img.CreateEmptyBitmap())
-                    using (Graphics g = Graphics.FromImage(bmp))
-                    using (TextureBrush brush = new TextureBrush(img))
+                    using (Bitmap bmpResult = bmp.CreateEmptyBitmap())
+                    using (Graphics g = Graphics.FromImage(bmpResult))
+                    using (TextureBrush brush = new TextureBrush(bmp))
                     {
                         g.PixelOffsetMode = PixelOffsetMode.Half;
                         g.SmoothingMode = SmoothingMode.HighQuality;
 
                         g.FillPath(brush, gp);
 
-                        return ImageHelpers.CropBitmap(bmp, resultArea);
+                        return ImageHelpers.CropBitmap(bmpResult, resultArea);
                     }
                 }
             }

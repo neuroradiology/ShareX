@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2018 ShareX Team
+    Copyright (c) 2007-2020 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ namespace ShareX.ScreenCaptureLib
 
         public override bool LimitRectangleToInsideCanvas { get; } = true;
 
-        private ButtonObject confirmButton, cancelButton;
+        private ImageEditorButton confirmButton, cancelButton;
         private Size buttonSize = new Size(80, 40);
         private int buttonOffset = 15;
 
@@ -46,17 +46,17 @@ namespace ShareX.ScreenCaptureLib
             if (confirmButton != null && cancelButton != null)
             {
                 if (Rectangle.Bottom + buttonOffset + buttonSize.Height > Manager.Form.ClientArea.Bottom &&
-                    Rectangle.Width > buttonSize.Width * 2 + buttonOffset * 3 &&
-                    Rectangle.Height > buttonSize.Height + buttonOffset * 2)
+                    Rectangle.Width > (buttonSize.Width * 2) + (buttonOffset * 3) &&
+                    Rectangle.Height > buttonSize.Height + (buttonOffset * 2))
                 {
-                    confirmButton.Rectangle = new Rectangle(Rectangle.Right - buttonOffset * 2 - buttonSize.Width * 2,
+                    confirmButton.Rectangle = new Rectangle(Rectangle.Right - (buttonOffset * 2) - (buttonSize.Width * 2),
                         Rectangle.Bottom - buttonOffset - buttonSize.Height, buttonSize.Width, buttonSize.Height);
                     cancelButton.Rectangle = new Rectangle(Rectangle.Right - buttonOffset - buttonSize.Width,
                         Rectangle.Bottom - buttonOffset - buttonSize.Height, buttonSize.Width, buttonSize.Height);
                 }
                 else
                 {
-                    confirmButton.Rectangle = new Rectangle(Rectangle.Right - buttonSize.Width * 2 - buttonOffset,
+                    confirmButton.Rectangle = new Rectangle(Rectangle.Right - (buttonSize.Width * 2) - buttonOffset,
                         Rectangle.Bottom + buttonOffset, buttonSize.Width, buttonSize.Height);
                     cancelButton.Rectangle = new Rectangle(Rectangle.Right - buttonSize.Width,
                         Rectangle.Bottom + buttonOffset, buttonSize.Width, buttonSize.Height);
@@ -75,7 +75,7 @@ namespace ShareX.ScreenCaptureLib
 
         public override void OnCreated()
         {
-            confirmButton = new ButtonObject()
+            confirmButton = new ImageEditorButton()
             {
                 Text = "\u2714",
                 ButtonColor = Color.ForestGreen,
@@ -87,7 +87,7 @@ namespace ShareX.ScreenCaptureLib
             confirmButton.MouseLeave += () => Manager.Form.SetDefaultCursor();
             Manager.DrawableObjects.Add(confirmButton);
 
-            cancelButton = new ButtonObject()
+            cancelButton = new ImageEditorButton()
             {
                 Text = "\u2716",
                 ButtonColor = Color.FromArgb(227, 45, 45),
@@ -109,6 +109,16 @@ namespace ShareX.ScreenCaptureLib
         private void CancelButton_MousePressed(object sender, MouseEventArgs e)
         {
             Remove();
+        }
+
+        public override void Remove()
+        {
+            base.Remove();
+
+            if (Options.SwitchToSelectionToolAfterDrawing)
+            {
+                Manager.CurrentTool = ShapeType.ToolSelect;
+            }
         }
 
         public override void Dispose()

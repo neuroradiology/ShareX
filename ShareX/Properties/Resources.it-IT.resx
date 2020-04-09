@@ -136,9 +136,6 @@ Sei sicuro di voler continuare?</value>
   <data name="UploadTask_CreateURLShortenerTask_Shorten_URL___0__" xml:space="preserve">
     <value>Accorcia URL ({0})</value>
   </data>
-  <data name="ScreenRecordForm_StartRecording_There_is_no_valid_CLI_video_encoder_selected_" xml:space="preserve">
-    <value>Nessun codificatore video CLI valido selezionato</value>
-  </data>
   <data name="UploadTask_DoUploadJob_First_time_upload_warning_text" xml:space="preserve">
     <value>Sei sicuro di voler caricare questo screenshot?
 Premi "No" per annullare il caricamento e disabilitare il caricamento automatico degli screenshot.</value>
@@ -148,9 +145,6 @@ Premi "No" per annullare il caricamento e disabilitare il caricamento automatico
   </data>
   <data name="ScreenRecordForm_StartRecording_FFmpeg_error" xml:space="preserve">
     <value>Errore FFmpeg</value>
-  </data>
-  <data name="TaskHelpers_OpenFTPClient_Unable_to_find_valid_FTP_account_" xml:space="preserve">
-    <value>Impossibile trovare un account FTP valido.</value>
   </data>
   <data name="TaskManager_task_UploadCompleted_ShareX___Task_completed" xml:space="preserve">
     <value>Operazione completata</value>
@@ -233,12 +227,6 @@ Vuoi scaricarlo automaticamente?</value>
   <data name="ScreenRecordForm_StartRecording_Waiting___" xml:space="preserve">
     <value>Attendere...</value>
   </data>
-  <data name="TaskHelpers_OpenImageEditor_Your_clipboard_contains_image" xml:space="preserve">
-    <value>Gli appunti contengono un'immagine, vuoi aprirla nell'editor di immagini?
-
-Premi "Sì" per aprire l'immagine dagli appunti.
-Premi "No" per aprire la finestra di dialogo delle immagini.</value>
-  </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_Image_uploader___0_" xml:space="preserve">
     <value>Servizio di Caricamento Immagini: {0}</value>
   </data>
@@ -291,9 +279,6 @@ Qui</value>
   <data name="HotkeyManager_ShowFailedHotkeys_hotkeys" xml:space="preserve">
     <value>scorciatoie</value>
   </data>
-  <data name="EncoderProgramForm_btnOK_Click_Path_can_t_be_empty_" xml:space="preserve">
-    <value>Il per corso non può essere vuoto.</value>
-  </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_File_uploader___0_" xml:space="preserve">
     <value>Servizio Caricamento File: {0}</value>
   </data>
@@ -302,9 +287,6 @@ Qui</value>
   </data>
   <data name="TaskHelpers_TweetMessage_Tweet_successfully_sent_" xml:space="preserve">
     <value>Tweet inviato.</value>
-  </data>
-  <data name="EncoderProgramForm_btnPathBrowse_Click_Choose_encoder_path" xml:space="preserve">
-    <value>Scegli Percorso Codificatore</value>
   </data>
   <data name="TaskManager_task_UploadCompleted_Error" xml:space="preserve">
     <value>Errore</value>
@@ -322,9 +304,6 @@ Esegui ShareX come amministratore per cambiare il percorso della cartella person
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_URL_sharing_service___0_" xml:space="preserve">
     <value>Servizio Condivisione URL: {0}</value>
   </data>
-  <data name="ScreenRecordForm_StartRecording_CLI_video_encoder_file_does_not_exist__" xml:space="preserve">
-    <value>Il file del codificatore video CLI non esiste:</value>
-  </data>
   <data name="TaskManager_CreateListViewItem_History" xml:space="preserve">
     <value>Cronologia</value>
   </data>
@@ -333,9 +312,6 @@ Esegui ShareX come amministratore per cambiare il percorso della cartella person
   </data>
   <data name="MainForm_UpdateWorkflowsMenu_You_can_add_workflows_from_hotkey_settings___" xml:space="preserve">
     <value>Puoi aggiungere Workflow da "Impostazioni Scorciatoie"</value>
-  </data>
-  <data name="TaskHelpers_OpenFTPClient_FTP_client_only_supports_FTP_or_FTPS_" xml:space="preserve">
-    <value>Il client FTP supporta solo FTP e FTPS</value>
   </data>
   <data name="ImageData_Write_Error" xml:space="preserve">
     <value>Impossibile scrivere l'immagine nel percorso {0}</value>
@@ -350,14 +326,8 @@ Riavviare ShareX?</value>
   <data name="FileExistForm_txtNewName_TextChanged_Use_new_name__" xml:space="preserve">
     <value>Usa un Nuovo Nome:</value>
   </data>
-  <data name="ScreenColorPicker_UpdateControls_Stop_screen_color_picker" xml:space="preserve">
-    <value>Ferma Cattura Colore</value>
-  </data>
   <data name="ScreenRecordForm_StartRecording_Missing" xml:space="preserve">
     <value>Mancante</value>
-  </data>
-  <data name="ScreenColorPicker_btnCopyAll_Click_Cursor_position" xml:space="preserve">
-    <value>Posizione Cursore (X, Y) = {0}, {1}</value>
   </data>
   <data name="AboutForm_AboutForm_Translators" xml:space="preserve">
     <value>Traduttori</value>
@@ -368,9 +338,6 @@ Riavviare ShareX?</value>
   <data name="ChromeForm_btnRegister_Click_Chrome_support_enabled_" xml:space="preserve">
     <value>Supporto Chrome abilitato.</value>
   </data>
-  <data name="EncoderProgramForm_btnOK_Click_Extension_can_t_be_empty_" xml:space="preserve">
-    <value>L'estensione non può essere vuota.</value>
-  </data>
   <data name="UploadManager_UploadFolder_Folder_upload" xml:space="preserve">
     <value>Carica Cartella</value>
   </data>
@@ -379,9 +346,6 @@ Riavviare ShareX?</value>
   </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_After_capture___0_" xml:space="preserve">
     <value>Dopo la Cattura: {0}</value>
-  </data>
-  <data name="TaskSettingsForm_ConfigureEncoder_Configure_CLI_video_encoders_____" xml:space="preserve">
-    <value>Configura Codificatore Video CLI ---&gt;</value>
   </data>
   <data name="TaskSettingsForm_UpdateUploaderMenuNames_URL_shortener___0_" xml:space="preserve">
     <value>Servizio Accorciamento URL: {0}</value>
@@ -397,9 +361,6 @@ Riavviare ShareX?</value>
   </data>
   <data name="MainForm_UpdateMainFormTip_Currently_configured_hotkeys_" xml:space="preserve">
     <value>Scorciatoie Configurate:</value>
-  </data>
-  <data name="ScreenColorPicker_ScreenColorPicker_Close" xml:space="preserve">
-    <value>Chiudi</value>
   </data>
   <data name="RecentManager_UpdateRecentMenu_Left_click_to_copy_URL_to_clipboard__Right_click_to_open_URL_" xml:space="preserve">
     <value>Click Sinistro per Copiare URL negli Appunti. Click Destro per Aprire URL</value>
@@ -456,9 +417,6 @@ Riavviare ShareX?</value>
   <data name="UploadTask_DownloadAndUpload_Downloading" xml:space="preserve">
     <value>Scaricamento</value>
   </data>
-  <data name="TaskHelpers_OpenImageEditor_Image_editor___How_to_load_image_" xml:space="preserve">
-    <value>Editor Immagini - Come caricare un'immagine?</value>
-  </data>
   <data name="QuickTaskMenu_ShowMenu_Continue" xml:space="preserve">
     <value>Continua</value>
   </data>
@@ -482,9 +440,6 @@ Riavviare ShareX?</value>
   </data>
   <data name="ScreenRecordForm_DownloaderForm_InstallRequested_Download_of_FFmpeg_failed_" xml:space="preserve">
     <value>Scaricamento FFmpeg fallito.</value>
-  </data>
-  <data name="ScreenColorPicker_UpdateControls_Start_screen_color_picker" xml:space="preserve">
-    <value>Avvia Cattura Colore</value>
   </data>
   <data name="IntegrationHelpers_UploadWithShareX" xml:space="preserve">
     <value>Carica con ShareX</value>

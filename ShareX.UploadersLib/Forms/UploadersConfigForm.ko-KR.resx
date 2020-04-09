@@ -117,15 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="cbAmazonS3UseRRS.Text" xml:space="preserve">
-    <value>여분 저장소 사용 줄이기</value>
-  </data>
-  <data name="cbAmazonS3UseRRS.ToolTip" xml:space="preserve">
-    <value>저장된 오브젝트에 대해 여분 저장소 사용을 줄입니다.
-이 설정을 사용하면 오브젝트를 저장하는 비용이 줄어들지만,
-가용성이 99.999999999%에서 99.99%로 줄어듦니다.
-이것은 Amazon S3에서 오브젝트를 잃어버릴 수 있는 가능성이 생긴다는 뜻입니다.</value>
-  </data>
   <data name="cbAmazonS3CustomCNAME.Text" xml:space="preserve">
     <value>커스텀 도메인 사용:</value>
   </data>
@@ -140,95 +131,11 @@
   <data name="tpURLShorteners.Text" xml:space="preserve">
     <value>URL 단축기</value>
   </data>
-  <data name="btnCustomUploaderAdd.Text" xml:space="preserve">
-    <value>추가</value>
-  </data>
-  <data name="btnCustomUploaderUpdate.Text" xml:space="preserve">
-    <value>갱신</value>
-  </data>
-  <data name="btnCustomUploaderRemove.Text" xml:space="preserve">
-    <value>삭제</value>
-  </data>
-  <data name="gbCustomUploaders.Text" xml:space="preserve">
-    <value>업로더</value>
-  </data>
-  <data name="btnCustomUploaderArgRemove.Text" xml:space="preserve">
-    <value>삭제</value>
-  </data>
-  <data name="btnCustomUploaderArgAdd.Text" xml:space="preserve">
-    <value>추가</value>
-  </data>
-  <data name="btnCustomUploaderRegexpRemove.Text" xml:space="preserve">
-    <value>삭제</value>
-  </data>
-  <data name="btnCustomUploaderRegexpAdd.Text" xml:space="preserve">
-    <value>추가</value>
-  </data>
-  <data name="tpCustomUploaders.Text" xml:space="preserve">
-    <value>사용자 정의 업로더</value>
-  </data>
-  <data name="btnCustomUploaderExamples.Text" xml:space="preserve">
-    <value>예시 보기...</value>
-  </data>
-  <data name="btnCustomUploaderHelp.Text" xml:space="preserve">
-    <value>도움말...</value>
-  </data>
-  <data name="btnCustomUploaderClear.Text" xml:space="preserve">
-    <value>필드 전부 초기화 --&gt;</value>
-  </data>
-  <data name="lblCustomUploaderImageUploader.Text" xml:space="preserve">
-    <value>이미지 업로더:</value>
-  </data>
-  <data name="btnCustomUploaderFileUploaderTest.Text" xml:space="preserve">
-    <value>테스트</value>
-  </data>
-  <data name="lblCustomUploaderFileUploader.Text" xml:space="preserve">
-    <value>파일 업로더:</value>
-  </data>
-  <data name="btnCustomUploaderImageUploaderTest.Text" xml:space="preserve">
-    <value>테스트</value>
-  </data>
-  <data name="lblCustomUploaderTestResult.Text" xml:space="preserve">
-    <value>테스트 결과:</value>
-  </data>
-  <data name="lblCustomUploaderDeletionURL.Text" xml:space="preserve">
-    <value>파일 제거 URL:</value>
-  </data>
-  <data name="btnCustomUploaderShowLastResponse.Text" xml:space="preserve">
-    <value>마지막 응답 보기...</value>
-  </data>
-  <data name="lblCustomUploaderResponseType.Text" xml:space="preserve">
-    <value>응답 형식:</value>
-  </data>
-  <data name="lblCustomUploaderTextUploader.Text" xml:space="preserve">
-    <value>텍스트 업로더:</value>
-  </data>
-  <data name="lblCustomUploaderRequestURL.Text" xml:space="preserve">
-    <value>요청 URL</value>
-  </data>
-  <data name="btnCustomUploaderURLShortenerTest.Text" xml:space="preserve">
-    <value>테스트</value>
-  </data>
-  <data name="lblCustomUploaderURLShortener.Text" xml:space="preserve">
-    <value>URL 단축기:</value>
-  </data>
-  <data name="btnCustomUploaderTextUploaderTest.Text" xml:space="preserve">
-    <value>테스트</value>
-  </data>
-  <data name="lblCustomUploaderThumbnailURL.Text" xml:space="preserve">
-    <value>섬네일 URL:</value>
-  </data>
-  <data name="lblCustomUploaderFileForm.Text" xml:space="preserve">
-    <value>파일 폼 항목명:</value>
-  </data>
-  <data name="lblCustomUploaderRequestType.Text" xml:space="preserve">
-    <value>요청 타입:</value>
-  </data>
   <data name="lblBitlyDomain.Text" xml:space="preserve">
     <value>도메인:</value>
   </data>
   <data name="lblYourlsNote.Text" xml:space="preserve">
-    <value>참고: 시그내쳐가 있으면 사용자 ID와 비밀번호를 입력하지 않아도 됩니다.</value>
+    <value>참고: 시그니쳐가 있으면 사용자 ID와 비밀번호를 입력하지 않아도 됩니다.</value>
   </data>
   <data name="lblYourlsPassword.Text" xml:space="preserve">
     <value>비밀번호:</value>
@@ -237,7 +144,7 @@
     <value>사용자 ID:</value>
   </data>
   <data name="lblYourlsSignature.Text" xml:space="preserve">
-    <value>시그내쳐:</value>
+    <value>시그니쳐:</value>
   </data>
   <data name="llAdflyLink.Text" xml:space="preserve">
     <value>API 키와 UID는 여기서 찾을 수 있습니다</value>
@@ -316,18 +223,6 @@
   </data>
   <data name="gbPhotobucketAlbumPath.Text" xml:space="preserve">
     <value>업로드할 곳</value>
-  </data>
-  <data name="btnFlickrOpenAuthorize.Text" xml:space="preserve">
-    <value>1단계: 인증 페이지 열기...</value>
-  </data>
-  <data name="btnFlickrCompleteAuth.Text" xml:space="preserve">
-    <value>2단계: 인증 완료하기</value>
-  </data>
-  <data name="btnFlickrCheckToken.Text" xml:space="preserve">
-    <value>인증 새로고침하기</value>
-  </data>
-  <data name="btnFlickrOpenImages.Text" xml:space="preserve">
-    <value>포토스트림 보기...</value>
   </data>
   <data name="btnTinyPicOpenMyImages.Text" xml:space="preserve">
     <value>내 이미지 페이지 열기...</value>
@@ -463,39 +358,6 @@
   </data>
   <data name="lblJiraIssuePrefix.Text" xml:space="preserve">
     <value>Jira 이슈 접두사:</value>
-  </data>
-  <data name="btnMinusFolderRemove.Text" xml:space="preserve">
-    <value>폴더 삭제</value>
-  </data>
-  <data name="btnMinusFolderAdd.Text" xml:space="preserve">
-    <value>폴더 추가</value>
-  </data>
-  <data name="btnMinusReadFolderList.Text" xml:space="preserve">
-    <value>폴더 목록 갱신하기</value>
-  </data>
-  <data name="gbMinusUpload.Text" xml:space="preserve">
-    <value>업로드할 곳</value>
-  </data>
-  <data name="btnMinusAuth.Text" xml:space="preserve">
-    <value>인증</value>
-  </data>
-  <data name="lblMinusUsername.Text" xml:space="preserve">
-    <value>사용자 ID:</value>
-  </data>
-  <data name="lblMinusPassword.Text" xml:space="preserve">
-    <value>비밀번호:</value>
-  </data>
-  <data name="btnMinusRefreshAuth.Text" xml:space="preserve">
-    <value>인증 새로고침하기</value>
-  </data>
-  <data name="lblMinusAuthStatus.Text" xml:space="preserve">
-    <value>로그인 상태:</value>
-  </data>
-  <data name="gbMinusUserPass.Text" xml:space="preserve">
-    <value>인증</value>
-  </data>
-  <data name="lblMinusURLType.Text" xml:space="preserve">
-    <value>URL 종류:</value>
   </data>
   <data name="lblLocalhostrEmail.Text" xml:space="preserve">
     <value>이메일:</value>
@@ -674,9 +536,6 @@
   <data name="btnCheveretoTestAll.Text" xml:space="preserve">
     <value>전부 테스트</value>
   </data>
-  <data name="btnCustomUploaderArgUpdate.Text" xml:space="preserve">
-    <value>갱신</value>
-  </data>
   <data name="lblCheveretoUploadURLExample.Text" xml:space="preserve">
     <value>예시: http://example.com/api/1/upload</value>
   </data>
@@ -728,12 +587,6 @@
   <data name="cbImgurUseGIFV.Text" xml:space="preserve">
     <value>GIF 대신 GIFV 링크 사용하기</value>
   </data>
-  <data name="mbCustomUploaderDestinationType.Text" xml:space="preserve">
-    <value>목적지 타입</value>
-  </data>
-  <data name="mbCustomUploaderDestinationType.ToolTip" xml:space="preserve">
-    <value>현재 목적지 타입은 사용자가 .sxcu 파일을 더블 클릭해서 커스텀 업로더를 가져올 때 사용됩니다.</value>
-  </data>
   <data name="btnTwitterNameUpdate.Text" xml:space="preserve">
     <value>갱신</value>
   </data>
@@ -755,107 +608,8 @@
   <data name="tpTwitter.Text" xml:space="preserve">
     <value>트위터</value>
   </data>
-  <data name="btnCustomUploaderURLSharingServiceTest.Text" xml:space="preserve">
-    <value>테스트</value>
-  </data>
-  <data name="lblCustomUploaderURLSharingService.Text" xml:space="preserve">
-    <value>URL 공유 서비스:</value>
-  </data>
-  <data name="lblCustomUploaderName.Text" xml:space="preserve">
-    <value>이름:</value>
-  </data>
-  <data name="btnCustomUploadJsonPathHelp.Text" xml:space="preserve">
-    <value>?</value>
-  </data>
-  <data name="btnCustomUploaderJsonAddSyntax.Text" xml:space="preserve">
-    <value>URL 항목에 구문 추가하기</value>
-  </data>
-  <data name="lblCustomUploaderJsonPathExample.Text" xml:space="preserve">
-    <value>예시:
-
-Files[0].URL
-store.book[0].title</value>
-  </data>
-  <data name="lblCustomUploaderJsonPath.Text" xml:space="preserve">
-    <value>JsonPath:</value>
-  </data>
-  <data name="tpCustomUploaderJsonParse.Text" xml:space="preserve">
-    <value>JSON</value>
-  </data>
-  <data name="btnCustomUploaderXmlSyntaxAdd.Text" xml:space="preserve">
-    <value>URL 항목에 구문 추가하기</value>
-  </data>
-  <data name="btnCustomUploaderXPathHelp.Text" xml:space="preserve">
-    <value>?</value>
-  </data>
-  <data name="lblCustomUploaderXPathExample.Text" xml:space="preserve">
-    <value>예시:
-
-/Files/File[1]/URL
-/store/book[1]/title</value>
-  </data>
-  <data name="lblCustomUploaderXPath.Text" xml:space="preserve">
-    <value>XPath:</value>
-  </data>
-  <data name="tpCustomUploaderXmlParse.Text" xml:space="preserve">
-    <value>XML</value>
-  </data>
-  <data name="btnCustomUploaderRegexHelp.Text" xml:space="preserve">
-    <value>?</value>
-  </data>
-  <data name="btnCustomUploaderRegexAddSyntax.Text" xml:space="preserve">
-    <value>URL 항목에 구문 추가하기</value>
-  </data>
-  <data name="btnCustomUploaderRegexpUpdate.Text" xml:space="preserve">
-    <value>갱신</value>
-  </data>
-  <data name="tpCustomUploaderRegexParse.Text" xml:space="preserve">
-    <value>정규 표현식</value>
-  </data>
-  <data name="lblCustomUploaderURL.Text" xml:space="preserve">
-    <value>URL:</value>
-  </data>
-  <data name="chCustomUploaderArgumentsName.Text" xml:space="preserve">
-    <value>이름</value>
-  </data>
-  <data name="chCustomUploaderArgumentsValue.Text" xml:space="preserve">
-    <value>값</value>
-  </data>
-  <data name="tpCustomUploaderArguments.Text" xml:space="preserve">
-    <value>인자</value>
-  </data>
-  <data name="btnCustomUploaderHeaderUpdate.Text" xml:space="preserve">
-    <value>갱신</value>
-  </data>
-  <data name="btnCustomUploaderHeaderAdd.Text" xml:space="preserve">
-    <value>추가</value>
-  </data>
-  <data name="btnCustomUploaderHeaderRemove.Text" xml:space="preserve">
-    <value>삭제</value>
-  </data>
-  <data name="chCustomUploaderHeadersName.Text" xml:space="preserve">
-    <value>이름</value>
-  </data>
-  <data name="chCustomUploaderHeadersValue.Text" xml:space="preserve">
-    <value>값</value>
-  </data>
-  <data name="tpCustomUploaderHeaders.Text" xml:space="preserve">
-    <value>헤더</value>
-  </data>
-  <data name="btnCustomUploaderDuplicate.Text" xml:space="preserve">
-    <value>복제</value>
-  </data>
-  <data name="btnCustomUploadersExportAll.Text" xml:space="preserve">
-    <value>전부...</value>
-  </data>
-  <data name="btnCustomUploaderClearUploaders.Text" xml:space="preserve">
-    <value>업로더 지우기...</value>
-  </data>
   <data name="tpBitly.Text" xml:space="preserve">
     <value>bit.ly</value>
-  </data>
-  <data name="tpGoogleURLShortener.Text" xml:space="preserve">
-    <value>Google</value>
   </data>
   <data name="lblYourlsAPIURL.Text" xml:space="preserve">
     <value>API URL:</value>
@@ -868,12 +622,6 @@ store.book[0].title</value>
   </data>
   <data name="tpAdFly.Text" xml:space="preserve">
     <value>adf.ly</value>
-  </data>
-  <data name="lblCoinURLUUID.Text" xml:space="preserve">
-    <value>UUID:</value>
-  </data>
-  <data name="tpCoinURL.Text" xml:space="preserve">
-    <value>CoinURL</value>
   </data>
   <data name="cbPolrUseAPIv1.Text" xml:space="preserve">
     <value>오래되어 권장되지 않는 API v1 사용하기</value>
@@ -937,9 +685,6 @@ store.book[0].title</value>
   </data>
   <data name="rbFTPTransferModePassive.Text" xml:space="preserve">
     <value>수동</value>
-  </data>
-  <data name="btnFTPClient.Text" xml:space="preserve">
-    <value>클라이언트...</value>
   </data>
   <data name="lblFTPTransferMode.Text" xml:space="preserve">
     <value>전송 모드:</value>
@@ -1382,5 +1127,59 @@ store.book[0].title</value>
   </data>
   <data name="lblSeafileAccInfoUsage.Text" xml:space="preserve">
     <value>사용량:</value>
+  </data>
+  <data name="lblFirebaseWebAPIKey.Text" xml:space="preserve">
+    <value>웹 API 키:</value>
+  </data>
+  <data name="tpFirebaseDynamicLinks.Text" xml:space="preserve">
+    <value>Firebase 다이나믹 링크</value>
+  </data>
+  <data name="lblAmazonS3StripExtension.Text" xml:space="preserve">
+    <value>파일 확장자 제거:</value>
+  </data>
+  <data name="cbAmazonS3StripExtensionText.Text" xml:space="preserve">
+    <value>텍스트</value>
+  </data>
+  <data name="cbAmazonS3StripExtensionVideo.Text" xml:space="preserve">
+    <value>비디오</value>
+  </data>
+  <data name="cbAmazonS3PublicACL.Text" xml:space="preserve">
+    <value>파일에 공용 읽기 ACL설정</value>
+  </data>
+  <data name="cbAmazonS3StripExtensionImage.Text" xml:space="preserve">
+    <value>이미지</value>
+  </data>
+  <data name="gbAmazonS3Advanced.Text" xml:space="preserve">
+    <value>고급</value>
+  </data>
+  <data name="lblGoogleCloudStoragePathPreview.Text" xml:space="preserve">
+    <value>미리보기</value>
+  </data>
+  <data name="lblGoogleCloudStoragePathPreviewLabel.Text" xml:space="preserve">
+    <value>URL 미리보기:</value>
+  </data>
+  <data name="lblGoogleCloudStorageObjectPrefix.Text" xml:space="preserve">
+    <value>경로:</value>
+  </data>
+  <data name="lblGoogleCloudStorageDomain.Text" xml:space="preserve">
+    <value>개인 맞춤 도메인:</value>
+  </data>
+  <data name="cbOwnCloudUsePreviewLinks.Text" xml:space="preserve">
+    <value>미리보기 링크 사용(NextCloud만)</value>
+  </data>
+  <data name="cbYouTubeUseShortenedLink.Text" xml:space="preserve">
+    <value>단축 링크 사용</value>
+  </data>
+  <data name="lblYouTubePrivacyType.Text" xml:space="preserve">
+    <value>개인 정보 유형:</value>
+  </data>
+  <data name="btnSharedFolderDuplicate.Text" xml:space="preserve">
+    <value>중복</value>
+  </data>
+  <data name="btnSharedFolderRemove.Text" xml:space="preserve">
+    <value>제거</value>
+  </data>
+  <data name="btnSharedFolderAdd.Text" xml:space="preserve">
+    <value>추가</value>
   </data>
 </root>
