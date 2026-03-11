@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -52,20 +52,14 @@ namespace ShareX.ImageEffectsLib
             }
         }
 
+        [DefaultValue(DashStyle.Solid), TypeConverter(typeof(EnumProperNameConverter))]
+        public DashStyle DashStyle { get; set; }
+
         [DefaultValue(typeof(Color), "Black"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
         public Color Color { get; set; }
 
         [DefaultValue(false)]
         public bool UseGradient { get; set; }
-
-        [DefaultValue(LinearGradientMode.Vertical)]
-        public LinearGradientMode GradientType { get; set; }
-
-        [DefaultValue(typeof(Color), "White"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color2 { get; set; }
-
-        [DefaultValue(false)]
-        public bool UseCustomGradient { get; set; }
 
         [Editor(typeof(GradientEditor), typeof(UITypeEditor))]
         public GradientInfo Gradient { get; set; }
@@ -87,19 +81,17 @@ namespace ShareX.ImageEffectsLib
 
         public override Bitmap Apply(Bitmap bmp)
         {
-            if (UseGradient)
+            if (UseGradient && Gradient != null && Gradient.IsValid)
             {
-                if (UseCustomGradient && Gradient != null && Gradient.IsValid)
-                {
-                    return ImageHelpers.DrawBorder(bmp, Gradient, Size, Type);
-                }
-                else
-                {
-                    return ImageHelpers.DrawBorder(bmp, Color, Color2, GradientType, Size, Type);
-                }
+                return ImageHelpers.DrawBorder(bmp, Gradient, Size, Type, DashStyle);
             }
 
-            return ImageHelpers.DrawBorder(bmp, Color, Size, Type);
+            return ImageHelpers.DrawBorder(bmp, Color, Size, Type, DashStyle);
+        }
+
+        protected override string GetSummary()
+        {
+            return Size + "px";
         }
     }
 }

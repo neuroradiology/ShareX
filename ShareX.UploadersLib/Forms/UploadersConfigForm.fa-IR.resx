@@ -378,9 +378,6 @@
   <data name="lblStreamablePassword.Text" xml:space="preserve">
     <value>کلمه عبور:</value>
   </data>
-  <data name="lblTinyPicPassword.Text" xml:space="preserve">
-    <value>کلمه عبور:</value>
-  </data>
   <data name="lblEmailPassword.Text" xml:space="preserve">
     <value>کلمه عبور:</value>
   </data>
@@ -405,9 +402,6 @@
   <data name="lblOwnCloudPassword.Text" xml:space="preserve">
     <value>کلمه عبور:</value>
   </data>
-  <data name="lblGe_ttPassword.Text" xml:space="preserve">
-    <value>کلمه عبور:</value>
-  </data>
   <data name="lblSendSpacePassword.Text" xml:space="preserve">
     <value>کلمه عبور:</value>
   </data>
@@ -429,9 +423,6 @@
   <data name="lblFTPPassword.Text" xml:space="preserve">
     <value>کلمه عبور:</value>
   </data>
-  <data name="cbxPlikTTLUnit.Items3" xml:space="preserve">
-    <value>هرگز</value>
-  </data>
   <data name="lblFTPName.Text" xml:space="preserve">
     <value>نام:</value>
   </data>
@@ -444,9 +435,6 @@
   <data name="chPicasaName.Text" xml:space="preserve">
     <value>نام:</value>
   </data>
-  <data name="cbxPlikTTLUnit.Items2" xml:space="preserve">
-    <value>دقیقه</value>
-  </data>
   <data name="lblSeafileAccInfoEmail.Text" xml:space="preserve">
     <value>ایمیل:</value>
   </data>
@@ -454,9 +442,6 @@
     <value>ایمیل:</value>
   </data>
   <data name="lblMediaFireEmail.Text" xml:space="preserve">
-    <value>ایمیل:</value>
-  </data>
-  <data name="lblTinyPicUsername.Text" xml:space="preserve">
     <value>ایمیل:</value>
   </data>
   <data name="lblMegaEmail.Text" xml:space="preserve">
@@ -472,9 +457,6 @@
     <value>ایمیل:</value>
   </data>
   <data name="lblLithiioEmail.Text" xml:space="preserve">
-    <value>ایمیل:</value>
-  </data>
-  <data name="lblGe_ttEmail.Text" xml:space="preserve">
     <value>ایمیل:</value>
   </data>
   <data name="lblLocalhostrEmail.Text" xml:space="preserve">
@@ -560,5 +542,8 @@
   </data>
   <data name="rbFTPTransferModePassive.Text" xml:space="preserve">
     <value>غیرفعال</value>
+  </data>
+  <data name="cbOneDriveUseDirectLink.Text" xml:space="preserve">
+    <value>از لینک مستقیم استفاده کن</value>
   </data>
 </root>

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -153,14 +153,14 @@ namespace ShareX.HelpersLib
 
         public override bool Equals(object obj)
         {
-            if (obj is RECT)
+            if (obj is RECT rect)
             {
-                return Equals((RECT)obj);
+                return Equals(rect);
             }
 
-            if (obj is Rectangle)
+            if (obj is Rectangle rectangle)
             {
-                return Equals(new RECT((Rectangle)obj));
+                return Equals(new RECT(rectangle));
             }
 
             return false;
@@ -242,9 +242,11 @@ namespace ShareX.HelpersLib
         public ushort atomWindowType;
         public ushort wCreatorVersion;
 
-        public WINDOWINFO(bool? filler) : this() // Allows automatic initialization of "cbSize" with "new WINDOWINFO(null/true/false)".
+        public static WINDOWINFO Create()
         {
-            cbSize = (uint)Marshal.SizeOf(typeof(WINDOWINFO));
+            WINDOWINFO wi = new WINDOWINFO();
+            wi.cbSize = (uint)Marshal.SizeOf(typeof(WINDOWINFO));
+            return wi;
         }
     }
 
@@ -978,5 +980,49 @@ namespace ShareX.HelpersLib
 
         [PreserveSig]
         int GetOverlayImage(int iOverlay, ref int piIndex);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BITMAPV5HEADER
+    {
+        public uint bV5Size;
+        public int bV5Width;
+        public int bV5Height;
+        public ushort bV5Planes;
+        public ushort bV5BitCount;
+        public uint bV5Compression;
+        public uint bV5SizeImage;
+        public int bV5XPelsPerMeter;
+        public int bV5YPelsPerMeter;
+        public ushort bV5ClrUsed;
+        public ushort bV5ClrImportant;
+        public ushort bV5RedMask;
+        public ushort bV5GreenMask;
+        public ushort bV5BlueMask;
+        public ushort bV5AlphaMask;
+        public ushort bV5CSType;
+        public IntPtr bV5Endpoints;
+        public ushort bV5GammaRed;
+        public ushort bV5GammaGreen;
+        public ushort bV5GammaBlue;
+        public ushort bV5Intent;
+        public ushort bV5ProfileData;
+        public ushort bV5ProfileSize;
+        public ushort bV5Reserved;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TimeCaps
+    {
+        public uint wPeriodMin;
+        public uint wPeriodMax;
+    }
+
+    [ComImportAttribute()]
+    [GuidAttribute("bcc18b79-ba16-442f-80c4-8a59c30c463b")]
+    [InterfaceTypeAttribute(ComInterfaceType.InterfaceIsIUnknown)]
+    public interface IShellItemImageFactory
+    {
+        void GetImage([In, MarshalAs(UnmanagedType.Struct)] SIZE size, [In] SIIGBF flags, [Out] out IntPtr phbm);
     }
 }

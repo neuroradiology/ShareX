@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -23,12 +23,16 @@
 
 #endregion License Information (GPL v3)
 
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace ShareX.HistoryLib
 {
     public class HistoryItem
     {
+        [JsonIgnore]
+        public long Id { get; set; }
         public string FileName { get; set; }
         public string FilePath { get; set; }
         public DateTime DateTime { get; set; }
@@ -38,5 +42,89 @@ namespace ShareX.HistoryLib
         public string ThumbnailURL { get; set; }
         public string DeletionURL { get; set; }
         public string ShortenedURL { get; set; }
+        public Dictionary<string, string> Tags { get; set; }
+
+        [JsonIgnore]
+        public string TagsWindowTitle
+        {
+            get
+            {
+                if (Tags != null && Tags.TryGetValue("WindowTitle", out string value))
+                {
+                    return value;
+                }
+
+                return null;
+            }
+        }
+
+        [JsonIgnore]
+        public string TagsProcessName
+        {
+            get
+            {
+                if (Tags != null && Tags.TryGetValue("ProcessName", out string value))
+                {
+                    return value;
+                }
+
+                return null;
+            }
+        }
+
+        [JsonIgnore]
+        public bool Favorite
+        {
+            get
+            {
+                return Tags != null && Tags.ContainsKey("Favorite");
+            }
+            set
+            {
+                if (Tags == null)
+                {
+                    Tags = new Dictionary<string, string>();
+                }
+
+                if (value)
+                {
+                    Tags["Favorite"] = null;
+                }
+                else
+                {
+                    Tags.Remove("Favorite");
+                }
+            }
+        }
+
+        [JsonIgnore]
+        public string Tag
+        {
+            get
+            {
+                if (Tags != null && Tags.TryGetValue("Tag", out string value))
+                {
+                    return value;
+                }
+
+                return null;
+            }
+            set
+            {
+                if (Tags == null)
+                {
+                    Tags = new Dictionary<string, string>();
+                }
+
+                if (!string.IsNullOrEmpty(value))
+                {
+                    Tags["Tag"] = value;
+                }
+                else
+                {
+                    Tags.Remove("Tag");
+                }
+            }
+        }
     }
 }

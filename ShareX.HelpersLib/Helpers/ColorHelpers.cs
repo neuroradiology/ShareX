@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -178,7 +178,7 @@ namespace ShareX.HelpersLib
             {
                 hex = hex.Remove(0, 1);
             }
-            else if (hex.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
+            else if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
             {
                 hex = hex.Remove(0, 2);
             }
@@ -336,7 +336,7 @@ namespace ShareX.HelpersLib
 
         public static Color RandomColor()
         {
-            return Color.FromArgb(MathHelpers.Random(255), MathHelpers.Random(255), MathHelpers.Random(255));
+            return Color.FromArgb(RandomFast.Next(255), RandomFast.Next(255), RandomFast.Next(255));
         }
 
         public static bool ParseColor(string text, out Color color)
@@ -455,6 +455,12 @@ namespace ShareX.HelpersLib
         {
             List<Color> colors = GetKnownColors();
             return colors.Aggregate(Color.Black, (accu, curr) => ColorDifference(color, curr) < ColorDifference(color, accu) ? curr : accu);
+        }
+
+        public static string GetColorName(Color color)
+        {
+            Color knownColor = FindClosestKnownColor(color);
+            return Helpers.GetProperName(knownColor.Name);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,40 +24,49 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
+using ShareX.HistoryLib.Forms;
 using ShareX.HistoryLib.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ShareX.HistoryLib
 {
     public partial class HistoryForm : Form
     {
-        public string HistoryPath { get; private set; }
+        public HistoryManagerSQLite HistoryManager { get; private set; }
         public HistorySettings Settings { get; private set; }
 
-        private HistoryManager history;
         private HistoryItemManager him;
-        private HistoryItem[] allHistoryItems;
+        private List<HistoryItem> allHistoryItems;
+        private HistoryItem[] filteredHistoryItems;
         private string defaultTitle;
-        private bool showingStats;
+        private Dictionary<string, string> typeNamesLocaleLookup;
+        private string[] allTypeNames;
+        private ListViewItem[] listViewCache;
+        private int listViewCacheStartIndex;
+        private bool busy;
 
-        public HistoryForm(string historyPath, HistorySettings settings, Action<string> uploadFile = null, Action<string> editImage = null)
+        public HistoryForm(HistoryManagerSQLite historyManager, HistorySettings settings, Action<string> uploadFile = null,
+            Action<string> editImage = null, Action<string> pinToScreen = null, Action<string> analyzeImage = null)
         {
-            HistoryPath = historyPath;
+            HistoryManager = historyManager;
             Settings = settings;
 
             InitializeComponent();
+            tsHistory.Renderer = new ToolStripRoundedEdgeRenderer();
 
             defaultTitle = Text;
-            UpdateTitle();
 
-            // Mark the Date column as having a date; used for sorting
-            chDateTime.Tag = new DateTime();
+            string[] typeNames = Enum.GetNames(typeof(EDataType));
+            string[] typeTranslations = Helpers.GetLocalizedEnumDescriptions<EDataType>();
+            typeNamesLocaleLookup = typeNames.Zip(typeTranslations, (key, val) => new { key, val }).ToDictionary(e => e.key, e => e.val);
+
+            UpdateTitle();
 
             ImageList il = new ImageList();
             il.ColorDepth = ColorDepth.Depth32Bit;
@@ -65,216 +74,274 @@ namespace ShareX.HistoryLib
             il.Images.Add(Resources.notebook);
             il.Images.Add(Resources.application_block);
             il.Images.Add(Resources.globe);
+            il.Images.Add(Resources.star);
             lvHistory.SmallImageList = il;
 
-            him = new HistoryItemManager(uploadFile, editImage);
+            him = new HistoryItemManager(uploadFile, editImage, pinToScreen, analyzeImage);
             him.GetHistoryItems += him_GetHistoryItems;
+            him.FavoriteRequested += him_FavoriteRequested;
+            him.EditRequested += him_EditRequested;
+            him.DeleteRequested += him_DeleteRequested;
+            him.DeleteFileRequested += him_DeleteFileRequested;
             lvHistory.ContextMenuStrip = him.cmsHistory;
 
             pbThumbnail.Reset();
             lvHistory.FillLastColumn();
 
-            if (Settings.SplitterDistance > 0)
+            tstbSearch.TextBox.HandleCreated += (sender, e) => tstbSearch.TextBox.SetWatermark(Resources.HistoryForm_Search_Watermark, true);
+
+            if (Settings.RememberSearchText)
             {
-                scMain.SplitterDistance = Settings.SplitterDistance;
+                tstbSearch.Text = Settings.SearchText;
             }
 
-            ShareXResources.ApplyTheme(this);
+            ShareXResources.ApplyTheme(this, true);
 
-            Settings.WindowState.AutoHandleFormState(this);
+            if (Settings.RememberWindowState)
+            {
+                Settings.WindowState.ApplyFormState(this);
+
+                if (Settings.SplitterDistance > 0)
+                {
+                    scMain.SplitterDistance = Settings.SplitterDistance;
+                }
+            }
+
+            tsbFavorites.Checked = Settings.Favorites;
         }
 
-        private void RefreshHistoryItems()
+        private void ResetFilters()
         {
-            allHistoryItems = GetHistoryItems();
-            ApplyFiltersAndAdd();
+            busy = true;
+
+            txtFilenameFilter.ResetText();
+            txtURLFilter.ResetText();
+            cbDateFilter.Checked = false;
+            dtpFilterFrom.ResetText();
+            dtpFilterTo.ResetText();
+            cbTypeFilter.Checked = false;
+            if (cbTypeFilterSelection.Items.Count > 0)
+            {
+                cbTypeFilterSelection.SelectedIndex = 0;
+            }
+            cbHostFilter.Checked = false;
+            cbHostFilterSelection.ResetText();
+
+            busy = false;
         }
 
-        private void OutputStats(HistoryItem[] historyItems)
+        private async Task RefreshHistoryItems(bool refreshItems = true)
         {
-            rtbStats.ResetText();
+            if (refreshItems)
+            {
+                allHistoryItems = await GetHistoryItems();
+            }
 
-            rtbStats.SetFontBold();
-            rtbStats.AppendLine(Resources.HistoryItemCounts);
-            rtbStats.SetFontRegular();
-            rtbStats.AppendLine(Resources.HistoryStats_Total + " " + historyItems.Length);
+            cbTypeFilterSelection.Items.Clear();
+            cbHostFilterSelection.Items.Clear();
+            tstbSearch.AutoCompleteCustomSource.Clear();
 
-            IEnumerable<string> types = historyItems.
-                GroupBy(x => x.Type).
-                OrderByDescending(x => x.Count()).
-                Select(x => string.Format("{0}: {1} ({2:N0}%)", x.Key, x.Count(), x.Count() / (float)historyItems.Length * 100));
+            if (allHistoryItems.Count > 0)
+            {
+                allTypeNames = allHistoryItems.Select(x => x.Type).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToArray();
+                cbTypeFilterSelection.Items.AddRange(allTypeNames.Select(x => typeNamesLocaleLookup.TryGetValue(x, out string value) ? value : x).ToArray());
+                cbHostFilterSelection.Items.AddRange(allHistoryItems.Select(x => x.Host).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToArray());
+                tstbSearch.AutoCompleteCustomSource.AddRange(allHistoryItems.Select(x => x.TagsProcessName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToArray());
+            }
 
-            rtbStats.AppendLine(string.Join(Environment.NewLine, types));
+            ApplyFilterSimple();
 
-            rtbStats.AppendLine();
-            rtbStats.SetFontBold();
-            rtbStats.AppendLine(Resources.HistoryStats_YearlyUsages);
-            rtbStats.SetFontRegular();
-
-            IEnumerable<string> yearlyUsages = historyItems.
-                GroupBy(x => x.DateTime.Year).
-                OrderByDescending(x => x.Key).
-                Select(x => string.Format("{0}: {1} ({2:N0}%)", x.Key, x.Count(), x.Count() / (float)historyItems.Length * 100));
-
-            rtbStats.AppendLine(string.Join(Environment.NewLine, yearlyUsages));
-
-            rtbStats.AppendLine();
-            rtbStats.SetFontBold();
-            rtbStats.AppendLine(Resources.HistoryStats_FileExtensions);
-            rtbStats.SetFontRegular();
-
-            IEnumerable<string> fileExtensions = historyItems.
-                Where(x => !string.IsNullOrEmpty(x.FileName) && !x.FileName.EndsWith(")")).
-                Select(x => Helpers.GetFilenameExtension(x.FileName)).
-                GroupBy(x => x).
-                OrderByDescending(x => x.Count()).
-                Select(x => string.Format("{0} ({1})", x.Key, x.Count()));
-
-            rtbStats.AppendLine(string.Join(Environment.NewLine, fileExtensions));
-
-            rtbStats.AppendLine();
-            rtbStats.SetFontBold();
-            rtbStats.AppendLine(Resources.HistoryStats_Hosts);
-            rtbStats.SetFontRegular();
-
-            IEnumerable<string> hosts = historyItems.
-                GroupBy(x => x.Host).
-                OrderByDescending(x => x.Count()).
-                Select(x => string.Format("{0} ({1})", x.Key, x.Count()));
-
-            rtbStats.AppendLine(string.Join(Environment.NewLine, hosts));
+            ResetFilters();
         }
 
         private HistoryItem[] him_GetHistoryItems()
         {
-            return lvHistory.SelectedItems.Cast<ListViewItem>().Select(x => x.Tag as HistoryItem).ToArray();
+            return lvHistory.SelectedIndices.Cast<int>().Select(i => filteredHistoryItems[i]).ToArray();
         }
 
-        private HistoryItem[] GetHistoryItems()
+        private void him_FavoriteRequested(HistoryItem[] historyItems)
         {
-            if (history == null)
+            foreach (HistoryItem hi in historyItems)
             {
-                history = new HistoryManagerJSON(HistoryPath);
-            }
+                HistoryManager.Edit(hi);
 
-            IEnumerable<HistoryItem> tempHistoryItems = history.GetHistoryItems();
-            tempHistoryItems = tempHistoryItems.Reverse();
-
-            if (Settings.MaxItemCount > 0)
-            {
-                tempHistoryItems = tempHistoryItems.Take(Settings.MaxItemCount);
-            }
-
-            return tempHistoryItems.ToArray();
-        }
-
-        private void ApplyFiltersAndAdd()
-        {
-            if (allHistoryItems.Length > 0)
-            {
-                AddHistoryItems(ApplyFilters(allHistoryItems));
+                EditListViewItem(hi);
             }
         }
 
-        private HistoryItem[] ApplyFilters(HistoryItem[] historyItems)
+        private void him_EditRequested(HistoryItem hi)
         {
-            if (!cbTypeFilter.Checked && !cbHostFilter.Checked && string.IsNullOrEmpty(txtFilenameFilter.Text) && string.IsNullOrEmpty(txtURLFilter.Text) && !cbDateFilter.Checked)
-            {
-                return historyItems;
-            }
+            HistoryManager.Edit(hi);
 
-            IEnumerable<HistoryItem> result = historyItems.AsEnumerable();
-
-            if (cbTypeFilter.Checked)
-            {
-                string type = cbTypeFilterSelection.Text;
-
-                if (!string.IsNullOrEmpty(type))
-                {
-                    result = result.Where(x => !string.IsNullOrEmpty(x.Type) && x.Type.Equals(type, StringComparison.InvariantCultureIgnoreCase));
-                }
-            }
-
-            if (cbHostFilter.Checked)
-            {
-                string host = cbHostFilterSelection.Text;
-
-                if (!string.IsNullOrEmpty(host))
-                {
-                    result = result.Where(x => !string.IsNullOrEmpty(x.Host) && x.Host.Contains(host, StringComparison.InvariantCultureIgnoreCase));
-                }
-            }
-
-            string filenameFilter = txtFilenameFilter.Text;
-
-            if (!string.IsNullOrEmpty(filenameFilter))
-            {
-                string pattern = Regex.Escape(filenameFilter).Replace("\\?", ".").Replace("\\*", ".*");
-                Regex regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-                result = result.Where(x => x.FileName != null && regex.IsMatch(x.FileName));
-            }
-
-            string urlFilter = txtURLFilter.Text;
-
-            if (!string.IsNullOrEmpty(urlFilter))
-            {
-                result = result.Where(x => x.URL != null && x.URL.Contains(urlFilter, StringComparison.InvariantCultureIgnoreCase));
-            }
-
-            if (cbDateFilter.Checked)
-            {
-                DateTime fromDate = dtpFilterFrom.Value.Date;
-                DateTime toDate = dtpFilterTo.Value.Date;
-
-                result = result.Where(x => x.DateTime.Date >= fromDate && x.DateTime.Date <= toDate);
-            }
-
-            return result.ToArray();
+            EditListViewItem(hi);
         }
 
-        private void AddHistoryItems(HistoryItem[] historyItems)
+        private async void him_DeleteRequested(HistoryItem[] historyItems)
         {
-            Cursor = Cursors.WaitCursor;
+            HistoryManager.Delete(historyItems);
 
-            UpdateTitle(historyItems);
+            DeleteHistoryItems(historyItems);
+            await RefreshHistoryItems(false);
+        }
 
-            lvHistory.Items.Clear();
-
-            ListViewItem[] listViewItems = new ListViewItem[historyItems.Length];
-
-            for (int i = 0; i < historyItems.Length; i++)
+        private async void him_DeleteFileRequested(HistoryItem[] historyItems)
+        {
+            foreach (HistoryItem historyItem in historyItems)
             {
-                HistoryItem hi = historyItems[i];
-                ListViewItem lvi = listViewItems[i] = new ListViewItem();
-
-                if (hi.Type.Equals("Image", StringComparison.InvariantCultureIgnoreCase))
+                if (!string.IsNullOrEmpty(historyItem.FilePath) && File.Exists(historyItem.FilePath))
                 {
-                    lvi.ImageIndex = 0;
+                    File.Delete(historyItem.FilePath);
                 }
-                else if (hi.Type.Equals("Text", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    lvi.ImageIndex = 1;
-                }
-                else if (hi.Type.Equals("File", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    lvi.ImageIndex = 2;
-                }
-                else
-                {
-                    lvi.ImageIndex = 3;
-                }
-
-                lvi.SubItems.Add(hi.DateTime.ToString()).Tag = hi.DateTime;
-                lvi.SubItems.Add(hi.FileName);
-                lvi.SubItems.Add(hi.URL);
-                lvi.Tag = hi;
             }
 
-            lvHistory.Items.AddRange(listViewItems);
-            lvHistory.FillLastColumn();
-            lvHistory.Focus();
+            HistoryManager.Delete(historyItems);
 
-            Cursor = Cursors.Default;
+            DeleteHistoryItems(historyItems);
+            await RefreshHistoryItems(false);
+        }
+
+        private async Task<List<HistoryItem>> GetHistoryItems()
+        {
+            List<HistoryItem> historyItems = await HistoryManager.GetHistoryItemsAsync();
+            historyItems.Reverse();
+            return historyItems;
+        }
+
+        private void DeleteHistoryItems(HistoryItem[] historyItems)
+        {
+            if (historyItems != null && historyItems.Length > 0)
+            {
+                foreach (HistoryItem hi in historyItems)
+                {
+                    if (hi != null)
+                    {
+                        allHistoryItems.Remove(hi);
+                    }
+                }
+            }
+        }
+
+        private void ApplyFilter(HistoryFilter filter)
+        {
+            if (allHistoryItems != null && allHistoryItems.Count > 0)
+            {
+                IEnumerable<HistoryItem> historyItems = filter.ApplyFilter(allHistoryItems);
+                filteredHistoryItems = historyItems.ToArray();
+
+                UpdateTitle(filteredHistoryItems);
+
+                listViewCache = null;
+                listViewCacheStartIndex = 0;
+                lvHistory.VirtualListSize = 0;
+
+                if (filteredHistoryItems.Length > 0)
+                {
+                    lvHistory.VirtualListSize = filteredHistoryItems.Length;
+                    lvHistory.SelectedIndices.Add(0);
+                }
+            }
+        }
+
+        private void ApplyFilterSimple()
+        {
+            string searchText = tstbSearch.Text;
+
+            if (Settings.RememberSearchText)
+            {
+                Settings.SearchText = searchText;
+            }
+            else
+            {
+                Settings.SearchText = "";
+            }
+
+            HistoryFilter filter = new HistoryFilter()
+            {
+                Filename = searchText,
+                FilterFavorites = Settings.Favorites
+            };
+
+            ApplyFilter(filter);
+        }
+
+        private void ApplyFilterAdvanced()
+        {
+            HistoryFilter filter = new HistoryFilter()
+            {
+                Filename = txtFilenameFilter.Text,
+                URL = txtURLFilter.Text,
+                FilterDate = cbDateFilter.Checked,
+                FromDate = dtpFilterFrom.Value.Date,
+                ToDate = dtpFilterTo.Value.Date,
+                FilterHost = cbHostFilter.Checked,
+                Host = cbHostFilterSelection.Text
+            };
+
+            if (cbTypeFilter.Checked && allTypeNames.IsValidIndex(cbTypeFilterSelection.SelectedIndex))
+            {
+                filter.FilterType = true;
+                filter.Type = allTypeNames[cbTypeFilterSelection.SelectedIndex];
+            }
+
+            ApplyFilter(filter);
+        }
+
+        private ListViewItem CreateListViewItem(int index)
+        {
+            HistoryItem hi = filteredHistoryItems[index];
+
+            ListViewItem lvi = new ListViewItem();
+            EditListViewItem(hi, lvi);
+            return lvi;
+        }
+
+        private void EditListViewItem(HistoryItem hi)
+        {
+            for (int i = 0; i < lvHistory.Items.Count; i++)
+            {
+                ListViewItem lvi = lvHistory.Items[i];
+
+                if ((HistoryItem)lvi.Tag == hi)
+                {
+                    EditListViewItem(hi, lvi);
+                    lvHistory.Invalidate();
+                    return;
+                }
+            }
+        }
+
+        private void EditListViewItem(HistoryItem hi, ListViewItem lvi)
+        {
+            if (hi.Favorite)
+            {
+                lvi.ImageIndex = 4;
+            }
+            else if (hi.Type.Equals("Image", StringComparison.InvariantCultureIgnoreCase))
+            {
+                lvi.ImageIndex = 0;
+            }
+            else if (hi.Type.Equals("Text", StringComparison.InvariantCultureIgnoreCase))
+            {
+                lvi.ImageIndex = 1;
+            }
+            else if (hi.Type.Equals("File", StringComparison.InvariantCultureIgnoreCase))
+            {
+                lvi.ImageIndex = 2;
+            }
+            else
+            {
+                lvi.ImageIndex = 3;
+            }
+
+            if (lvi.SubItems.Count > 0)
+            {
+                lvi.SubItems.Clear();
+            }
+
+            lvi.SubItems.Add(hi.DateTime.ToString());
+            lvi.SubItems.Add(hi.FileName);
+            lvi.SubItems.Add(hi.URL);
+            lvi.Tag = hi;
         }
 
         private void UpdateTitle(HistoryItem[] historyItems = null)
@@ -286,9 +353,9 @@ namespace ShareX.HistoryLib
                 StringBuilder status = new StringBuilder();
 
                 status.Append(" (");
-                status.AppendFormat(Resources.HistoryForm_UpdateItemCount_Total___0_, allHistoryItems.Length.ToString("N0"));
+                status.AppendFormat(Resources.HistoryForm_UpdateItemCount_Total___0_, allHistoryItems.Count.ToString("N0"));
 
-                if (allHistoryItems.Length > historyItems.Length)
+                if (allHistoryItems.Count > historyItems.Length)
                 {
                     status.AppendFormat(" - " + Resources.HistoryForm_UpdateItemCount___Filtered___0_, historyItems.Length.ToString("N0"));
                 }
@@ -296,7 +363,7 @@ namespace ShareX.HistoryLib
                 IEnumerable<string> types = historyItems.
                     GroupBy(x => x.Type).
                     OrderByDescending(x => x.Count()).
-                    Select(x => string.Format(" - {0}: {1}", x.Key, x.Count()));
+                    Select(x => string.Format(" - {0}: {1}", typeNamesLocaleLookup.TryGetValue(x.Key, out string value) ? value : x.Key, x.Count()));
 
                 foreach (string type in types)
                 {
@@ -344,29 +411,11 @@ namespace ShareX.HistoryLib
 
         #region Form events
 
-        private void HistoryForm_Shown(object sender, EventArgs e)
+        private async void HistoryForm_Shown(object sender, EventArgs e)
         {
-            Refresh();
-
-            RefreshHistoryItems();
-
-            if (lvHistory.Items.Count > 0)
-            {
-                lvHistory.Items[0].Selected = true;
-
-                cbTypeFilterSelection.Items.Clear();
-                cbTypeFilterSelection.Items.AddRange(allHistoryItems.Select(x => x.Type).Distinct().Where(x => !string.IsNullOrEmpty(x)).ToArray());
-
-                if (cbTypeFilterSelection.Items.Count > 0)
-                {
-                    cbTypeFilterSelection.SelectedIndex = 0;
-                }
-
-                cbHostFilterSelection.Items.Clear();
-                cbHostFilterSelection.Items.AddRange(allHistoryItems.Select(x => x.Host).Distinct().Where(x => !string.IsNullOrEmpty(x)).ToArray());
-            }
-
             this.ForceActivate();
+
+            await RefreshHistoryItems();
         }
 
         private void HistoryForm_Resize(object sender, EventArgs e)
@@ -374,50 +423,121 @@ namespace ShareX.HistoryLib
             Refresh();
         }
 
-        private void HistoryForm_KeyDown(object sender, KeyEventArgs e)
+        private void HistoryForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (Settings.RememberWindowState)
+            {
+                Settings.WindowState.UpdateFormState(this);
+                Settings.SplitterDistance = scMain.SplitterDistance;
+            }
+        }
+
+        private async void HistoryForm_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyData)
             {
                 case Keys.F5:
-                    RefreshHistoryItems();
-                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    await RefreshHistoryItems();
                     break;
             }
         }
 
-        private void scMain_SplitterMoved(object sender, SplitterEventArgs e)
+        private void tstbSearch_TextChanged(object sender, EventArgs e)
         {
-            Settings.SplitterDistance = scMain.SplitterDistance;
+            ApplyFilterSimple();
         }
 
-        private void btnApplyFilters_Click(object sender, EventArgs e)
+        private void tsbSearch_Click(object sender, EventArgs e)
         {
-            ApplyFiltersAndAdd();
+            ApplyFilterSimple();
         }
 
-        private void btnRemoveFilters_Click(object sender, EventArgs e)
+        private void tsbAdvancedSearch_Click(object sender, EventArgs e)
         {
-            AddHistoryItems(allHistoryItems);
+            bool isPanelVisible = gbAdvancedSearch.Visible;
+            gbAdvancedSearch.Visible = !isPanelVisible;
+            tsbAdvancedSearch.Checked = !isPanelVisible;
         }
 
-        private void BtnShowStats_Click(object sender, EventArgs e)
+        private async void tsbFavorites_Click(object sender, EventArgs e)
         {
-            if (showingStats)
+            Settings.Favorites = tsbFavorites.Checked;
+
+            await RefreshHistoryItems(false);
+        }
+
+        private void tsbShowStats_Click(object sender, EventArgs e)
+        {
+            string stats = HistoryHelpers.OutputStats(allHistoryItems);
+            OutputBox.Show(stats, Resources.HistoryStats);
+        }
+
+        private async void tsbImportFolder_Click(object sender, EventArgs e)
+        {
+            using (HistoryImportForm historyImportForm = new HistoryImportForm(HistoryManager, allHistoryItems))
             {
-                lvHistory.Visible = true;
-                pStats.Visible = false;
-                btnShowStats.Text = Resources.BtnShowStats_ShowStats;
-                showingStats = false;
+                if (historyImportForm.ShowDialog() == DialogResult.OK)
+                {
+                    await RefreshHistoryItems();
+                }
+            }
+        }
+
+        private void tsbSettings_Click(object sender, EventArgs e)
+        {
+            using (HistorySettingsForm form = new HistorySettingsForm(Settings))
+            {
+                form.ShowDialog();
+            }
+        }
+
+        private void AdvancedFilter_ValueChanged(object sender, EventArgs e)
+        {
+            if (!busy)
+            {
+                ApplyFilterAdvanced();
+            }
+        }
+
+        private void btnAdvancedSearchReset_Click(object sender, EventArgs e)
+        {
+            ResetFilters();
+            ApplyFilterAdvanced();
+        }
+
+        private void btnAdvancedSearchClose_Click(object sender, EventArgs e)
+        {
+            gbAdvancedSearch.Visible = false;
+            tsbAdvancedSearch.Checked = false;
+        }
+
+        private void lvHistory_RetrieveVirtualItem(object sender, RetrieveVirtualItemEventArgs e)
+        {
+            if (listViewCache != null && e.ItemIndex >= listViewCacheStartIndex && e.ItemIndex < listViewCacheStartIndex + listViewCache.Length)
+            {
+                e.Item = listViewCache[e.ItemIndex - listViewCacheStartIndex];
             }
             else
             {
-                pStats.Visible = true;
-                lvHistory.Visible = false;
-                btnShowStats.Text = Resources.BtnShowStats_HideStats;
-                Cursor = Cursors.WaitCursor;
-                OutputStats(allHistoryItems);
-                Cursor = Cursors.Default;
-                showingStats = true;
+                e.Item = CreateListViewItem(e.ItemIndex);
+            }
+        }
+
+        private void lvHistory_CacheVirtualItems(object sender, CacheVirtualItemsEventArgs e)
+        {
+            if (listViewCache != null && e.StartIndex >= listViewCacheStartIndex && e.EndIndex <= listViewCacheStartIndex + listViewCache.Length)
+            {
+                return;
+            }
+
+            listViewCacheStartIndex = e.StartIndex;
+            int length = e.EndIndex - e.StartIndex + 1;
+            listViewCache = new ListViewItem[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                listViewCache[i] = CreateListViewItem(e.StartIndex + i);
             }
         }
 
@@ -436,31 +556,17 @@ namespace ShareX.HistoryLib
 
         private void lvHistory_KeyDown(object sender, KeyEventArgs e)
         {
-            switch (e.KeyData)
-            {
-                default:
-                    return;
-                case Keys.Enter:
-                    him.TryOpen();
-                    break;
-                case Keys.Control | Keys.Enter:
-                    him.OpenFile();
-                    break;
-                case Keys.Control | Keys.C:
-                    him.CopyURL();
-                    break;
-            }
-
-            e.Handled = true;
+            e.SuppressKeyPress = him.HandleKeyInput(e);
         }
 
         private void lvHistory_ItemDrag(object sender, ItemDragEventArgs e)
         {
             List<string> selection = new List<string>();
 
-            foreach (ListViewItem item in lvHistory.SelectedItems)
+            foreach (int index in lvHistory.SelectedIndices)
             {
-                HistoryItem hi = (HistoryItem)item.Tag;
+                HistoryItem hi = filteredHistoryItems[index];
+
                 if (File.Exists(hi.FilePath))
                 {
                     selection.Add(hi.FilePath);
@@ -471,6 +577,39 @@ namespace ShareX.HistoryLib
             {
                 DataObject data = new DataObject(DataFormats.FileDrop, selection.ToArray());
                 DoDragDrop(data, DragDropEffects.Copy);
+            }
+        }
+
+        private void pbThumbnail_MouseDown(object sender, MouseEventArgs e)
+        {
+            int currentImageIndex = lvHistory.SelectedIndex;
+
+            if (currentImageIndex > -1 && pbThumbnail.Image != null && filteredHistoryItems != null && filteredHistoryItems.Length > 0)
+            {
+                pbThumbnail.Enabled = false;
+
+                int modifiedImageIndex = 0;
+                int halfRange = 100;
+                int startIndex = Math.Max(currentImageIndex - halfRange, 0);
+                int endIndex = Math.Min(startIndex + (halfRange * 2) + 1, filteredHistoryItems.Length);
+
+                List<string> filteredImages = new List<string>();
+
+                for (int i = startIndex; i < endIndex; i++)
+                {
+                    string imageFilePath = filteredHistoryItems[i].FilePath;
+
+                    if (i == currentImageIndex)
+                    {
+                        modifiedImageIndex = filteredImages.Count;
+                    }
+
+                    filteredImages.Add(imageFilePath);
+                }
+
+                ImageViewer.ShowImage(filteredImages.ToArray(), modifiedImageIndex);
+
+                pbThumbnail.Enabled = true;
             }
         }
 

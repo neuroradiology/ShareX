@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ShareX.HistoryLib
@@ -62,6 +63,11 @@ namespace ShareX.HistoryLib
             return new List<HistoryItem>();
         }
 
+        public async Task<List<HistoryItem>> GetHistoryItemsAsync()
+        {
+            return await Task.Run(GetHistoryItems);
+        }
+
         public bool AppendHistoryItem(HistoryItem historyItem)
         {
             return AppendHistoryItems(new HistoryItem[] { historyItem });
@@ -71,7 +77,7 @@ namespace ShareX.HistoryLib
         {
             try
             {
-                return Append(historyItems.Where(x => IsValidHistoryItem(x)));
+                return Append(historyItems.Where(IsValidHistoryItem));
             }
             catch (Exception e)
             {
@@ -87,12 +93,12 @@ namespace ShareX.HistoryLib
                 (!string.IsNullOrEmpty(historyItem.URL) || !string.IsNullOrEmpty(historyItem.FilePath));
         }
 
-        protected List<HistoryItem> Load()
+        internal List<HistoryItem> Load()
         {
             return Load(FilePath);
         }
 
-        protected abstract List<HistoryItem> Load(string filePath);
+        internal abstract List<HistoryItem> Load(string filePath);
 
         protected bool Append(IEnumerable<HistoryItem> historyItems)
         {
@@ -107,12 +113,12 @@ namespace ShareX.HistoryLib
             {
                 if (CreateBackup)
                 {
-                    Helpers.CopyFile(filePath, BackupFolder);
+                    FileHelpers.CopyFile(filePath, BackupFolder);
                 }
 
                 if (CreateWeeklyBackup)
                 {
-                    Helpers.BackupFileWeekly(filePath, BackupFolder);
+                    FileHelpers.BackupFileWeekly(filePath, BackupFolder);
                 }
             }
         }

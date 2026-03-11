@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ namespace ShareX.HistoryLib
         {
         }
 
-        protected override List<HistoryItem> Load(string filePath)
+        internal override List<HistoryItem> Load(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
@@ -66,15 +66,15 @@ namespace ShareX.HistoryLib
             {
                 lock (thisLock)
                 {
-                    Helpers.CreateDirectoryFromFilePath(filePath);
+                    FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-                    using (FileStream fs = File.Open(filePath, FileMode.Append, FileAccess.Write, FileShare.Read))
-                    using (StreamWriter sw = new StreamWriter(fs))
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
+                    using (StreamWriter streamWriter = new StreamWriter(fileStream))
                     {
                         JsonSerializer serializer = new JsonSerializer();
                         serializer.DefaultValueHandling = DefaultValueHandling.Ignore;
 
-                        bool firstObject = fs.Length == 0;
+                        bool firstObject = fileStream.Length == 0;
 
                         foreach (HistoryItem historyItem in historyItems)
                         {
@@ -87,7 +87,7 @@ namespace ShareX.HistoryLib
 
                             json += JObject.FromObject(historyItem, serializer).ToString();
 
-                            sw.Write(json);
+                            streamWriter.Write(json);
 
                             firstObject = false;
                         }

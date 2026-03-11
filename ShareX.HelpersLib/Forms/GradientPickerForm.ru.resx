@@ -147,4 +147,16 @@
   <data name="lblPreview.Text" xml:space="preserve">
     <value>Предпросмотр:</value>
   </data>
+  <data name="lblPresets.Text" xml:space="preserve">
+    <value>Установки:</value>
+  </data>
+  <data name="btnClear.Text" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
+  <data name="chGradient.Text" xml:space="preserve">
+    <value>Градиент</value>
+  </data>
+  <data name="btnReverse.Text" xml:space="preserve">
+    <value>Инвертировать</value>
+  </data>
 </root>

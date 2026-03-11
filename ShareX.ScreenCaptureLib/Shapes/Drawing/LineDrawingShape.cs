@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ namespace ShareX.ScreenCaptureLib
 
         public override ShapeType ShapeType { get; } = ShapeType.DrawingLine;
 
-        public Point[] Points { get; private set; } = new Point[2];
+        public PointF[] Points { get; private set; } = new PointF[2];
         public bool CenterNodeActive { get; private set; }
         public int CenterPointCount { get; private set; }
 
@@ -50,7 +50,7 @@ namespace ShareX.ScreenCaptureLib
 
         private void AdjustPoints(int centerPointCount)
         {
-            Point[] newPoints = new Point[2 + centerPointCount];
+            PointF[] newPoints = new PointF[2 + centerPointCount];
 
             if (Points != null)
             {
@@ -67,8 +67,8 @@ namespace ShareX.ScreenCaptureLib
             {
                 for (int i = 1; i < Points.Length - 1; i++)
                 {
-                    Points[i] = new Point((int)MathHelpers.Lerp(Points[0].X, Points[Points.Length - 1].X, i / (CenterPointCount + 1f)),
-                        (int)MathHelpers.Lerp(Points[0].Y, Points[Points.Length - 1].Y, i / (CenterPointCount + 1f)));
+                    Points[i] = new PointF(MathHelpers.Lerp(Points[0].X, Points[Points.Length - 1].X, i / (CenterPointCount + 1f)),
+                        MathHelpers.Lerp(Points[0].Y, Points[Points.Length - 1].Y, i / (CenterPointCount + 1f)));
                 }
             }
         }
@@ -121,12 +121,12 @@ namespace ShareX.ScreenCaptureLib
 
             if (Rectangle.Width < MinimumCollisionSize)
             {
-                Rectangle = new Rectangle(Rectangle.X - (MinimumCollisionSize / 2), Rectangle.Y, Rectangle.Width + MinimumCollisionSize, Rectangle.Height);
+                Rectangle = new RectangleF(Rectangle.X - (MinimumCollisionSize / 2), Rectangle.Y, Rectangle.Width + MinimumCollisionSize, Rectangle.Height);
             }
 
             if (Rectangle.Height < MinimumCollisionSize)
             {
-                Rectangle = new Rectangle(Rectangle.X, Rectangle.Y - (MinimumCollisionSize / 2), Rectangle.Width, Rectangle.Height + MinimumCollisionSize);
+                Rectangle = new RectangleF(Rectangle.X, Rectangle.Y - (MinimumCollisionSize / 2), Rectangle.Width, Rectangle.Height + MinimumCollisionSize);
             }
         }
 
@@ -141,20 +141,20 @@ namespace ShareX.ScreenCaptureLib
 
             if (Shadow)
             {
-                Point[] shadowPoints = new Point[Points.Length];
+                PointF[] shadowPoints = new PointF[Points.Length];
 
                 for (int i = 0; i < shadowPoints.Length; i++)
                 {
                     shadowPoints[i] = Points[i].Add(ShadowOffset);
                 }
 
-                DrawLine(g, ShadowColor, borderSize, shadowPoints);
+                DrawLine(g, ShadowColor, borderSize, BorderStyle, shadowPoints);
             }
 
-            DrawLine(g, BorderColor, borderSize, Points);
+            DrawLine(g, BorderColor, borderSize, BorderStyle, Points);
         }
 
-        protected void DrawLine(Graphics g, Color borderColor, int borderSize, Point[] points)
+        protected void DrawLine(Graphics g, Color borderColor, int borderSize, BorderStyle borderStyle, PointF[] points)
         {
             if (borderSize > 0 && borderColor.A > 0)
             {
@@ -165,7 +165,7 @@ namespace ShareX.ScreenCaptureLib
                     g.PixelOffsetMode = PixelOffsetMode.Half;
                 }
 
-                using (Pen pen = CreatePen(borderColor, borderSize))
+                using (Pen pen = CreatePen(borderColor, borderSize, borderStyle))
                 {
                     if (CenterNodeActive && points.Length > 2)
                     {
@@ -182,17 +182,18 @@ namespace ShareX.ScreenCaptureLib
             }
         }
 
-        protected virtual Pen CreatePen(Color borderColor, int borderSize)
+        protected virtual Pen CreatePen(Color borderColor, int borderSize, BorderStyle borderStyle)
         {
             return new Pen(borderColor, borderSize)
             {
                 StartCap = LineCap.Round,
                 EndCap = LineCap.Round,
-                LineJoin = LineJoin.Round
+                LineJoin = LineJoin.Round,
+                DashStyle = (DashStyle)borderStyle
             };
         }
 
-        public override void Move(int x, int y)
+        public override void Move(float x, float y)
         {
             base.Move(x, y);
 
@@ -235,7 +236,7 @@ namespace ShareX.ScreenCaptureLib
                         CenterNodeActive = true;
                     }
 
-                    Points[i] = InputManager.ClientMousePosition;
+                    Points[i] = Manager.Form.ScaledClientMousePosition;
                 }
             }
         }

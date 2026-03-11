@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -33,12 +33,15 @@ namespace ShareX.HelpersLib
         public const int RecentColorsMax = 32;
 
         public static ProxyInfo CurrentProxy { get; set; } = new ProxyInfo();
-        public static bool AcceptInvalidSSLCertificates { get; set; } = false;
         public static bool DefaultCopyImageFillBackground { get; set; } = true;
+        public static bool UseAlternativeClipboardCopyImage { get; set; } = false;
+        public static bool UseAlternativeClipboardGetImage { get; set; } = false;
         public static bool RotateImageByExifOrientationData { get; set; } = true;
         public static string BrowserPath { get; set; } = "";
         public static List<Color> RecentColors { get; set; } = new List<Color>();
         public static string LastSaveDirectory { get; set; } = "";
         public static bool URLEncodeIgnoreEmoji { get; set; } = false;
+        public static Dictionary<string, string> ShareXSpecialFolders { get; set; } = new Dictionary<string, string>();
+        public static bool DevMode { get; set; } = false;
     }
 }

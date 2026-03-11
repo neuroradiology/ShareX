@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -46,16 +46,18 @@ namespace ShareX.MediaLib
             Options = options;
 
             InitializeComponent();
-            ShareXResources.ApplyTheme(this);
+            ShareXResources.ApplyTheme(this, true);
 
             UpdateOptions();
 
             txtInputFilePath.Text = Options.InputFilePath;
             txtOutputFolder.Text = Options.OutputFolderPath;
             txtOutputFileName.Text = Options.OutputFileName;
-            cbVideoCodec.Items.AddRange(Helpers.GetEnumDescriptions<ConverterVideoCodecs>());
-            cbVideoCodec.SelectedIndex = (int)Options.VideoCodec;
+            cbVideoEncoder.Items.AddRange(Helpers.GetEnumDescriptions<ConverterVideoCodecs>());
+            cbVideoEncoder.SelectedIndex = (int)Options.VideoCodec;
+            cbVideoQualityUseBitrate.Checked = Options.VideoQualityUseBitrate;
             tbVideoQuality.SetValue(tbVideoQuality.Minimum + tbVideoQuality.Maximum - Options.VideoQuality);
+            nudVideoQualityBitrate.SetValue(Options.VideoQualityBitrate);
 
             cbAutoOpenFolder.Checked = Options.AutoOpenFolder;
 
@@ -69,6 +71,13 @@ namespace ShareX.MediaLib
             formReady = true;
         }
 
+        public VideoConverterForm(string inputFilePath, string ffmpegFilePath, VideoConverterOptions options) : this(ffmpegFilePath, options)
+        {
+            txtInputFilePath.Text = inputFilePath;
+            txtOutputFolder.Text = Path.GetDirectoryName(inputFilePath);
+            txtOutputFileName.Text = Path.GetFileNameWithoutExtension(inputFilePath) + "-output";
+        }
+
         private void UpdateOptions()
         {
             if (formReady)
@@ -76,8 +85,11 @@ namespace ShareX.MediaLib
                 Options.InputFilePath = txtInputFilePath.Text;
                 Options.OutputFolderPath = txtOutputFolder.Text;
                 Options.OutputFileName = txtOutputFileName.Text;
-                Options.VideoCodec = (ConverterVideoCodecs)cbVideoCodec.SelectedIndex;
+                Options.VideoCodec = (ConverterVideoCodecs)cbVideoEncoder.SelectedIndex;
+                Options.VideoQualityUseBitrate = cbVideoQualityUseBitrate.Checked;
+                Options.VideoQualityBitrate = (int)nudVideoQualityBitrate.Value;
                 Options.UseCustomArguments = cbUseCustomArguments.Checked;
+
                 if (Options.UseCustomArguments)
                 {
                     Options.CustomArguments = txtArguments.Text;
@@ -90,11 +102,25 @@ namespace ShareX.MediaLib
                 case ConverterVideoCodecs.x265:
                 case ConverterVideoCodecs.vp8:
                 case ConverterVideoCodecs.vp9:
+                case ConverterVideoCodecs.av1:
                 case ConverterVideoCodecs.xvid:
-                    tbVideoQuality.Enabled = true;
+                    cbVideoQualityUseBitrate.Visible = true;
+                    tbVideoQuality.Visible = lblVideoQualityValue.Visible = lblVideoQualityLower.Visible = lblVideoQualityHigher.Visible = !Options.VideoQualityUseBitrate;
+                    nudVideoQualityBitrate.Visible = lblVideoQualityBitrateHint.Visible = Options.VideoQualityUseBitrate;
+                    break;
+                case ConverterVideoCodecs.h264_nvenc:
+                case ConverterVideoCodecs.hevc_nvenc:
+                case ConverterVideoCodecs.h264_amf:
+                case ConverterVideoCodecs.hevc_amf:
+                case ConverterVideoCodecs.h264_qsv:
+                case ConverterVideoCodecs.hevc_qsv:
+                    cbVideoQualityUseBitrate.Visible = false;
+                    tbVideoQuality.Visible = lblVideoQualityValue.Visible = lblVideoQualityLower.Visible = lblVideoQualityHigher.Visible = false;
+                    nudVideoQualityBitrate.Visible = lblVideoQualityBitrateHint.Visible = true;
                     break;
                 default:
-                    tbVideoQuality.Enabled = false;
+                    cbVideoQualityUseBitrate.Visible = tbVideoQuality.Visible = lblVideoQualityValue.Visible = lblVideoQualityLower.Visible =
+                        lblVideoQualityHigher.Visible = nudVideoQualityBitrate.Visible = lblVideoQualityBitrateHint.Visible = false;
                     break;
             }
 
@@ -116,14 +142,18 @@ namespace ShareX.MediaLib
                     tbVideoQuality.Minimum = FFmpegCLIManager.vp9_min;
                     tbVideoQuality.Maximum = FFmpegCLIManager.vp9_max;
                     break;
+                case ConverterVideoCodecs.av1:
+                    tbVideoQuality.Minimum = FFmpegCLIManager.av1_min;
+                    tbVideoQuality.Maximum = FFmpegCLIManager.av1_max;
+                    break;
                 case ConverterVideoCodecs.xvid:
                     tbVideoQuality.Minimum = FFmpegCLIManager.xvid_min;
                     tbVideoQuality.Maximum = FFmpegCLIManager.xvid_max;
                     break;
             }
 
-            lblVideoQualityLower.Text = tbVideoQuality.Maximum + "   <- " + Resources.LowerQualitySize;
-            lblVideoQualityHigher.Text = Resources.HigherQualitySize + " ->   " + tbVideoQuality.Minimum;
+            lblVideoQualityLower.Text = tbVideoQuality.Maximum + "   ← " + Resources.LowerQualitySize;
+            lblVideoQualityHigher.Text = Resources.HigherQualitySize + " →   " + tbVideoQuality.Minimum;
 
             if (formReady)
             {
@@ -134,15 +164,35 @@ namespace ShareX.MediaLib
 
             if (!Options.UseCustomArguments)
             {
-                txtArguments.Text = Options.GetFFmpegArgs();
+                try
+                {
+                    txtArguments.Text = Options.GetFFmpegArgs();
+                }
+                catch
+                {
+                    txtArguments.Text = "";
+                }
             }
 
-            lblVideoCodec.Visible = cbVideoCodec.Visible = lblVideoQuality.Visible = tbVideoQuality.Visible =
-                lblVideoQualityValue.Visible = lblVideoQualityLower.Visible = lblVideoQualityHigher.Visible = !Options.UseCustomArguments;
-            txtArguments.Visible = Options.UseCustomArguments;
+            txtArguments.Enabled = Options.UseCustomArguments;
 
             btnEncode.Enabled = !string.IsNullOrEmpty(Options.InputFilePath) && !string.IsNullOrEmpty(Options.OutputFolderPath) &&
                 !string.IsNullOrEmpty(Options.OutputFileName);
+        }
+
+        private void UpdateInputFilePathTextBox(string filePath)
+        {
+            txtInputFilePath.Text = filePath;
+
+            if (string.IsNullOrEmpty(txtOutputFolder.Text))
+            {
+                txtOutputFolder.Text = Path.GetDirectoryName(filePath);
+            }
+
+            if (string.IsNullOrEmpty(txtOutputFileName.Text))
+            {
+                txtOutputFileName.Text = Path.GetFileNameWithoutExtension(filePath) + "-output";
+            }
         }
 
         private bool StartEncoding()
@@ -158,13 +208,20 @@ namespace ShareX.MediaLib
                     ffmpeg.TrackEncodeProgress = true;
                     ffmpeg.EncodeProgressChanged += Manager_EncodeProgressChanged;
 
-                    string outputFilePath = Options.OutputFilePath;
-                    string args = Options.Arguments;
-                    result = ffmpeg.Run(args);
-
-                    if (Options.AutoOpenFolder && result && !ffmpeg.StopRequested)
+                    try
                     {
-                        Helpers.OpenFolderWithFile(outputFilePath);
+                        string outputFilePath = Options.OutputFilePath;
+                        string args = Options.Arguments;
+                        result = ffmpeg.Run(args);
+
+                        if (Options.AutoOpenFolder && result && !ffmpeg.StopRequested)
+                        {
+                            FileHelpers.OpenFolderWithFile(outputFilePath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        e.ShowError();
                     }
                 }
             }
@@ -197,17 +254,7 @@ namespace ShareX.MediaLib
                 if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
                     string filePath = ofd.FileName;
-                    txtInputFilePath.Text = filePath;
-
-                    if (string.IsNullOrEmpty(txtOutputFolder.Text))
-                    {
-                        txtOutputFolder.Text = Path.GetDirectoryName(filePath);
-                    }
-
-                    if (string.IsNullOrEmpty(txtOutputFileName.Text))
-                    {
-                        txtOutputFileName.Text = Path.GetFileNameWithoutExtension(filePath) + "-output";
-                    }
+                    UpdateInputFilePathTextBox(filePath);
                 }
             }
         }
@@ -219,7 +266,7 @@ namespace ShareX.MediaLib
 
         private void btnOutputFolderBrowse_Click(object sender, EventArgs e)
         {
-            Helpers.BrowseFolder(txtOutputFolder);
+            FileHelpers.BrowseFolder(txtOutputFolder);
         }
 
         private void txtOutputFileName_TextChanged(object sender, EventArgs e)
@@ -227,12 +274,22 @@ namespace ShareX.MediaLib
             UpdateOptions();
         }
 
-        private void cbVideoCodec_SelectedIndexChanged(object sender, EventArgs e)
+        private void cbVideoEncoder_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            UpdateOptions();
+        }
+
+        private void cbVideoQualityUseBitrate_CheckedChanged(object sender, EventArgs e)
         {
             UpdateOptions();
         }
 
         private void tbVideoQuality_ValueChanged(object sender, EventArgs e)
+        {
+            UpdateOptions();
+        }
+
+        private void nudVideoQualityBitrate_ValueChanged(object sender, EventArgs e)
         {
             UpdateOptions();
         }
@@ -284,6 +341,27 @@ namespace ShareX.MediaLib
             else if (ffmpeg != null)
             {
                 ffmpeg.Close();
+            }
+        }
+
+        private void VideoConverterForm_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void VideoConverterForm_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false) && e.Data.GetData(DataFormats.FileDrop, false) is string[] files && files.Length > 0)
+            {
+                string filePath = files[0];
+                UpdateInputFilePathTextBox(filePath);
             }
         }
 

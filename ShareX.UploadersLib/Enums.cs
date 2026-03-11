@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -39,10 +39,6 @@ namespace ShareX.UploadersLib
         Flickr,
         [Description("Photobucket")]
         Photobucket,
-        [Description("Google Photos")]
-        Picasa,
-        [Description("Twitter")]
-        Twitter,
         [Description("Chevereto")]
         Chevereto,
         [Description("vgy.me")]
@@ -64,8 +60,6 @@ namespace ShareX.UploadersLib
         Paste_ee,
         [Description("GitHub Gist")]
         Gist,
-        [Description("Teknik")]
-        Teknik,
         [Description("uPaste")]
         Upaste,
         [Description("Hastebin")]
@@ -103,8 +97,6 @@ namespace ShareX.UploadersLib
         AzureStorage,
         [Description("Backblaze B2")]
         BackblazeB2,
-        [Description("Gfycat")]
-        Gfycat,
         [Description("ownCloud / Nextcloud")]
         OwnCloud,
         [Description("MediaFire")]
@@ -113,18 +105,10 @@ namespace ShareX.UploadersLib
         Pushbullet,
         [Description("SendSpace")]
         SendSpace,
-        [Description("Ge.tt")]
-        Ge_tt,
         [Description("Hostr")]
         Localhostr,
-        [Description("JIRA")]
-        Jira,
         [Description("Lambda")]
         Lambda,
-        [Description("VideoBin")]
-        VideoBin,
-        [Description("Teknik")]
-        Teknik,
         [Description("Pomf")]
         Pomf,
         [Description("Uguu")]
@@ -135,7 +119,7 @@ namespace ShareX.UploadersLib
         Streamable,
         [Description("s-ul")]
         Sul,
-        [Description("Lithiio")]
+        [Description("LobFile")]
         Lithiio,
         [Description("transfer.sh")]
         Transfersh,
@@ -143,6 +127,8 @@ namespace ShareX.UploadersLib
         Plik,
         [Description("YouTube")]
         YouTube,
+        [Description("Vault.ooo")]
+        Vault_ooo,
         SharedFolder, // Localized
         Email, // Localized
         CustomFileUploader // Localized
@@ -163,12 +149,8 @@ namespace ShareX.UploadersLib
         TURL,
         [Description("yourls.org")]
         YOURLS,
-        [Description("adf.ly")]
-        AdFly,
         [Description("qr.net")]
         QRnet,
-        [Description("tknk.io")]
-        Teknik,
         [Description("vurl.com")]
         VURL,
         [Description("2.gp")]
@@ -184,12 +166,10 @@ namespace ShareX.UploadersLib
         CustomURLShortener // Localized
     }
 
-    [Description("URL sharing services"), DefaultValue(Twitter)]
+    [Description("URL sharing services"), DefaultValue(Email)]
     public enum URLSharingServices
     {
         Email, // Localized
-        [Description("Twitter")]
-        Twitter,
         [Description("Facebook")]
         Facebook,
         [Description("Reddit")]
@@ -209,6 +189,7 @@ namespace ShareX.UploadersLib
         [Description("Pushbullet")]
         Pushbullet,
         GoogleImageSearch, // Localized
+        BingVisualSearch, // Localized
         CustomURLSharingService // Localized
     }
 
@@ -219,14 +200,6 @@ namespace ShareX.UploadersLib
         PUT,
         PATCH,
         DELETE
-    }
-
-    public enum ResponseType // Localized
-    {
-        Text,
-        RedirectionURL,
-        Headers,
-        LocationHeader
     }
 
     public enum FTPProtocol
@@ -250,7 +223,9 @@ namespace ShareX.UploadersLib
         [Description("ftps://")]
         ftps,
         [Description("file://")]
-        file
+        file,
+        [Description("sftp://")]
+        sftp
     }
 
     public enum Privacy
@@ -340,17 +315,20 @@ namespace ShareX.UploadersLib
         LoginFailed
     }
 
-    public enum URLType
-    {
-        URL,
-        ThumbnailURL,
-        DeletionURL
-    }
-
     public enum YouTubeVideoPrivacy // Localized
     {
         Public,
         Unlisted,
         Private
+    }
+
+    public enum BoxShareAccessLevel
+    {
+        [Description("Public - People with the link")]
+        Open,
+        [Description("Company - People in your company")]
+        Company,
+        [Description("Collaborators - Invited people only")]
+        Collaborators
     }
 }

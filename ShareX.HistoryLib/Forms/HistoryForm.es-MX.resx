@@ -123,12 +123,6 @@
   <data name="$this.Text" xml:space="preserve">
     <value>ShareX - Historial</value>
   </data>
-  <data name="btnApplyFilters.Text" xml:space="preserve">
-    <value>Aplicar filtros</value>
-  </data>
-  <data name="btnRemoveFilters.Text" xml:space="preserve">
-    <value>Quitar filtros</value>
-  </data>
   <data name="cbDateFilter.Text" xml:space="preserve">
     <value>Filtro por fecha:</value>
   </data>
@@ -144,22 +138,43 @@
   <data name="chURL.Text" xml:space="preserve">
     <value>Enlace</value>
   </data>
-  <data name="gbFilters.Text" xml:space="preserve">
-    <value>Filtros</value>
-  </data>
   <data name="lblFilterFrom.Text" xml:space="preserve">
     <value>De:</value>
   </data>
   <data name="lblFilterTo.Text" xml:space="preserve">
     <value>A:</value>
   </data>
-  <data name="btnShowStats.Text" xml:space="preserve">
-    <value>Mostrar estadísticas</value>
-  </data>
   <data name="lblFilenameFilter.Text" xml:space="preserve">
     <value>Nombre de archivo:</value>
   </data>
   <data name="lblURLFilter.Text" xml:space="preserve">
     <value>Enlace:</value>
+  </data>
+  <data name="tslSearch.Text" xml:space="preserve">
+    <value>Buscar:</value>
+  </data>
+  <data name="tsbSearch.Text" xml:space="preserve">
+    <value>Buscar</value>
+  </data>
+  <data name="tsbAdvancedSearch.Text" xml:space="preserve">
+    <value>Búsqueda avanzada...</value>
+  </data>
+  <data name="tsbToggleMoreInfo.Text" xml:space="preserve">
+    <value>Activar/Desactivar más información</value>
+  </data>
+  <data name="tsbShowStats.Text" xml:space="preserve">
+    <value>Mostrar estadísticas...</value>
+  </data>
+  <data name="tsbSettings.Text" xml:space="preserve">
+    <value>Ajustes...</value>
+  </data>
+  <data name="btnAdvancedSearchClose.Text" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="btnAdvancedSearchReset.Text" xml:space="preserve">
+    <value>Restablecer</value>
+  </data>
+  <data name="gbAdvancedSearch.Text" xml:space="preserve">
+    <value>Búsqueda avanzada</value>
   </data>
 </root>

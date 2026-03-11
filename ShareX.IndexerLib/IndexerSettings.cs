@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -41,6 +41,9 @@ namespace ShareX.IndexerLib
         [Category("Indexer"), DefaultValue(true), Description("Don't index hidden files.")]
         public bool SkipHiddenFiles { get; set; }
 
+        [Category("Indexer"), DefaultValue(false), Description("Index only folders and skip files.")]
+        public bool SkipFiles { get; set; }
+
         [Category("Indexer"), DefaultValue(0), Description("Maximum folder depth level for indexing. 0 means unlimited.")]
         public int MaxDepthLevel { get; set; }
 
@@ -58,6 +61,12 @@ namespace ShareX.IndexerLib
 
         [Category("Indexer / HTML"), DefaultValue(false), Description("Use custom Cascading Style Sheet file.")]
         public bool UseCustomCSSFile { get; set; }
+
+        [Category("Indexer / HTML"), DefaultValue(false), Description("Display the path for each subfolder.")]
+        public bool DisplayPath { get; set; }
+
+        [Category("Indexer / HTML"), DefaultValue(false), Description("Limit the display path to the selected root folder. Must have DisplayPath enabled.")]
+        public bool DisplayPathLimited { get; set; }
 
         [Category("Indexer / HTML"), DefaultValue(""), Description("Custom Cascading Style Sheet file path."), Editor(typeof(CssFileNameEditor), typeof(UITypeEditor))]
         public string CustomCSSFilePath { get; set; }

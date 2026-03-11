@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ namespace ShareX.ScreenCaptureLib
 
         public override void OnConfigLoad()
         {
-            ImageInterpolationMode = ImageEditorInterpolationMode.NearestNeighbor;
+            ImageInterpolationMode = ImageInterpolationMode.NearestNeighbor;
         }
 
         public override void OnConfigSave()
@@ -48,8 +48,8 @@ namespace ShareX.ScreenCaptureLib
 
         public override void OnCreating()
         {
-            Point pos = InputManager.ClientMousePosition;
-            Rectangle = new Rectangle(pos.X, pos.Y, 1, 1);
+            PointF pos = Manager.Form.ScaledClientMousePosition;
+            Rectangle = new RectangleF(pos.X, pos.Y, 1, 1);
 
             if (Manager.IsCtrlModifier && LoadSticker(AnnotationOptions.LastStickerPath, AnnotationOptions.StickerSize))
             {
@@ -73,7 +73,33 @@ namespace ShareX.ScreenCaptureLib
 
         public override void Resize(int x, int y, bool fromBottomRight)
         {
-            Move(x, y);
+            RotateFlipType rotateFlipType = RotateFlipType.RotateNoneFlipNone;
+
+            if (x > 0)
+            {
+                rotateFlipType = RotateFlipType.Rotate90FlipNone;
+            }
+            else if (x < 0)
+            {
+                rotateFlipType = RotateFlipType.Rotate270FlipNone;
+            }
+            else if (y > 0)
+            {
+                rotateFlipType = RotateFlipType.RotateNoneFlipX;
+            }
+            else if (y < 0)
+            {
+                rotateFlipType = RotateFlipType.RotateNoneFlipY;
+            }
+
+            if (rotateFlipType != RotateFlipType.RotateNoneFlipNone)
+            {
+                PointF center = new PointF(Rectangle.X + Rectangle.Width / 2, Rectangle.Y + Rectangle.Height / 2);
+                Bitmap flippedBmp = (Bitmap)Image.Clone();
+                flippedBmp.RotateFlip(rotateFlipType);
+                SetImage(flippedBmp, true);
+                Rectangle = new RectangleF(center.X - flippedBmp.Width / 2, center.Y - flippedBmp.Height / 2, flippedBmp.Width, flippedBmp.Height);
+            }
         }
 
         private bool OpenStickerForm()
@@ -84,7 +110,7 @@ namespace ShareX.ScreenCaptureLib
             {
                 using (StickerForm stickerForm = new StickerForm(AnnotationOptions.StickerPacks, AnnotationOptions.SelectedStickerPack, AnnotationOptions.StickerSize))
                 {
-                    if (stickerForm.ShowDialog(Manager.Form) == DialogResult.OK)
+                    if (stickerForm.ShowDialogTopMost(Manager.Form) == DialogResult.OK)
                     {
                         AnnotationOptions.SelectedStickerPack = stickerForm.SelectedStickerPack;
                         AnnotationOptions.StickerSize = stickerForm.StickerSize;

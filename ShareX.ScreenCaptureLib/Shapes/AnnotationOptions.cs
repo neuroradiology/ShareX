@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 
 #endregion License Information (GPL v3)
 
+using ShareX.HelpersLib;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -41,6 +42,7 @@ namespace ShareX.ScreenCaptureLib
         // Drawing
         public Color BorderColor { get; set; } = PrimaryColor;
         public int BorderSize { get; set; } = 4;
+        public BorderStyle BorderStyle { get; set; } = BorderStyle.Solid;
         public Color FillColor { get; set; } = TransparentColor;
         public int DrawingCornerRadius { get; set; } = 3;
         public bool Shadow { get; set; } = true;
@@ -51,7 +53,7 @@ namespace ShareX.ScreenCaptureLib
         public int LineCenterPointCount { get; set; } = 1;
 
         // Arrow drawing
-        public bool ArrowHeadsBothSide { get; set; } = false;
+        public ArrowHeadDirection ArrowHeadDirection { get; set; } = ArrowHeadDirection.End;
 
         // Text (Outline) drawing
         public TextDrawingOptions TextOutlineOptions { get; set; } = new TextDrawingOptions()
@@ -74,7 +76,7 @@ namespace ShareX.ScreenCaptureLib
         public Color TextFillColor { get; set; } = PrimaryColor;
 
         // Image drawing
-        public ImageEditorInterpolationMode ImageInterpolationMode = ImageEditorInterpolationMode.NearestNeighbor;
+        public ImageInterpolationMode ImageInterpolationMode = ImageInterpolationMode.NearestNeighbor;
         public string LastImageFilePath { get; set; }
 
         // Step drawing
@@ -82,7 +84,7 @@ namespace ShareX.ScreenCaptureLib
         public int StepBorderSize { get; set; } = 0;
         public Color StepFillColor { get; set; } = PrimaryColor;
         public int StepFontSize { get; set; } = 18;
-        public bool StepUseLetters { get; set; } = false;
+        public StepType StepType { get; set; } = StepType.Numbers;
 
         // Magnify drawing
         public int MagnifyStrength { get; set; } = 200;
@@ -104,5 +106,15 @@ namespace ShareX.ScreenCaptureLib
 
         // Highlight effect
         public Color HighlightColor { get; set; } = Color.Yellow;
+
+        // Spotlight tool
+        public int SpotlightDim { get; set; } = 30;
+        public int SpotlightBlur { get; set; } = 10;
+        public bool SpotlightEllipse { get; set; } = false;
+
+        // Cut out tool
+        public CutOutEffectType CutOutEffectType { get; set; } = CutOutEffectType.None;
+        public int CutOutEffectSize { get; set; } = 10;
+        public Color CutOutBackgroundColor { get; set; } = Color.Transparent;
     }
 }

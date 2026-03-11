@@ -174,15 +174,6 @@
   <data name="btnClipboardFormatAdd.Text" xml:space="preserve">
     <value>Toevoegen...</value>
   </data>
-  <data name="gbClipboardFormats.Text" xml:space="preserve">
-    <value>Klembord formaten</value>
-  </data>
-  <data name="chkUseSecondaryUploaders.Text" xml:space="preserve">
-    <value>Gebruik secundaire uploaders in de volgende volgorde tijdens herproberen</value>
-  </data>
-  <data name="tpUploadResults.Text" xml:space="preserve">
-    <value>Resultaten</value>
-  </data>
   <data name="gbSecondaryImageUploaders.Text" xml:space="preserve">
     <value>Tweede afbeeldingsuploaders</value>
   </data>
@@ -236,9 +227,6 @@
   </data>
   <data name="lblProxyPassword.Text" xml:space="preserve">
     <value>Wachtwoord:</value>
-  </data>
-  <data name="tpUploadRetry.Text" xml:space="preserve">
-    <value>Opnieuw proberen</value>
   </data>
   <data name="tpUpload.Text" xml:space="preserve">
     <value>Uploaden</value>
@@ -300,16 +288,10 @@
   <data name="btnImport.Text" xml:space="preserve">
     <value>Importeer...</value>
   </data>
-  <data name="tpExportImport.Text" xml:space="preserve">
-    <value>Exporteer / Importeer</value>
-  </data>
   <data name="cbHistorySaveTasks.Text" xml:space="preserve">
     <value>Taken opslaan naar geschiedenis</value>
   </data>
   <data name="lblRecentTasksMaxCount.Text" xml:space="preserve">
     <value>Maximale nummer van taken om op te slaan:</value>
-  </data>
-  <data name="cbCheckPreReleaseUpdates.Text" xml:space="preserve">
-    <value>Controleer op pre-release-updates</value>
   </data>
 </root>

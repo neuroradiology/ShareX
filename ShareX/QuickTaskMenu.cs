@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -43,11 +43,6 @@ namespace ShareX
                 AutoClose = false
             };
 
-            if (ShareXResources.ExperimentalCustomTheme)
-            {
-                cms.Renderer = new ToolStripDarkRenderer();
-            }
-
             cms.KeyUp += (sender, e) =>
             {
                 if (e.KeyCode == Keys.Escape)
@@ -74,11 +69,11 @@ namespace ShareX
                     if (taskInfo.IsValid)
                     {
                         ToolStripMenuItem tsmi = new ToolStripMenuItem { Text = taskInfo.ToString().Replace("&", "&&"), Tag = taskInfo };
-                        tsmi.Image = FindSuitableIcon(taskInfo);
+                        tsmi.Image = taskInfo.Icon;
                         tsmi.Click += (sender, e) =>
                         {
-                            QuickTaskInfo selectedTaskInfo = ((ToolStripMenuItem)sender).Tag as QuickTaskInfo;
                             cms.Close();
+                            QuickTaskInfo selectedTaskInfo = ((ToolStripMenuItem)sender).Tag as QuickTaskInfo;
                             OnTaskInfoSelected(selectedTaskInfo);
                         };
                         cms.Items.Add(tsmi);
@@ -110,6 +105,8 @@ namespace ShareX
             tsmiCancel.Click += (sender, e) => cms.Close();
             cms.Items.Add(tsmiCancel);
 
+            ShareXResources.ApplyCustomThemeToContextMenuStrip(cms);
+
             Point cursorPosition = CaptureHelpers.GetCursorPosition();
             cursorPosition.Offset(-10, -10);
             cms.Show(cursorPosition);
@@ -118,28 +115,7 @@ namespace ShareX
 
         protected void OnTaskInfoSelected(QuickTaskInfo taskInfo)
         {
-            if (TaskInfoSelected != null)
-            {
-                TaskInfoSelected(taskInfo);
-            }
-        }
-
-        public Image FindSuitableIcon(QuickTaskInfo taskInfo)
-        {
-            if (taskInfo.AfterCaptureTasks.HasFlag(AfterCaptureTasks.UploadImageToHost))
-            {
-                return Resources.upload_cloud;
-            }
-            else if (taskInfo.AfterCaptureTasks.HasFlag(AfterCaptureTasks.CopyImageToClipboard) || taskInfo.AfterCaptureTasks.HasFlag(AfterCaptureTasks.CopyFileToClipboard))
-            {
-                return Resources.clipboard;
-            }
-            else if (taskInfo.AfterCaptureTasks.HasFlag(AfterCaptureTasks.SaveImageToFile) || taskInfo.AfterCaptureTasks.HasFlag(AfterCaptureTasks.SaveImageToFileWithDialog))
-            {
-                return Resources.disk_black;
-            }
-
-            return Resources.image;
+            TaskInfoSelected?.Invoke(taskInfo);
         }
     }
 }

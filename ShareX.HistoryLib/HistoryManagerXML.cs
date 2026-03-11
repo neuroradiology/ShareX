@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ namespace ShareX.HistoryLib
         {
         }
 
-        protected override List<HistoryItem> Load(string filePath)
+        internal override List<HistoryItem> Load(string filePath)
         {
             List<HistoryItem> historyItemList = new List<HistoryItem>();
 
@@ -64,9 +64,7 @@ namespace ShareX.HistoryLib
                         {
                             if (reader.NodeType == XmlNodeType.Element && reader.Name == "HistoryItem")
                             {
-                                XElement element = XNode.ReadFrom(reader) as XElement;
-
-                                if (element != null)
+                                if (XNode.ReadFrom(reader) is XElement element)
                                 {
                                     HistoryItem hi = ParseHistoryItem(element);
                                     historyItemList.Add(hi);
@@ -137,10 +135,10 @@ namespace ShareX.HistoryLib
             {
                 lock (thisLock)
                 {
-                    Helpers.CreateDirectoryFromFilePath(filePath);
+                    FileHelpers.CreateDirectoryFromFilePath(filePath);
 
-                    using (FileStream fs = File.Open(filePath, FileMode.Append, FileAccess.Write, FileShare.Read))
-                    using (XmlTextWriter writer = new XmlTextWriter(fs, Encoding.UTF8))
+                    using (FileStream fileStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Read, 4096, FileOptions.WriteThrough))
+                    using (XmlTextWriter writer = new XmlTextWriter(fileStream, Encoding.UTF8))
                     {
                         writer.Formatting = Formatting.Indented;
                         writer.Indentation = 4;

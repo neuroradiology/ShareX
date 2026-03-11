@@ -130,9 +130,6 @@
   <data name="cbCheckPreReleaseUpdates.Size" type="System.Drawing.Size, System.Drawing">
     <value>270, 17</value>
   </data>
-  <data name="cbCheckPreReleaseUpdates.Text" xml:space="preserve">
-    <value>همه اپدیت ها را انجام بده (ممکن است خطا داشته باشد)</value>
-  </data>
   <data name="lblTrayMiddleClickAction.Size" type="System.Drawing.Size, System.Drawing">
     <value>166, 13</value>
   </data>
@@ -211,17 +208,8 @@
   <data name="cbExperimentalDarkTheme.Size" type="System.Drawing.Size, System.Drawing">
     <value>113, 17</value>
   </data>
-  <data name="cbExperimentalDarkTheme.Text" xml:space="preserve">
-    <value>تم مشکی آزمایشی</value>
-  </data>
-  <data name="btnApplyTheme.Text" xml:space="preserve">
-    <value>اعمال تم</value>
-  </data>
   <data name="cbUseDarkTheme.Size" type="System.Drawing.Size, System.Drawing">
     <value>124, 17</value>
-  </data>
-  <data name="cbUseDarkTheme.Text" xml:space="preserve">
-    <value>از تم تیره استفاده کن</value>
   </data>
   <data name="tpTheme.Text" xml:space="preserve">
     <value>تم</value>
@@ -319,9 +307,6 @@
   <data name="btnImport.Text" xml:space="preserve">
     <value>وارد کردن تنظیمات برنامه ...</value>
   </data>
-  <data name="tpExportImport.Text" xml:space="preserve">
-    <value>خروجی گرفتن / وارد کردن</value>
-  </data>
   <data name="lblUploadLimit.Size" type="System.Drawing.Size, System.Drawing">
     <value>111, 13</value>
   </data>
@@ -355,9 +340,6 @@
   <data name="chFormat.Text" xml:space="preserve">
     <value>فرمت</value>
   </data>
-  <data name="tpUploadResults.Text" xml:space="preserve">
-    <value>نتایج</value>
-  </data>
   <data name="gbSecondaryFileUploaders.Text" xml:space="preserve">
     <value>دیگر آپلودکننده های فایل</value>
   </data>
@@ -372,9 +354,6 @@
   </data>
   <data name="cbIfUploadFailRetryOnce.Text" xml:space="preserve">
     <value>تعداد سعی ها در صورتی که آپلود با مشکل مواجه شود.</value>
-  </data>
-  <data name="tpUploadRetry.Text" xml:space="preserve">
-    <value>دوباره سعی کن</value>
   </data>
   <data name="tpUpload.Text" xml:space="preserve">
     <value>آپلود</value>
@@ -486,9 +465,6 @@
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>ShareX - تنظیمات برنامه</value>
-  </data>
-  <data name="chkUseSecondaryUploaders.Text" xml:space="preserve">
-    <value>در هنگام سعی مجدد از آپلودکننده های ثانویه استفاده کن.</value>
   </data>
   <data name="lblPreviewPersonalFolderPath.Text" xml:space="preserve">
     <value>...</value>

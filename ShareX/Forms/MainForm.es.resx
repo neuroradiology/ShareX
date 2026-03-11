@@ -198,12 +198,6 @@
   <data name="tsmiImageEffects.Text" xml:space="preserve">
     <value>Efectos de imágenes...</value>
   </data>
-  <data name="tsmiHashCheck.Text" xml:space="preserve">
-    <value>Verificación hash...</value>
-  </data>
-  <data name="tsmiDNSChanger.Text" xml:space="preserve">
-    <value>Cambiador de DNS...</value>
-  </data>
   <data name="tsmiQRCode.Text" xml:space="preserve">
     <value>QR código...</value>
   </data>
@@ -212,9 +206,6 @@
   </data>
   <data name="tsmiIndexFolder.Text" xml:space="preserve">
     <value>Carpeta de índice...</value>
-  </data>
-  <data name="tsmiTweetMessage.Text" xml:space="preserve">
-    <value>Tweet mensaje...</value>
   </data>
   <data name="tsmiMonitorTest.Text" xml:space="preserve">
     <value>Prueba del monitor...</value>
@@ -242,9 +233,6 @@
   </data>
   <data name="tsmiURLSharingServices.Text" xml:space="preserve">
     <value>Servicios para compartir URL</value>
-  </data>
-  <data name="tsmiDestinationSettings.Text" xml:space="preserve">
-    <value>Configuración de destinacion...</value>
   </data>
   <data name="tsbApplicationSettings.Text" xml:space="preserve">
     <value>Ajustes: Aplicaciones...</value>
@@ -393,21 +381,6 @@
   <data name="tsmiClearList.Text" xml:space="preserve">
     <value>Borrar lista</value>
   </data>
-  <data name="tsmiHideMenu.Text" xml:space="preserve">
-    <value>Ocultar menú</value>
-  </data>
-  <data name="tsmiImagePreview.Text" xml:space="preserve">
-    <value>Previsualización de imagen</value>
-  </data>
-  <data name="tsmiImagePreviewShow.Text" xml:space="preserve">
-    <value>Mostrar</value>
-  </data>
-  <data name="tsmiImagePreviewHide.Text" xml:space="preserve">
-    <value>Ocultar</value>
-  </data>
-  <data name="tsmiImagePreviewAutomatic.Text" xml:space="preserve">
-    <value>Automático</value>
-  </data>
   <data name="tsmiTrayCapture.Text" xml:space="preserve">
     <value>Capturar</value>
   </data>
@@ -471,12 +444,6 @@
   <data name="tsmiTrayImageEffects.Text" xml:space="preserve">
     <value>Efectos de imágenes...</value>
   </data>
-  <data name="tsmiTrayHashCheck.Text" xml:space="preserve">
-    <value>Verificación hash...</value>
-  </data>
-  <data name="tsmiTrayDNSChanger.Text" xml:space="preserve">
-    <value>Cambiador de DNS...</value>
-  </data>
   <data name="tsmiTrayQRCode.Text" xml:space="preserve">
     <value>QR código...</value>
   </data>
@@ -485,9 +452,6 @@
   </data>
   <data name="tsmiTrayIndexFolder.Text" xml:space="preserve">
     <value>Carpeta de índice...</value>
-  </data>
-  <data name="tsmiTrayTweetMessage.Text" xml:space="preserve">
-    <value>Tweet mensaje...</value>
   </data>
   <data name="tsmiTrayMonitorTest.Text" xml:space="preserve">
     <value>Prueba del monitor...</value>
@@ -539,12 +503,6 @@
   </data>
   <data name="tsmiTrayImageHistory.Text" xml:space="preserve">
     <value>Historial de la imagen...</value>
-  </data>
-  <data name="tsmiTrayDonate.Text" xml:space="preserve">
-    <value>Donar...</value>
-  </data>
-  <data name="tsmiTrayAbout.Text" xml:space="preserve">
-    <value>Sobre...</value>
   </data>
   <data name="tsmiTrayShow.Text" xml:space="preserve">
     <value>Mostrar la ventana ShareX</value>

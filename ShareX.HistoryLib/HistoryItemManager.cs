@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -24,17 +24,21 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
+using ShareX.HistoryLib.Forms;
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace ShareX.HistoryLib
 {
     public partial class HistoryItemManager
     {
-        public delegate HistoryItem[] GetHistoryItemsEventHandler();
-
-        public event GetHistoryItemsEventHandler GetHistoryItems;
+        public event Func<HistoryItem[]> GetHistoryItems;
+        public event Action<HistoryItem> EditRequested;
+        public event Action<HistoryItem[]> DeleteRequested;
+        public event Action<HistoryItem[]> DeleteFileRequested;
+        public event Action<HistoryItem[]> FavoriteRequested;
 
         public HistoryItem HistoryItem { get; private set; }
 
@@ -48,20 +52,37 @@ namespace ShareX.HistoryLib
         public bool IsFileExist { get; private set; }
         public bool IsImageFile { get; private set; }
         public bool IsTextFile { get; private set; }
+        public int SelectedItemCount { get; private set; }
 
-        private Action<string> uploadFile, editImage;
+        private Action<string> uploadFile, editImage, pinToScreen, analyzeImage;
 
-        public HistoryItemManager(Action<string> uploadFile, Action<string> editImage)
+        public HistoryItemManager(Action<string> uploadFile, Action<string> editImage, Action<string> pinToScreen, Action<string> analyzeImage)
         {
             this.uploadFile = uploadFile;
             this.editImage = editImage;
+            this.pinToScreen = pinToScreen;
+            this.analyzeImage = analyzeImage;
 
             InitializeComponent();
+            cmsHistory.Opening += cmsHistory_Opening;
+
+            tsmiOpen.HideImageMargin();
+            tsmiCopy.HideImageMargin();
+            tsmiUploadFile.Visible = uploadFile != null;
+            tsmiEditImage.Visible = editImage != null;
+            tsmiPinToScreen.Visible = pinToScreen != null;
+            tsmiAnalyzeImage.Visible = analyzeImage != null;
+        }
+
+        private void cmsHistory_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            UpdateSelectedHistoryItem();
         }
 
         public HistoryItem UpdateSelectedHistoryItem()
         {
             HistoryItem[] historyItems = OnGetHistoryItems();
+            SelectedItemCount = historyItems?.Length ?? 0;
 
             if (historyItems != null && historyItems.Length > 0)
             {
@@ -78,19 +99,22 @@ namespace ShareX.HistoryLib
                 IsShortenedURLExist = !string.IsNullOrEmpty(HistoryItem.ShortenedURL);
                 IsThumbnailURLExist = !string.IsNullOrEmpty(HistoryItem.ThumbnailURL);
                 IsDeletionURLExist = !string.IsNullOrEmpty(HistoryItem.DeletionURL);
-                IsImageURL = IsURLExist && Helpers.IsImageFile(HistoryItem.URL);
-                IsTextURL = IsURLExist && Helpers.IsTextFile(HistoryItem.URL);
+                IsImageURL = IsURLExist && FileHelpers.IsImageFile(HistoryItem.URL);
+                IsTextURL = IsURLExist && FileHelpers.IsTextFile(HistoryItem.URL);
                 IsFilePathValid = !string.IsNullOrEmpty(HistoryItem.FilePath) && Path.HasExtension(HistoryItem.FilePath);
                 IsFileExist = IsFilePathValid && File.Exists(HistoryItem.FilePath);
-                IsImageFile = IsFileExist && Helpers.IsImageFile(HistoryItem.FilePath);
-                IsTextFile = IsFileExist && Helpers.IsTextFile(HistoryItem.FilePath);
+                IsImageFile = IsFileExist && FileHelpers.IsImageFile(HistoryItem.FilePath);
+                IsTextFile = IsFileExist && FileHelpers.IsTextFile(HistoryItem.FilePath);
 
-                UpdateContextMenu(historyItems.Length);
+                UpdateContextMenu(SelectedItemCount);
             }
             else
             {
                 cmsHistory.Enabled = false;
             }
+
+            // TODO: Translate
+            tsmiFavorite.Text = HistoryItem != null && HistoryItem.Favorite ? "Unfavorite" : "Favorite";
 
             return HistoryItem;
         }
@@ -103,6 +127,73 @@ namespace ShareX.HistoryLib
             }
 
             return null;
+        }
+
+        protected void OnFavoriteRequested(HistoryItem[] historyItems)
+        {
+            FavoriteRequested?.Invoke(historyItems);
+        }
+
+        protected void OnEditRequested(HistoryItem historyItem)
+        {
+            EditRequested?.Invoke(historyItem);
+        }
+
+        protected void OnDeleteRequested(HistoryItem[] historyItems)
+        {
+            DeleteRequested?.Invoke(historyItems);
+        }
+
+        protected void OnDeleteFileRequested(HistoryItem[] historyItems)
+        {
+            DeleteFileRequested?.Invoke(historyItems);
+        }
+
+        public bool HandleKeyInput(KeyEventArgs e)
+        {
+            switch (e.KeyData)
+            {
+                default:
+                    return false;
+                case Keys.Enter:
+                    TryOpen();
+                    break;
+                case Keys.Control | Keys.Enter:
+                    OpenFile();
+                    break;
+                case Keys.Shift | Keys.Enter:
+                    OpenFolder();
+                    break;
+                case Keys.Control | Keys.C:
+                    CopyURL();
+                    break;
+                case Keys.Shift | Keys.C:
+                    CopyFile();
+                    break;
+                case Keys.Alt | Keys.C:
+                    CopyImage();
+                    break;
+                case Keys.Control | Keys.Shift | Keys.C:
+                    CopyFilePath();
+                    break;
+                case Keys.Delete:
+                    Delete();
+                    break;
+                case Keys.Shift | Keys.Delete:
+                    DeleteFile();
+                    break;
+                case Keys.Control | Keys.U:
+                    UploadFile();
+                    break;
+                case Keys.Control | Keys.E:
+                    EditImage();
+                    break;
+                case Keys.Control | Keys.P:
+                    PinToScreen();
+                    break;
+            }
+
+            return true;
         }
 
         public void OpenURL()
@@ -127,12 +218,12 @@ namespace ShareX.HistoryLib
 
         public void OpenFile()
         {
-            if (HistoryItem != null && IsFileExist) Helpers.OpenFile(HistoryItem.FilePath);
+            if (HistoryItem != null && IsFileExist) FileHelpers.OpenFile(HistoryItem.FilePath);
         }
 
         public void OpenFolder()
         {
-            if (HistoryItem != null && IsFileExist) Helpers.OpenFolderWithFile(HistoryItem.FilePath);
+            if (HistoryItem != null && IsFileExist) FileHelpers.OpenFolderWithFile(HistoryItem.FilePath);
         }
 
         public void TryOpen()
@@ -149,7 +240,7 @@ namespace ShareX.HistoryLib
                 }
                 else if (IsFileExist)
                 {
-                    Helpers.OpenFile(HistoryItem.FilePath);
+                    FileHelpers.OpenFile(HistoryItem.FilePath);
                 }
             }
         }
@@ -235,7 +326,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath) && File.Exists(x.FilePath)).Select(x => x.FilePath).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath) &&
+                    File.Exists(x.FilePath)).Select(x => x.FilePath).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -259,7 +351,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL)).Select(x => string.Format("<a href=\"{0}\">{0}</a>", x.URL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL)).
+                    Select(x => string.Format("<a href=\"{0}\">{0}</a>", x.URL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -278,7 +371,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && Helpers.IsImageFile(x.URL)).Select(x => string.Format("<img src=\"{0}\"/>", x.URL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && FileHelpers.IsImageFile(x.URL)).
+                    Select(x => string.Format("<img src=\"{0}\"/>", x.URL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -297,7 +391,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && Helpers.IsImageFile(x.URL) && !string.IsNullOrEmpty(x.ThumbnailURL)).Select(x => string.Format("<a href=\"{0}\"><img src=\"{1}\"/></a>", x.URL, x.ThumbnailURL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && FileHelpers.IsImageFile(x.URL) &&
+                    !string.IsNullOrEmpty(x.ThumbnailURL)).Select(x => string.Format("<a href=\"{0}\"><img src=\"{1}\"/></a>", x.URL, x.ThumbnailURL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -335,7 +430,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && Helpers.IsImageFile(x.URL)).Select(x => string.Format("[img]{0}[/img]", x.URL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && FileHelpers.IsImageFile(x.URL)).
+                    Select(x => string.Format("[img]{0}[/img]", x.URL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -354,7 +450,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && Helpers.IsImageFile(x.URL) && !string.IsNullOrEmpty(x.ThumbnailURL)).Select(x => string.Format("[url={0}][img]{1}[/img][/url]", x.URL, x.ThumbnailURL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && FileHelpers.IsImageFile(x.URL) &&
+                    !string.IsNullOrEmpty(x.ThumbnailURL)).Select(x => string.Format("[url={0}][img]{1}[/img][/url]", x.URL, x.ThumbnailURL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -373,7 +470,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL)).Select(x => string.Format("[{0}]({1})", x.FileName, x.URL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL)).
+                    Select(x => string.Format("[{0}]({1})", x.FileName, x.URL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -392,7 +490,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && Helpers.IsImageFile(x.URL)).Select(x => string.Format("![{0}]({1})", x.FileName, x.URL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && FileHelpers.IsImageFile(x.URL)).
+                    Select(x => string.Format("![{0}]({1})", x.FileName, x.URL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -411,7 +510,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && Helpers.IsImageFile(x.URL) && !string.IsNullOrEmpty(x.ThumbnailURL)).Select(x => string.Format("[![{0}]({1})]({2})", x.FileName, x.ThumbnailURL, x.URL)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.URL) && FileHelpers.IsImageFile(x.URL) &&
+                    !string.IsNullOrEmpty(x.ThumbnailURL)).Select(x => string.Format("[![{0}]({1})]({2})", x.FileName, x.ThumbnailURL, x.URL)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -430,7 +530,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath) && File.Exists(x.FilePath)).Select(x => x.FilePath).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath) &&
+                    File.Exists(x.FilePath)).Select(x => x.FilePath).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -449,7 +550,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath)).Select(x => Path.GetFileNameWithoutExtension(x.FilePath)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath)).
+                    Select(x => Path.GetFileNameWithoutExtension(x.FilePath)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -468,7 +570,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath)).Select(x => Path.GetFileName(x.FilePath)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath)).
+                    Select(x => Path.GetFileName(x.FilePath)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -487,7 +590,8 @@ namespace ShareX.HistoryLib
             HistoryItem[] historyItems = OnGetHistoryItems();
             if (historyItems != null)
             {
-                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath)).Select(x => Path.GetDirectoryName(x.FilePath)).ToArray();
+                string[] array = historyItems.Where(x => x != null && !string.IsNullOrEmpty(x.FilePath) && Path.HasExtension(x.FilePath)).
+                    Select(x => Path.GetDirectoryName(x.FilePath)).ToArray();
 
                 if (array != null && array.Length > 0)
                 {
@@ -501,14 +605,109 @@ namespace ShareX.HistoryLib
             }
         }
 
+        public void ToggleFavorite()
+        {
+            HistoryItem[] historyItems = OnGetHistoryItems();
+
+            if (historyItems != null)
+            {
+                foreach (HistoryItem item in historyItems)
+                {
+                    item.Favorite = !item.Favorite;
+                }
+
+                OnFavoriteRequested(historyItems);
+            }
+        }
+
+        public void EditTag()
+        {
+            string tag = HistoryItem.Tag;
+            // TODO: Translate
+            string newTag = InputBox.Show("Edit tag", tag);
+            if (newTag != null && newTag != tag)
+            {
+                HistoryItem.Tag = newTag;
+                OnEditRequested(HistoryItem);
+            }
+        }
+
+        public void Edit()
+        {
+            using (HistoryItemEditForm form = new HistoryItemEditForm(HistoryItem))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    OnEditRequested(form.HistoryItem);
+                }
+            }
+        }
+
+        public void RenameFile()
+        {
+            if (!string.IsNullOrEmpty(HistoryItem.FilePath))
+            {
+                string oldFileName = Path.GetFileNameWithoutExtension(HistoryItem.FilePath);
+
+                // TODO: Translate
+                string newFileName = InputBox.Show("Rename file", oldFileName);
+
+                if (!string.IsNullOrEmpty(newFileName) && !oldFileName.Equals(newFileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (Path.HasExtension(HistoryItem.FilePath))
+                    {
+                        newFileName += Path.GetExtension(HistoryItem.FilePath);
+                    }
+
+                    HistoryItem.FileName = newFileName;
+                    string newFilePath = FileHelpers.RenameFile(HistoryItem.FilePath, newFileName);
+                    HistoryItem.FilePath = newFilePath;
+                    OnEditRequested(HistoryItem);
+                }
+            }
+        }
+
+        public void Delete()
+        {
+            if (SelectedItemCount > 0)
+            {
+                // TODO: Translate
+                string itemText = SelectedItemCount > 1 ? "these items" : "this item";
+                string message = $"Do you really want to delete {itemText}?";
+
+                if (MessageBox.Show(message, "ShareX - Confirmation", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    HistoryItem[] historyItems = OnGetHistoryItems();
+                    if (historyItems != null && historyItems.Length > 0)
+                    {
+                        OnDeleteRequested(historyItems);
+                    }
+                }
+            }
+        }
+
+        public void DeleteFile()
+        {
+            if (SelectedItemCount > 0)
+            {
+                // TODO: Translate
+                string fileText = SelectedItemCount > 1 ? "these files" : "this file";
+                string message = $"Do you really want to delete {fileText}?";
+
+                if (MessageBox.Show(message, "ShareX - Confirmation", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    HistoryItem[] historyItems = OnGetHistoryItems();
+                    if (historyItems != null && historyItems.Length > 0)
+                    {
+                        OnDeleteFileRequested(historyItems);
+                    }
+                }
+            }
+        }
+
         public void ShowImagePreview()
         {
             if (HistoryItem != null && IsImageFile) ImageViewer.ShowImage(HistoryItem.FilePath);
-        }
-
-        public void ShowMoreInfo()
-        {
-            new HistoryItemInfoForm(HistoryItem).Show();
         }
 
         public void UploadFile()
@@ -519,6 +718,16 @@ namespace ShareX.HistoryLib
         public void EditImage()
         {
             if (editImage != null && HistoryItem != null && IsImageFile) editImage(HistoryItem.FilePath);
+        }
+
+        public void PinToScreen()
+        {
+            if (pinToScreen != null && HistoryItem != null && IsImageFile) pinToScreen(HistoryItem.FilePath);
+        }
+
+        public void AnalyzeImage()
+        {
+            if (analyzeImage != null && HistoryItem != null && IsImageFile) analyzeImage(HistoryItem.FilePath);
         }
     }
 }

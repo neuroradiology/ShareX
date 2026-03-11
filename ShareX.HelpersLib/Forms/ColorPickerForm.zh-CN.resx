@@ -168,12 +168,6 @@
   <data name="cbTransparent.ToolTip" xml:space="preserve">
     <value>透明</value>
   </data>
-  <data name="lblY.Text" xml:space="preserve">
-    <value>Y：</value>
-  </data>
-  <data name="lblX.Text" xml:space="preserve">
-    <value>X：</value>
-  </data>
   <data name="btnScreenColorPicker.ToolTip" xml:space="preserve">
     <value>从屏幕选取颜色</value>
   </data>
@@ -212,5 +206,17 @@
   </data>
   <data name="lblAlpha.Text" xml:space="preserve">
     <value>Alpha：</value>
+  </data>
+  <data name="rbRecentColors.Text" xml:space="preserve">
+    <value>最近的颜色</value>
+  </data>
+  <data name="rbStandardColors.Text" xml:space="preserve">
+    <value>标准颜色</value>
+  </data>
+  <data name="lblName.Text" xml:space="preserve">
+    <value>名称:</value>
+  </data>
+  <data name="btnClipboardColorPicker.ToolTip" xml:space="preserve">
+    <value>选择剪贴板中的颜色</value>
   </data>
 </root>

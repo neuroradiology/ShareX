@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ using ShareX.HelpersLib;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
-using System.Drawing.Drawing2D;
 
 namespace ShareX.ImageEffectsLib
 {
@@ -39,15 +38,6 @@ namespace ShareX.ImageEffectsLib
 
         [DefaultValue(false)]
         public bool UseGradient { get; set; }
-
-        [DefaultValue(LinearGradientMode.Vertical)]
-        public LinearGradientMode GradientType { get; set; }
-
-        [DefaultValue(typeof(Color), "White"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color2 { get; set; }
-
-        [DefaultValue(false)]
-        public bool UseCustomGradient { get; set; }
 
         [Editor(typeof(GradientEditor), typeof(UITypeEditor))]
         public GradientInfo Gradient { get; set; }
@@ -69,19 +59,25 @@ namespace ShareX.ImageEffectsLib
 
         public override Bitmap Apply(Bitmap bmp)
         {
-            if (UseGradient)
+            using (bmp)
             {
-                if (UseCustomGradient && Gradient != null && Gradient.IsValid)
+                if (UseGradient && Gradient != null && Gradient.IsValid)
                 {
                     return ImageHelpers.FillBackground(bmp, Gradient);
                 }
-                else
-                {
-                    return ImageHelpers.FillBackground(bmp, Color, Color2, GradientType);
-                }
+
+                return ImageHelpers.FillBackground(bmp, Color);
+            }
+        }
+
+        protected override string GetSummary()
+        {
+            if (!UseGradient)
+            {
+                return $"{Color.R}, {Color.G}, {Color.B}";
             }
 
-            return ImageHelpers.FillBackground(bmp, Color);
+            return null;
         }
     }
 }

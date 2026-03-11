@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -25,12 +25,13 @@
 
 using ShareX.HelpersLib;
 using ShareX.HistoryLib;
+using ShareX.Properties;
 using ShareX.ScreenCaptureLib;
 using ShareX.UploadersLib;
-using ShareX.UploadersLib.FileUploaders;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -39,7 +40,7 @@ namespace ShareX
 {
     internal static class SettingManager
     {
-        private const string ApplicationConfigFilename = "ApplicationConfig.json";
+        private const string ApplicationConfigFileName = "ApplicationConfig.json";
 
         private static string ApplicationConfigFilePath
         {
@@ -47,11 +48,13 @@ namespace ShareX
             {
                 if (Program.Sandbox) return null;
 
-                return Path.Combine(Program.PersonalFolder, ApplicationConfigFilename);
+                return Path.Combine(Program.PersonalFolder, ApplicationConfigFileName);
             }
         }
 
-        private const string UploadersConfigFilename = "UploadersConfig.json";
+        private const string UploadersConfigFileNamePrefix = "UploadersConfig";
+        private const string UploadersConfigFileNameExtension = "json";
+        private const string UploadersConfigFileName = UploadersConfigFileNamePrefix + "." + UploadersConfigFileNameExtension;
 
         private static string UploadersConfigFilePath
         {
@@ -63,18 +66,20 @@ namespace ShareX
 
                 if (Settings != null && !string.IsNullOrEmpty(Settings.CustomUploadersConfigPath))
                 {
-                    uploadersConfigFolder = Helpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
+                    uploadersConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomUploadersConfigPath);
                 }
                 else
                 {
                     uploadersConfigFolder = Program.PersonalFolder;
                 }
 
-                return Path.Combine(uploadersConfigFolder, UploadersConfigFilename);
+                string uploadersConfigFileName = GetUploadersConfigFileName(uploadersConfigFolder);
+
+                return Path.Combine(uploadersConfigFolder, uploadersConfigFileName);
             }
         }
 
-        private const string HotkeysConfigFilename = "HotkeysConfig.json";
+        private const string HotkeysConfigFileName = "HotkeysConfig.json";
 
         private static string HotkeysConfigFilePath
         {
@@ -86,14 +91,14 @@ namespace ShareX
 
                 if (Settings != null && !string.IsNullOrEmpty(Settings.CustomHotkeysConfigPath))
                 {
-                    hotkeysConfigFolder = Helpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
+                    hotkeysConfigFolder = FileHelpers.ExpandFolderVariables(Settings.CustomHotkeysConfigPath);
                 }
                 else
                 {
                     hotkeysConfigFolder = Program.PersonalFolder;
                 }
 
-                return Path.Combine(hotkeysConfigFolder, HotkeysConfigFilename);
+                return Path.Combine(hotkeysConfigFolder, HotkeysConfigFileName);
             }
         }
 
@@ -106,9 +111,6 @@ namespace ShareX
 
         private static ManualResetEvent uploadersConfigResetEvent = new ManualResetEvent(false);
         private static ManualResetEvent hotkeysConfigResetEvent = new ManualResetEvent(false);
-
-        private const int SettingsSaveFailWarningLimit = 3;
-        private static int settingsSaveFailWarningCount;
 
         public static void LoadInitialSettings()
         {
@@ -140,49 +142,49 @@ namespace ShareX
             }
         }
 
-        public static void LoadApplicationConfig()
+        public static void LoadApplicationConfig(bool fallbackSupport = true)
         {
-            Settings = ApplicationConfig.Load(ApplicationConfigFilePath, BackupFolder, true, true);
+            Settings = ApplicationConfig.Load(ApplicationConfigFilePath, BackupFolder, fallbackSupport);
+            Settings.CreateBackup = true;
+            Settings.CreateWeeklyBackup = true;
             Settings.SettingsSaveFailed += Settings_SettingsSaveFailed;
             DefaultTaskSettings = Settings.DefaultTaskSettings;
             ApplicationConfigBackwardCompatibilityTasks();
             MigrateHistoryFile();
+            HistoryConnect();
         }
 
         private static void Settings_SettingsSaveFailed(Exception e)
         {
-            if (settingsSaveFailWarningCount == SettingsSaveFailWarningLimit) return;
-
             string message;
 
             if (e is UnauthorizedAccessException || e is FileNotFoundException)
             {
-                message = "Your anti-virus software or the controlled folder access feature in Windows 10 could be blocking ShareX.";
+                message = Resources.YourAntiVirusSoftwareOrTheControlledFolderAccessFeatureInWindowsCouldBeBlockingShareX;
             }
             else
             {
                 message = e.Message;
             }
 
-            BalloonTipAction action = new BalloonTipAction()
-            {
-                ClickAction = BalloonTipClickAction.OpenDebugLog
-            };
-
-            TaskHelpers.ShowBalloonTip(message, ToolTipIcon.Warning, 5000, "ShareX failed to save settings", action);
-
-            settingsSaveFailWarningCount++;
+            TaskHelpers.ShowNotificationTip(message, "ShareX - " + Resources.FailedToSaveSettings, 5000);
         }
 
-        public static void LoadUploadersConfig()
+        public static void LoadUploadersConfig(bool fallbackSupport = true)
         {
-            UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, BackupFolder, true, true);
+            UploadersConfig = UploadersConfig.Load(UploadersConfigFilePath, BackupFolder, fallbackSupport);
+            UploadersConfig.CreateBackup = true;
+            UploadersConfig.CreateWeeklyBackup = true;
+            UploadersConfig.SupportDPAPIEncryption = true;
             UploadersConfigBackwardCompatibilityTasks();
         }
 
-        public static void LoadHotkeysConfig()
+        public static void LoadHotkeysConfig(bool fallbackSupport = true)
         {
-            HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, BackupFolder, true, true);
+            HotkeysConfig = HotkeysConfig.Load(HotkeysConfigFilePath, BackupFolder, fallbackSupport);
+            HotkeysConfig.CreateBackup = true;
+            HotkeysConfig.CreateWeeklyBackup = true;
+            HotkeysConfigBackwardCompatibilityTasks();
         }
 
         public static void LoadAllSettings()
@@ -192,27 +194,119 @@ namespace ShareX
             LoadHotkeysConfig();
         }
 
-        private static void ApplicationConfigBackwardCompatibilityTasks()
+        private static string GetUploadersConfigFileName(string destinationFolder)
         {
-            if (Settings.IsUpgradeFrom("11.4.1"))
+            if (string.IsNullOrEmpty(destinationFolder))
             {
-                RegionCaptureOptions regionCaptureOptions = DefaultTaskSettings.CaptureSettings.SurfaceOptions;
-                regionCaptureOptions.AnnotationOptions = new AnnotationOptions();
-                regionCaptureOptions.LastRegionTool = ShapeType.RegionRectangle;
-                regionCaptureOptions.LastAnnotationTool = ShapeType.DrawingRectangle;
+                return UploadersConfigFileName;
             }
 
-            if (Settings.IsUpgradeFrom("11.5.0"))
+            if (Settings != null && Settings.UseMachineSpecificUploadersConfig)
             {
-                if (File.Exists(Program.ChromeHostManifestFilePath))
+                string sanitizedMachineName = FileHelpers.SanitizeFileName(Environment.MachineName);
+
+                if (!string.IsNullOrEmpty(sanitizedMachineName))
                 {
-                    IntegrationHelpers.CreateChromeExtensionSupport(true);
+                    string machineSpecificFileName = $"{UploadersConfigFileNamePrefix}-{sanitizedMachineName}.{UploadersConfigFileNameExtension}";
+                    string machineSpecificPath = Path.Combine(destinationFolder, machineSpecificFileName);
+
+                    if (!File.Exists(machineSpecificPath))
+                    {
+                        string defaultFilePath = Path.Combine(destinationFolder, UploadersConfigFileName);
+
+                        if (File.Exists(defaultFilePath))
+                        {
+                            try
+                            {
+                                File.Copy(defaultFilePath, machineSpecificPath, false);
+                            }
+                            catch (IOException)
+                            {
+                                // Ignore copy issues; file may have been created in the meantime.
+                            }
+                        }
+                    }
+
+                    return machineSpecificFileName;
                 }
             }
 
-            if (Settings.IsUpgradeFrom("13.0.2"))
+            return UploadersConfigFileName;
+        }
+
+        private static void ApplicationConfigBackwardCompatibilityTasks()
+        {
+            if (SystemOptions.DisableUpload)
             {
-                Settings.UseCustomTheme = Settings.UseDarkTheme;
+                DefaultTaskSettings.AfterCaptureJob = DefaultTaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
+            }
+
+            if (Settings.IsUpgradeFrom("14.1.1"))
+            {
+                if (Helpers.IsDefaultSettings(Settings.Themes, ShareXTheme.GetDefaultThemes(), (x, y) => x.Name == y.Name))
+                {
+                    if (!Settings.Themes.IsValidIndex(Settings.SelectedTheme))
+                    {
+                        Settings.SelectedTheme = 0;
+                    }
+
+                    ShareXTheme selectedTheme = Settings.Themes[Settings.SelectedTheme];
+
+                    Settings.Themes = ShareXTheme.GetDefaultThemes();
+
+                    int index = Settings.Themes.FindIndex(x => x.Name.Equals(selectedTheme.Name, StringComparison.OrdinalIgnoreCase));
+
+                    if (index >= 0)
+                    {
+                        Settings.SelectedTheme = index;
+                    }
+                    else
+                    {
+                        Settings.SelectedTheme = 0;
+                    }
+                }
+            }
+
+            if (Settings.IsUpgradeFrom("14.1.2"))
+            {
+                if (!Environment.Is64BitOperatingSystem && !string.IsNullOrEmpty(DefaultTaskSettings.CaptureSettings.FFmpegOptions.CLIPath))
+                {
+                    DefaultTaskSettings.CaptureSettings.FFmpegOptions.OverrideCLIPath = true;
+                }
+            }
+
+            if (Settings.IsUpgradeFrom("15.0.1"))
+            {
+                DefaultTaskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
+                DefaultTaskSettings.CaptureSettings.FFmpegOptions.FixSources();
+            }
+
+            if (Settings.IsUpgradeFrom("16.0.2"))
+            {
+                if (Settings.CheckPreReleaseUpdates)
+                {
+                    Settings.UpdateChannel = UpdateChannel.PreRelease;
+                }
+
+                if (!DefaultTaskSettings.CaptureSettings.SurfaceOptions.UseDimming)
+                {
+                    DefaultTaskSettings.CaptureSettings.SurfaceOptions.BackgroundDimStrength = 0;
+                }
+            }
+        }
+
+        public static void HistoryConnect()
+        {
+            HistoryClose();
+            Program.HistoryManager = new HistoryManagerSQLite(Program.HistoryFilePath);
+        }
+
+        public static void HistoryClose()
+        {
+            if (Program.HistoryManager != null)
+            {
+                Program.HistoryManager.Dispose();
+                Program.HistoryManager = null;
             }
         }
 
@@ -220,84 +314,121 @@ namespace ShareX
         {
             if (File.Exists(Program.HistoryFilePathOld))
             {
-                if (!File.Exists(Program.HistoryFilePath))
+                try
                 {
-                    DebugHelper.WriteLine($"Migrating XML history file \"{Program.HistoryFilePathOld}\" to JSON history file \"{Program.HistoryFilePath}\"");
-
-                    HistoryManagerXML historyManagerXML = new HistoryManagerXML(Program.HistoryFilePathOld);
-                    List<HistoryItem> historyItems = historyManagerXML.GetHistoryItems();
-
-                    if (historyItems.Count > 0)
+                    if (!File.Exists(Program.HistoryFilePath))
                     {
-                        HistoryManagerJSON historyManagerJSON = new HistoryManagerJSON(Program.HistoryFilePath);
-                        historyManagerJSON.AppendHistoryItems(historyItems);
-                    }
-                }
+                        DebugHelper.WriteLine($"Migrating JSON history file \"{Program.HistoryFilePathOld}\" to SQLite history file \"{Program.HistoryFilePath}\"");
 
-                Helpers.MoveFile(Program.HistoryFilePathOld, BackupFolder);
+                        using (HistoryManagerSQLite historyManager = new HistoryManagerSQLite(Program.HistoryFilePath))
+                        {
+                            historyManager.MigrateFromJSON(Program.HistoryFilePathOld);
+                        }
+                    }
+
+                    FileHelpers.MoveFile(Program.HistoryFilePathOld, BackupFolder);
+                }
+                catch (Exception e)
+                {
+                    DebugHelper.WriteException(e);
+                    e.ShowError();
+                }
             }
         }
 
         private static void UploadersConfigBackwardCompatibilityTasks()
         {
-            if (UploadersConfig.IsUpgradeFrom("11.6.0"))
-            {
-                if (UploadersConfig.DropboxURLType == DropboxURLType.Direct)
-                {
-                    UploadersConfig.DropboxUseDirectLink = true;
-                }
-
-                if (!string.IsNullOrEmpty(UploadersConfig.AmazonS3Settings.Endpoint))
-                {
-                    bool endpointFound = false;
-
-                    foreach (AmazonS3Endpoint endpoint in AmazonS3.Endpoints)
-                    {
-                        if (endpoint.Region != null && endpoint.Region.Equals(UploadersConfig.AmazonS3Settings.Endpoint, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            UploadersConfig.AmazonS3Settings.Endpoint = endpoint.Endpoint;
-                            UploadersConfig.AmazonS3Settings.Region = endpoint.Region;
-                            endpointFound = true;
-                            break;
-                        }
-                    }
-
-                    if (!endpointFound)
-                    {
-                        UploadersConfig.AmazonS3Settings.Endpoint = "";
-                    }
-                }
-            }
-
             if (UploadersConfig.CustomUploadersList != null)
             {
                 foreach (CustomUploaderItem cui in UploadersConfig.CustomUploadersList)
                 {
-                    cui.CheckBackwardCompatibility();
+                    try
+                    {
+                        cui.CheckBackwardCompatibility();
+                    }
+                    catch
+                    {
+                    }
                 }
+            }
+        }
+
+        private static void HotkeysConfigBackwardCompatibilityTasks()
+        {
+            if (SystemOptions.DisableUpload)
+            {
+                foreach (TaskSettings taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+                {
+                    if (taskSettings != null)
+                    {
+                        taskSettings.AfterCaptureJob = taskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.UploadImageToHost);
+                    }
+                }
+            }
+
+            if (Settings.IsUpgradeFrom("15.0.1"))
+            {
+                foreach (TaskSettings taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+                {
+                    if (taskSettings != null && taskSettings.CaptureSettings != null)
+                    {
+                        taskSettings.CaptureSettings.ScrollingCaptureOptions = new ScrollingCaptureOptions();
+                        taskSettings.CaptureSettings.FFmpegOptions.FixSources();
+                    }
+                }
+            }
+        }
+
+        public static void CleanupHotkeysConfig()
+        {
+            foreach (TaskSettings taskSettings in HotkeysConfig.Hotkeys.Select(x => x.TaskSettings))
+            {
+                taskSettings.Cleanup();
             }
         }
 
         public static void SaveAllSettings()
         {
-            if (Settings != null) Settings.Save(ApplicationConfigFilePath);
-            if (UploadersConfig != null) UploadersConfig.Save(UploadersConfigFilePath);
-            if (HotkeysConfig != null) HotkeysConfig.Save(HotkeysConfigFilePath);
+            if (Settings != null)
+            {
+                Settings.Save(ApplicationConfigFilePath);
+            }
+
+            if (UploadersConfig != null)
+            {
+                UploadersConfig.Save(UploadersConfigFilePath);
+            }
+
+            if (HotkeysConfig != null)
+            {
+                CleanupHotkeysConfig();
+                HotkeysConfig.Save(HotkeysConfigFilePath);
+            }
         }
 
         public static void SaveApplicationConfigAsync()
         {
-            if (Settings != null) Settings.SaveAsync(ApplicationConfigFilePath);
+            if (Settings != null)
+            {
+                Settings.SaveAsync(ApplicationConfigFilePath);
+            }
         }
 
         public static void SaveUploadersConfigAsync()
         {
-            if (UploadersConfig != null) UploadersConfig.SaveAsync(UploadersConfigFilePath);
+            if (UploadersConfig != null)
+            {
+                UploadersConfig.SaveAsync(UploadersConfigFilePath);
+            }
         }
 
         public static void SaveHotkeysConfigAsync()
         {
-            if (HotkeysConfig != null) HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
+            if (HotkeysConfig != null)
+            {
+                CleanupHotkeysConfig();
+                HotkeysConfig.SaveAsync(HotkeysConfigFilePath);
+            }
         }
 
         public static void SaveAllSettingsAsync()
@@ -310,40 +441,59 @@ namespace ShareX
         public static void ResetSettings()
         {
             if (File.Exists(ApplicationConfigFilePath)) File.Delete(ApplicationConfigFilePath);
-            LoadApplicationConfig();
+            LoadApplicationConfig(false);
 
             if (File.Exists(UploadersConfigFilePath)) File.Delete(UploadersConfigFilePath);
-            LoadUploadersConfig();
+            LoadUploadersConfig(false);
 
             if (File.Exists(HotkeysConfigFilePath)) File.Delete(HotkeysConfigFilePath);
-            LoadHotkeysConfig();
+            LoadHotkeysConfig(false);
         }
 
         public static bool Export(string archivePath, bool settings, bool history)
         {
+            MemoryStream msApplicationConfig = null, msUploadersConfig = null, msHotkeysConfig = null;
+
             try
             {
-                List<string> files = new List<string>();
+                List<ZipEntryInfo> entries = new List<ZipEntryInfo>();
 
                 if (settings)
                 {
-                    files.Add(ApplicationConfigFilename);
-                    files.Add(HotkeysConfigFilename);
-                    files.Add(UploadersConfigFilename);
+                    msApplicationConfig = Settings.SaveToMemoryStream(false);
+                    entries.Add(new ZipEntryInfo(msApplicationConfig, ApplicationConfigFileName));
+
+                    msUploadersConfig = UploadersConfig.SaveToMemoryStream(false);
+                    entries.Add(new ZipEntryInfo(msUploadersConfig, UploadersConfigFileName));
+
+                    msHotkeysConfig = HotkeysConfig.SaveToMemoryStream(false);
+                    entries.Add(new ZipEntryInfo(msHotkeysConfig, HotkeysConfigFileName));
                 }
 
                 if (history)
                 {
-                    files.Add(Program.HistoryFilename);
+                    entries.Add(new ZipEntryInfo(Program.HistoryFilePath));
+                    HistoryClose();
                 }
 
-                ZipManager.Compress(archivePath, files, Program.PersonalFolder);
+                ZipManager.Compress(archivePath, entries);
                 return true;
             }
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
                 MessageBox.Show("Error while exporting backup:\r\n" + e, "ShareX - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                msApplicationConfig?.Dispose();
+                msUploadersConfig?.Dispose();
+                msHotkeysConfig?.Dispose();
+
+                if (history)
+                {
+                    HistoryConnect();
+                }
             }
 
             return false;
@@ -353,13 +503,23 @@ namespace ShareX
         {
             try
             {
-                ZipManager.Extract(archivePath, Program.PersonalFolder);
+                HistoryClose();
+
+                ZipManager.Extract(archivePath, Program.PersonalFolder, true, entry =>
+                {
+                    return FileHelpers.CheckExtension(entry.Name, new string[] { "json", "xml" });
+                }, 1_000_000_000);
+
                 return true;
             }
             catch (Exception e)
             {
                 DebugHelper.WriteException(e);
                 MessageBox.Show("Error while importing backup:\r\n" + e, "ShareX - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                HistoryConnect();
             }
 
             return false;

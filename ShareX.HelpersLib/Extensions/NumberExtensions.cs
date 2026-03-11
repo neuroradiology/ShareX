@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -52,7 +52,7 @@ namespace ShareX.HelpersLib
             return MathHelpers.IsBetween(num, min, max);
         }
 
-        public static T BetweenOrDefault<T>(this T num, T min, T max, T defaultValue = default(T)) where T : IComparable<T>
+        public static T BetweenOrDefault<T>(this T num, T min, T max, T defaultValue = default) where T : IComparable<T>
         {
             return MathHelpers.BetweenOrDefault(num, min, max, defaultValue);
         }
@@ -72,18 +72,14 @@ namespace ShareX.HelpersLib
             return MathHelpers.IsOddNumber(num);
         }
 
-        public static int RandomAdd(this int num, int min, int max)
-        {
-            return MathHelpers.RandomAdd(num, min, max);
-        }
-
         public static string ToSizeString(this long size, bool binary = false, int decimalPlaces = 2)
         {
-            if (size < 1024) return Math.Max(size, 0) + " B";
-            int place = (int)Math.Floor(Math.Log(size, 1024));
-            double num = size / Math.Pow(1024, place);
+            int bytes = binary ? 1024 : 1000;
+            if (size < bytes) return Math.Max(size, 0) + " B";
+            int place = (int)Math.Floor(Math.Log(size, bytes));
+            double num = size / Math.Pow(bytes, place);
             string suffix = binary ? suffixBinary[place] : suffixDecimal[place];
-            return string.Format("{0} {1}", num.ToDecimalString(decimalPlaces.Clamp(0, 3)), suffix);
+            return num.ToDecimalString(decimalPlaces.Clamp(0, 3)) + " " + suffix;
         }
 
         public static string ToDecimalString(this double number, int decimalPlaces)

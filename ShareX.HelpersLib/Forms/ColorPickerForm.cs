@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -37,19 +37,42 @@ namespace ShareX.HelpersLib
         public MyColor NewColor { get; private set; }
         public MyColor OldColor { get; private set; }
         public bool IsScreenColorPickerMode { get; private set; }
+        public ColorPickerOptions Options { get; private set; }
 
         private bool oldColorExist;
         private bool controlChangingColor;
+        private ControlHider clipboardStatusHider;
 
-        public ColorPickerForm(Color currentColor, bool isScreenColorPickerMode = false)
+        public ColorPickerForm(Color currentColor, bool isScreenColorPickerMode = false, bool checkClipboard = true, ColorPickerOptions options = null)
         {
             InitializeComponent();
-            ShareXResources.ApplyTheme(this);
+            ShareXResources.ApplyTheme(this, true);
+            clipboardStatusHider = new ControlHider(btnClipboardStatus, 2000);
 
             IsScreenColorPickerMode = isScreenColorPickerMode;
+            Options = options;
+
+            if (Options == null)
+            {
+                Options = new ColorPickerOptions();
+            }
+
+            if (Options.RecentColorsSelected)
+            {
+                rbRecentColors.Checked = true;
+            }
+            else
+            {
+                rbStandardColors.Checked = true;
+            }
 
             PrepareColorPalette();
             SetCurrentColor(currentColor, !IsScreenColorPickerMode);
+
+            if (checkClipboard)
+            {
+                CheckClipboard();
+            }
 
             btnOK.Visible = btnCancel.Visible = !IsScreenColorPickerMode;
             mbCopy.Visible = btnClose.Visible = pCursorPosition.Visible = IsScreenColorPickerMode;
@@ -61,16 +84,38 @@ namespace ShareX.HelpersLib
             btnScreenColorPicker.Visible = true;
         }
 
-        public static bool PickColor(Color currentColor, out Color newColor, Form owner = null, Func<PointInfo> openScreenColorPicker = null)
+        public bool CheckClipboard()
         {
-            using (ColorPickerForm dialog = new ColorPickerForm(currentColor))
+            string text = ClipboardHelpers.GetText(true);
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                text = text.Trim();
+
+                if (ColorHelpers.ParseColor(text, out Color clipboardColor))
+                {
+                    colorPicker.ChangeColor(clipboardColor);
+                    btnClipboardStatus.Text = "Clipboard: " + text;
+                    btnClipboardStatus.Location = new Point(btnClipboardColorPicker.Left + (btnClipboardColorPicker.Width / 2) - (btnClipboardStatus.Width / 2),
+                        btnClipboardColorPicker.Top - btnClipboardStatus.Height - 5);
+                    clipboardStatusHider.Show();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool PickColor(Color currentColor, out Color newColor, Form owner = null, Func<PointInfo> openScreenColorPicker = null, ColorPickerOptions options = null)
+        {
+            using (ColorPickerForm dialog = new ColorPickerForm(currentColor, options: options))
             {
                 if (openScreenColorPicker != null)
                 {
                     dialog.EnableScreenColorPickerButton(openScreenColorPicker);
                 }
 
-                if (dialog.ShowDialog(owner) == DialogResult.OK)
+                if (dialog.ShowDialogTopMost(owner) == DialogResult.OK)
                 {
                     newColor = dialog.NewColor;
                     return true;
@@ -87,7 +132,7 @@ namespace ShareX.HelpersLib
 
             Color[] colors;
 
-            if (rbRecentColors.Checked)
+            if (Options.RecentColorsSelected)
             {
                 colors = HelpersOptions.RecentColors.ToArray();
             }
@@ -210,8 +255,7 @@ namespace ShareX.HelpersLib
                 txtDecimal.Text = ColorHelpers.ColorToDecimal(color).ToString();
             }
 
-            Color knownColor = ColorHelpers.FindClosestKnownColor(color);
-            lblNameValue.Text = Helpers.GetProperName(knownColor.Name);
+            lblNameValue.Text = ColorHelpers.GetColorName(color);
 
             controlChangingColor = false;
         }
@@ -268,6 +312,8 @@ namespace ShareX.HelpersLib
 
         private void rbRecentColors_CheckedChanged(object sender, EventArgs e)
         {
+            Options.RecentColorsSelected = rbRecentColors.Checked;
+
             PrepareColorPalette();
         }
 
@@ -329,11 +375,11 @@ namespace ShareX.HelpersLib
         {
             if (nudAlpha.Value == 0)
             {
-                nudAlpha.Value = 255;
+                nudAlpha.SetValue(255);
             }
             else
             {
-                nudAlpha.Value = 0;
+                nudAlpha.SetValue(0);
             }
         }
 
@@ -452,6 +498,11 @@ namespace ShareX.HelpersLib
             {
                 this.ForceActivate();
             }
+        }
+
+        private void btnClipboardColorPicker_Click(object sender, EventArgs e)
+        {
+            CheckClipboard();
         }
 
         #endregion Events

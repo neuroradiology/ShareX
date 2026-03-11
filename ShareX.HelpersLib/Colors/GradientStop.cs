@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ namespace ShareX.HelpersLib
     public class GradientStop
     {
         [DefaultValue(typeof(Color), "Black"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
-        public Color Color { get; set; }
+        public Color Color { get; set; } = Color.Black;
 
         private float location;
 
@@ -51,7 +51,6 @@ namespace ShareX.HelpersLib
 
         public GradientStop()
         {
-            this.ApplyDefaultPropertyValues();
         }
 
         public GradientStop(Color color, float offset)

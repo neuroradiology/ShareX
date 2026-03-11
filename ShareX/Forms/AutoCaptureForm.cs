@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -64,7 +64,7 @@ namespace ShareX
         private AutoCaptureForm()
         {
             InitializeComponent();
-            ShareXResources.ApplyTheme(this);
+            ShareXResources.ApplyTheme(this, true);
             niTray.Icon = Resources.clock.ToIcon();
 
             screenshotTimer = new System.Timers.Timer();
@@ -112,10 +112,10 @@ namespace ShareX
 
                 if (bmp != null)
                 {
-                    TaskSettings.UseDefaultAfterCaptureJob = false;
                     TaskSettings.AfterCaptureJob = TaskSettings.AfterCaptureJob.Remove(AfterCaptureTasks.AnnotateImage);
-                    TaskSettings.UseDefaultAdvancedSettings = false;
-                    TaskSettings.AdvancedSettings.DisableNotifications = true;
+                    TaskSettings.GeneralSettings.PlaySoundAfterUpload = false;
+                    TaskSettings.GeneralSettings.PlaySoundAfterAction = false;
+                    TaskSettings.GeneralSettings.ShowToastNotificationAfterTaskCompleted = false;
 
                     UploadManager.RunImageTask(bmp, TaskSettings, true, true);
                 }
@@ -124,9 +124,7 @@ namespace ShareX
 
         private void SelectRegion()
         {
-            Rectangle rect;
-
-            if (RegionCaptureTasks.GetRectangleRegion(out rect, TaskSettings.CaptureSettings.SurfaceOptions))
+            if (RegionCaptureTasks.GetRectangleRegion(out Rectangle rect, TaskSettings.CaptureSettings.SurfaceOptions))
             {
                 Program.Settings.AutoCaptureRegion = rect;
                 UpdateRegion();

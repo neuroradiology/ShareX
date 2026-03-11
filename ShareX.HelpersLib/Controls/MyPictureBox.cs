@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -150,6 +150,20 @@ namespace ShareX.HelpersLib
             }
         }
 
+        public new event MouseEventHandler MouseMove
+        {
+            add
+            {
+                pbMain.MouseMove += value;
+                lblStatus.MouseMove += value;
+            }
+            remove
+            {
+                pbMain.MouseMove -= value;
+                lblStatus.MouseMove -= value;
+            }
+        }
+
         public bool IsValidImage
         {
             get
@@ -172,21 +186,19 @@ namespace ShareX.HelpersLib
 
         private void UpdateImageSizeLabel()
         {
-            lblImageSize.Location = new Point((ClientSize.Width - lblImageSize.Width) / 2, ClientSize.Height - lblImageSize.Height + 1);
+            if (IsValidImage)
+            {
+                lblImageSize.Text = $"{Image.Width} x {Image.Height}";
+                lblImageSize.Location = new Point((ClientSize.Width - lblImageSize.Width) / 2, ClientSize.Height - lblImageSize.Height + 1);
+            }
         }
 
         public void UpdateTheme()
         {
-            if (ShareXResources.UseCustomTheme)
-            {
-                lblImageSize.BackColor = ShareXResources.Theme.BackgroundColor;
-                lblImageSize.ForeColor = ShareXResources.Theme.TextColor;
-            }
-            else
-            {
-                lblImageSize.BackColor = SystemColors.Window;
-                lblImageSize.ForeColor = SystemColors.ControlText;
-            }
+            lblImageSize.BackColor = ShareXResources.Theme.BackgroundColor;
+            lblImageSize.ForeColor = ShareXResources.Theme.TextColor;
+
+            ShareXResources.ApplyCustomThemeToContextMenuStrip(cmsMenu);
         }
 
         public void UpdateCheckers(bool forceUpdate = false)
@@ -197,8 +209,16 @@ namespace ShareX.HelpersLib
                 {
                     if (pbMain.BackgroundImage != null) pbMain.BackgroundImage.Dispose();
 
-                    pbMain.BackgroundImage = ImageHelpers.CreateCheckerPattern(ShareXResources.Theme.CheckerSize, ShareXResources.Theme.CheckerSize,
-                        ShareXResources.Theme.CheckerColor, ShareXResources.Theme.CheckerColor2);
+                    if (ShareXResources.Theme.CheckerSize > 0)
+                    {
+                        pbMain.BackgroundImage = ImageHelpers.CreateCheckerPattern(ShareXResources.Theme.CheckerSize, ShareXResources.Theme.CheckerSize,
+                            ShareXResources.Theme.CheckerColor, ShareXResources.Theme.CheckerColor2);
+                    }
+                    else
+                    {
+                        pbMain.BackColor = ShareXResources.Theme.CheckerColor;
+                        pbMain.BackgroundImage = null;
+                    }
                 }
             }
             else
@@ -215,9 +235,18 @@ namespace ShareX.HelpersLib
                 if (!isImageLoading)
                 {
                     Reset();
-                    isImageLoading = true;
-                    Image = (Image)img.Clone();
-                    isImageLoading = false;
+
+                    if (img != null)
+                    {
+                        isImageLoading = true;
+                        Image = (Image)img.Clone();
+                        isImageLoading = false;
+                    }
+                    else
+                    {
+                        Image = null;
+                    }
+
                     AutoSetSizeMode();
                 }
             }
@@ -264,7 +293,17 @@ namespace ShareX.HelpersLib
                     isImageLoading = true;
                     Text = Resources.MyPictureBox_LoadImageAsync_Loading_image___;
                     lblStatus.Visible = true;
-                    pbMain.LoadAsync(path);
+
+                    try
+                    {
+                        pbMain.LoadAsync(path);
+                    }
+                    catch
+                    {
+                        lblStatus.Visible = false;
+                        isImageLoading = false;
+                        Reset();
+                    }
                 }
             }
         }
@@ -300,8 +339,6 @@ namespace ShareX.HelpersLib
         {
             if (IsValidImage)
             {
-                lblImageSize.Text = $"{Image.Width} x {Image.Height}";
-
                 if (Image.Width > pbMain.ClientSize.Width || Image.Height > pbMain.ClientSize.Height)
                 {
                     pbMain.SizeMode = PictureBoxSizeMode.Zoom;

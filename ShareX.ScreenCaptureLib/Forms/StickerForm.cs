@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -50,7 +50,7 @@ namespace ShareX.ScreenCaptureLib
 
             InitializeComponent();
             tsMain.Renderer = new ToolStripRoundedEdgeRenderer();
-            ShareXResources.ApplyTheme(this);
+            ShareXResources.ApplyTheme(this, true);
 
             tsnudSize.NumericUpDownControl.Minimum = 16;
             tsnudSize.NumericUpDownControl.Maximum = 256;
@@ -89,15 +89,13 @@ namespace ShareX.ScreenCaptureLib
             imageFiles = null;
             ilvStickers.Items.Clear();
 
-            StickerPackInfo stickerPack = tscbStickers.SelectedItem as StickerPackInfo;
-
-            if (stickerPack != null && !string.IsNullOrEmpty(stickerPack.FolderPath))
+            if (tscbStickers.SelectedItem is StickerPackInfo stickerPack && !string.IsNullOrEmpty(stickerPack.FolderPath))
             {
-                string folderPath = Helpers.GetAbsolutePath(stickerPack.FolderPath);
+                string folderPath = FileHelpers.GetAbsolutePath(stickerPack.FolderPath);
 
                 if (Directory.Exists(folderPath))
                 {
-                    imageFiles = Directory.GetFiles(folderPath).Where(x => Helpers.IsImageFile(x)).ToArray();
+                    imageFiles = Directory.GetFiles(folderPath).Where(x => FileHelpers.IsImageFile(x)).ToArray();
 
                     UpdateImageFiles();
                 }
@@ -151,7 +149,6 @@ namespace ShareX.ScreenCaptureLib
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.Handled = true;
                 e.SuppressKeyPress = true;
             }
         }
@@ -160,7 +157,6 @@ namespace ShareX.ScreenCaptureLib
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.Handled = true;
                 e.SuppressKeyPress = true;
 
                 if (ilvStickers.Items.Count > 0)

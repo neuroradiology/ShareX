@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -28,7 +28,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace ShareX.HelpersLib
@@ -88,9 +87,12 @@ namespace ShareX.HelpersLib
             {
                 try
                 {
-                    uint processID;
-                    GetWindowThreadProcessId(hwnd, out processID);
-                    return Process.GetProcessById((int)processID);
+                    GetWindowThreadProcessId(hwnd, out uint processID);
+
+                    if (processID != 0)
+                    {
+                        return Process.GetProcessById((int)processID);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -126,6 +128,26 @@ namespace ShareX.HelpersLib
             return new IntPtr(GetClassLong(hWnd, nIndex));
         }
 
+        public static IntPtr GetWindowLong(IntPtr hWnd, int nIndex)
+        {
+            if (IntPtr.Size == 4)
+            {
+                return GetWindowLong32(hWnd, nIndex);
+            }
+
+            return GetWindowLongPtr64(hWnd, nIndex);
+        }
+
+        public static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+        {
+            if (IntPtr.Size == 4)
+            {
+                return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
+            }
+
+            return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+        }
+
         private static Icon GetSmallApplicationIcon(IntPtr handle)
         {
             IntPtr iconHandle;
@@ -157,9 +179,7 @@ namespace ShareX.HelpersLib
 
         private static Icon GetBigApplicationIcon(IntPtr handle)
         {
-            IntPtr iconHandle;
-
-            SendMessageTimeout(handle, (int)WindowsMessages.GETICON, NativeConstants.ICON_BIG, 0, SendMessageTimeoutFlags.SMTO_ABORTIFHUNG, 1000, out iconHandle);
+            SendMessageTimeout(handle, (int)WindowsMessages.GETICON, NativeConstants.ICON_BIG, 0, SendMessageTimeoutFlags.SMTO_ABORTIFHUNG, 1000, out IntPtr iconHandle);
 
             if (iconHandle == IntPtr.Zero)
             {
@@ -181,8 +201,7 @@ namespace ShareX.HelpersLib
 
         public static bool GetBorderSize(IntPtr handle, out Size size)
         {
-            WINDOWINFO wi = new WINDOWINFO();
-
+            WINDOWINFO wi = WINDOWINFO.Create();
             bool result = GetWindowInfo(handle, ref wi);
 
             if (result)
@@ -212,58 +231,49 @@ namespace ShareX.HelpersLib
 
         public static bool GetExtendedFrameBounds(IntPtr handle, out Rectangle rectangle)
         {
-            RECT rect;
-            int result = DwmGetWindowAttribute(handle, (int)DwmWindowAttribute.DWMWA_EXTENDED_FRAME_BOUNDS, out rect, Marshal.SizeOf(typeof(RECT)));
+            int result = DwmGetWindowAttribute(handle, (int)DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out RECT rect, Marshal.SizeOf(typeof(RECT)));
             rectangle = rect;
             return result == 0;
         }
 
         public static bool GetNCRenderingEnabled(IntPtr handle)
         {
-            bool enabled;
-            int result = DwmGetWindowAttribute(handle, (int)DwmWindowAttribute.DWMWA_NCRENDERING_ENABLED, out enabled, sizeof(bool));
+            int result = DwmGetWindowAttribute(handle, (int)DWMWINDOWATTRIBUTE.DWMWA_NCRENDERING_ENABLED, out bool enabled, sizeof(bool));
             return result == 0 && enabled;
         }
 
-        public static void SetNCRenderingPolicy(IntPtr handle, DwmNCRenderingPolicy renderingPolicy)
+        public static void SetNCRenderingPolicy(IntPtr handle, DWMNCRENDERINGPOLICY renderingPolicy)
         {
-            int renderPolicy = (int)renderingPolicy;
-            DwmSetWindowAttribute(handle, (int)DwmWindowAttribute.DWMWA_NCRENDERING_POLICY, ref renderPolicy, sizeof(int));
+            int attrValue = (int)renderingPolicy;
+            DwmSetWindowAttribute(handle, (int)DWMWINDOWATTRIBUTE.DWMWA_NCRENDERING_POLICY, ref attrValue, sizeof(int));
         }
 
         public static bool UseImmersiveDarkMode(IntPtr handle, bool enabled)
         {
-            if (Helpers.IsWindows10OrGreater(17763))
+            if (Helpers.IsWindows10OrGreater(18985))
             {
-                DwmWindowAttribute attribute;
-
-                if (Helpers.IsWindows10OrGreater(18985))
-                {
-                    attribute = DwmWindowAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE;
-                }
-                else
-                {
-                    attribute = DwmWindowAttribute.DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1;
-                }
-
                 int useImmersiveDarkMode = enabled ? 1 : 0;
-                return DwmSetWindowAttribute(handle, (int)attribute, ref useImmersiveDarkMode, sizeof(int)) == 0;
+                return DwmSetWindowAttribute(handle, (int)DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, ref useImmersiveDarkMode, sizeof(int)) == 0;
             }
 
             return false;
         }
 
+        public static void SetWindowCornerPreference(IntPtr handle, DWM_WINDOW_CORNER_PREFERENCE cornerPreference)
+        {
+            int attrValue = (int)cornerPreference;
+            DwmSetWindowAttribute(handle, (int)DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, ref attrValue, sizeof(int));
+        }
+
         public static Rectangle GetWindowRect(IntPtr handle)
         {
-            RECT rect;
-            GetWindowRect(handle, out rect);
+            GetWindowRect(handle, out RECT rect);
             return rect;
         }
 
         public static Rectangle GetClientRect(IntPtr handle)
         {
-            RECT rect;
-            GetClientRect(handle, out rect);
+            GetClientRect(handle, out RECT rect);
             Point position = rect.Location;
             ClientToScreen(handle, ref position);
             return new Rectangle(position, rect.Size);
@@ -271,24 +281,12 @@ namespace ShareX.HelpersLib
 
         public static Rectangle MaximizedWindowFix(IntPtr handle, Rectangle windowRect)
         {
-            Size size;
-
-            if (GetBorderSize(handle, out size))
+            if (GetBorderSize(handle, out Size size))
             {
                 windowRect = new Rectangle(windowRect.X + size.Width, windowRect.Y + size.Height, windowRect.Width - (size.Width * 2), windowRect.Height - (size.Height * 2));
             }
 
             return windowRect;
-        }
-
-        public static void ActivateWindowRepeat(IntPtr handle, int count)
-        {
-            for (int i = 0; GetForegroundWindow() != handle && i < count; i++)
-            {
-                BringWindowToTop(handle);
-                Thread.Sleep(1);
-                Application.DoEvents();
-            }
         }
 
         public static Rectangle GetTaskbarRectangle()
@@ -369,12 +367,16 @@ namespace ShareX.HelpersLib
         {
             if (IsDWMEnabled())
             {
-                int cloaked;
-                int result = DwmGetWindowAttribute(handle, (int)DwmWindowAttribute.DWMWA_CLOAKED, out cloaked, sizeof(int));
+                int result = DwmGetWindowAttribute(handle, (int)DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out int cloaked, sizeof(int));
                 return result == 0 && cloaked != 0;
             }
 
             return false;
+        }
+
+        public static bool IsActive(IntPtr handle)
+        {
+            return GetForegroundWindow() == handle;
         }
 
         public static void RestoreWindow(IntPtr handle)
@@ -474,22 +476,6 @@ namespace ShareX.HelpersLib
             return new string(chs);
         }
 
-        public static bool Is64Bit()
-        {
-#if WindowsStore
-            return true;
-#else
-            return IntPtr.Size == 8 || (IntPtr.Size == 4 && Is32BitProcessOn64BitProcessor());
-#endif
-        }
-
-        private static bool Is32BitProcessOn64BitProcessor()
-        {
-            bool retVal;
-            IsWow64Process(Process.GetCurrentProcess().Handle, out retVal);
-            return retVal;
-        }
-
         public static bool FlashWindowEx(Form frm, uint flashCount = uint.MaxValue)
         {
             FLASHWINFO fInfo = new FLASHWINFO();
@@ -518,14 +504,14 @@ namespace ShareX.HelpersLib
 
         public static bool CreateProcess(string path, string arguments, CreateProcessFlags flags = CreateProcessFlags.NORMAL_PRIORITY_CLASS)
         {
-            PROCESS_INFORMATION pInfo = new PROCESS_INFORMATION();
+            //PROCESS_INFORMATION pInfo = new PROCESS_INFORMATION();
             STARTUPINFO sInfo = new STARTUPINFO();
             SECURITY_ATTRIBUTES pSec = new SECURITY_ATTRIBUTES();
             SECURITY_ATTRIBUTES tSec = new SECURITY_ATTRIBUTES();
             pSec.nLength = Marshal.SizeOf(pSec);
             tSec.nLength = Marshal.SizeOf(tSec);
 
-            return CreateProcess(path, $"\"{path}\" {arguments}", ref pSec, ref tSec, false, (uint)flags, IntPtr.Zero, null, ref sInfo, out pInfo);
+            return CreateProcess(path, $"\"{path}\" {arguments}", ref pSec, ref tSec, false, (uint)flags, IntPtr.Zero, null, ref sInfo, out _);
         }
 
         public static Icon GetFileIcon(string filePath, bool isSmallIcon)
@@ -567,6 +553,63 @@ namespace ShareX.HelpersLib
             Icon icon = (Icon)Icon.FromHandle(hIcon).Clone();
             DestroyIcon(hIcon);
             return icon;
+        }
+
+        public static Bitmap GetFileThumbnail(string filePath, Size thumbnailSize)
+        {
+            Guid guid = typeof(IShellItemImageFactory).GUID;
+            SHCreateItemFromParsingName(filePath, IntPtr.Zero, guid, out IShellItemImageFactory imageFactory);
+            SIZE size = new SIZE(thumbnailSize.Width, thumbnailSize.Height);
+            imageFactory.GetImage(size, SIIGBF.SIIGBF_RESIZETOFIT, out IntPtr hbitmap);
+            Bitmap bmp = null;
+
+            try
+            {
+                bmp = Image.FromHbitmap(hbitmap);
+            }
+            finally
+            {
+                DeleteObject(hbitmap);
+            }
+
+            return bmp;
+        }
+
+        public static float GetScreenScalingFactor()
+        {
+            float scalingFactor;
+
+            using (Graphics g = Graphics.FromHwnd(IntPtr.Zero))
+            {
+                IntPtr desktop = g.GetHdc();
+                int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
+                int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
+                int logpixelsy = GetDeviceCaps(desktop, (int)DeviceCap.LOGPIXELSY);
+                float screenScalingFactor = (float)PhysicalScreenHeight / LogicalScreenHeight;
+                float dpiScalingFactor = logpixelsy / 96f;
+                scalingFactor = Math.Max(screenScalingFactor, dpiScalingFactor);
+                g.ReleaseHdc(desktop);
+            }
+
+            return scalingFactor;
+        }
+
+        public static IntPtr SearchWindow(string windowTitle)
+        {
+            IntPtr hWnd = FindWindow(null, windowTitle);
+
+            if (hWnd == IntPtr.Zero)
+            {
+                foreach (Process process in Process.GetProcesses())
+                {
+                    if (process.MainWindowTitle.Contains(windowTitle, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return process.MainWindowHandle;
+                    }
+                }
+            }
+
+            return hWnd;
         }
     }
 }

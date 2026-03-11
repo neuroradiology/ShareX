@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -39,8 +39,8 @@ namespace ShareX.ImageEffectsLib
         [DefaultValue(typeof(Color), "Black"), Editor(typeof(MyColorEditor), typeof(UITypeEditor)), TypeConverter(typeof(MyColorConverter))]
         public Color DarkColor { get; set; }
 
-        [DefaultValue(130)]
-        public int Threshold { get; set; }
+        [DefaultValue(10)]
+        public int PaletteSize { get; set; }
 
         public SelectiveColor()
         {
@@ -49,7 +49,7 @@ namespace ShareX.ImageEffectsLib
 
         public override Bitmap Apply(Bitmap bmp)
         {
-            ImageHelpers.SelectiveColor(bmp, LightColor, DarkColor, Threshold);
+            ImageHelpers.SelectiveColor(bmp, LightColor, DarkColor, MathHelpers.Clamp(PaletteSize, 2, 100));
             return bmp;
         }
     }

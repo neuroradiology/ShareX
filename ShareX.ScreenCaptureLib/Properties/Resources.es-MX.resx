@@ -123,34 +123,14 @@
   <data name="EditorStartupForm_ClipboardDoesNotContainAnImage" xml:space="preserve">
     <value>El portapapeles no contiene ninguna imagen.</value>
   </data>
-  <data name="FFmpegHelper_Record_FFmpeg_error" xml:space="preserve">
-    <value>Error de FFmpeg</value>
-  </data>
   <data name="FFmpegOptionsForm_buttonFFmpegBrowse_Click_Browse_for_ffmpeg_exe" xml:space="preserve">
     <value>Buscar ffmpeg.exe</value>
-  </data>
-  <data name="FFmpegOptionsForm_DownloaderForm_InstallRequested_Download_of_FFmpeg_failed_" xml:space="preserve">
-    <value>La descarga de FFmpeg falló.</value>
-  </data>
-  <data name="FFmpegOptionsForm_DownloaderForm_InstallRequested_Successfully_downloaded_FFmpeg_" xml:space="preserve">
-    <value>FFmpeg descargado con éxito.</value>
-  </data>
-  <data name="FFmpegOptionsForm_UpdateUI_Bitrate___0_k" xml:space="preserve">
-    <value>Tasa de bits: {0}k</value>
-  </data>
-  <data name="FFmpegOptionsForm_UpdateUI_Quality_" xml:space="preserve">
-    <value>Calidad:</value>
   </data>
   <data name="RectangleLight_InitializeComponent_Rectangle_capture_light" xml:space="preserve">
     <value>Captura de rectángulo simple</value>
   </data>
   <data name="RectangleRegion_GetAreaText_Area" xml:space="preserve">
     <value>X: {0} Y: {1} An: {2} Al: {3}</value>
-  </data>
-  <data name="RectangleRegion_GetRulerText_Ruler_info" xml:space="preserve">
-    <value>X: {0} / Y: {1} / X2: {2} / Y2: {3}
-Ancho: {4} px / Alto: {5} px
-Distancia: {6:0.00} px / Ángulo: {7:0.00}°</value>
   </data>
   <data name="RectangleTransparent_RectangleTransparent_Rectangle_capture_transparent" xml:space="preserve">
     <value>Captura de rectángulo transparente</value>
@@ -161,9 +141,6 @@ Distancia: {6:0.00} px / Ángulo: {7:0.00}°</value>
   <data name="RegionCaptureForm_ShowExitConfirmation_ShareXImageEditor" xml:space="preserve">
     <value>ShareX - Editor de imágenes</value>
   </data>
-  <data name="RegionCaptureForm_ShowExitConfirmation_Text" xml:space="preserve">
-    <value>Hay cambios sin guardar. ¿Desea salir del editor de imágenes?</value>
-  </data>
   <data name="RegionCaptureForm_TipYouCanPanImageByHoldingMouseMiddleButtonAndDragging" xml:space="preserve">
     <value>Consejo: para desplazarse por la imagen, mantener pulsado el botón medio del ratón y arrastrar.</value>
   </data>
@@ -172,9 +149,6 @@ Distancia: {6:0.00} px / Ángulo: {7:0.00}°</value>
   </data>
   <data name="ScrollingCaptureForm_StopCapture_Start_capture" xml:space="preserve">
     <value>Iniciar captura</value>
-  </data>
-  <data name="ShapeManager_ArrowsOnBothEnds" xml:space="preserve">
-    <value>Flechas en ambos extremos</value>
   </data>
   <data name="ShapeManager_CenterPoints" xml:space="preserve">
     <value>Puntos medios:</value>
@@ -285,7 +259,7 @@ Distancia: {6:0.00} px / Ángulo: {7:0.00}°</value>
     <value>Continuar tarea (Espacio o clic derecho)</value>
   </data>
   <data name="ShapeManager_CreateToolbar_CopyImageToClipboard" xml:space="preserve">
-    <value>Copiar imagen al portapapeles (Ctrl+Mayús+C)</value>
+    <value>Copiar imagen al portapapeles (Ctrl+C)</value>
   </data>
   <data name="ShapeManager_CreateToolbar_CropImage" xml:space="preserve">
     <value>Recortar imagen...</value>
@@ -301,9 +275,6 @@ Distancia: {6:0.00} px / Ángulo: {7:0.00}°</value>
   </data>
   <data name="ShapeManager_CreateToolbar_Edit" xml:space="preserve">
     <value>Editar</value>
-  </data>
-  <data name="ShapeManager_CreateToolbar_EditorBackgroundColor" xml:space="preserve">
-    <value>Editor de color de fondo...</value>
   </data>
   <data name="ShapeManager_CreateToolbar_EditorStartMode" xml:space="preserve">
     <value>Modo de inicio de editor:</value>
@@ -371,17 +342,11 @@ Distancia: {6:0.00} px / Ángulo: {7:0.00}°</value>
   <data name="ShapeManager_CreateToolbar_SendToBack" xml:space="preserve">
     <value>Enviar al fondo</value>
   </data>
-  <data name="ShapeManager_CreateToolbar_ShapeOptions" xml:space="preserve">
-    <value>Opciones de forma</value>
-  </data>
   <data name="ShapeManager_CreateToolbar_Undo" xml:space="preserve">
     <value>Deshacer</value>
   </data>
   <data name="ShapeManager_CreateToolbar_UploadImage" xml:space="preserve">
     <value>Subir imagen (Ctrl+U)</value>
-  </data>
-  <data name="ShapeManager_CreateToolbar_UseLetters" xml:space="preserve">
-    <value>Usar letras</value>
   </data>
   <data name="ShapeManager_CursorType" xml:space="preserve">
     <value>Tipo de puntero:</value>

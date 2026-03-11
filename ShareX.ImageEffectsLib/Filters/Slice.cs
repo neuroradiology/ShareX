@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -33,11 +33,35 @@ namespace ShareX.ImageEffectsLib
     [Description("Slice")]
     internal class Slice : ImageEffect
     {
+        private int minSliceHeight;
+
         [DefaultValue(10)]
-        public int MinSliceHeight { get; set; }
+        public int MinSliceHeight
+        {
+            get
+            {
+                return minSliceHeight;
+            }
+            set
+            {
+                minSliceHeight = value.Max(1);
+            }
+        }
+
+        private int maxSliceHeight;
 
         [DefaultValue(100)]
-        public int MaxSliceHeight { get; set; }
+        public int MaxSliceHeight
+        {
+            get
+            {
+                return maxSliceHeight;
+            }
+            set
+            {
+                maxSliceHeight = value.Max(1);
+            }
+        }
 
         [DefaultValue(0)]
         public int MinSliceShift { get; set; }
@@ -61,6 +85,11 @@ namespace ShareX.ImageEffectsLib
             {
                 return ImageHelpers.Slice(bmp, minSliceHeight, maxSliceHeight, minSliceShift, maxSliceShift);
             }
+        }
+
+        protected override string GetSummary()
+        {
+            return $"{MinSliceHeight}, {MaxSliceHeight}";
         }
     }
 }

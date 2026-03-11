@@ -147,4 +147,13 @@
   <data name="btnCombine.Text" xml:space="preserve">
     <value>Combiner les images et enregistrer/mettre en ligne en fonction des paramètres « Après la capture »</value>
   </data>
+  <data name="lblImageAlignment.Text" xml:space="preserve">
+    <value>Alignement de l'image :</value>
+  </data>
+  <data name="cbAutoFillBackground.Text" xml:space="preserve">
+    <value>Remplissage automatique de l'arrière-plan</value>
+  </data>
+  <data name="lblWrapAfter.Text" xml:space="preserve">
+    <value>Retour à la ligne après :</value>
+  </data>
 </root>

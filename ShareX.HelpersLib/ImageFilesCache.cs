@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -35,16 +35,49 @@ namespace ShareX.HelpersLib
 
         public Bitmap GetImage(string filePath)
         {
-            if (images.ContainsKey(filePath))
+            Bitmap bmp = null;
+
+            if (!string.IsNullOrEmpty(filePath))
             {
-                return images[filePath];
+                if (images.ContainsKey(filePath))
+                {
+                    return images[filePath];
+                }
+
+                bmp = ImageHelpers.LoadImage(filePath);
+
+                if (bmp != null)
+                {
+                    images.Add(filePath, bmp);
+                }
             }
 
-            Bitmap bmp = ImageHelpers.LoadImage(filePath);
+            return bmp;
+        }
 
-            if (bmp != null)
+        public Bitmap GetFileIconAsImage(string filePath, bool isSmallIcon = true)
+        {
+            Bitmap bmp = null;
+
+            if (!string.IsNullOrEmpty(filePath))
             {
-                images.Add(filePath, bmp);
+                if (images.ContainsKey(filePath))
+                {
+                    return images[filePath];
+                }
+
+                using (Icon icon = NativeMethods.GetFileIcon(filePath, isSmallIcon))
+                {
+                    if (icon != null && icon.Width > 0 && icon.Height > 0)
+                    {
+                        bmp = icon.ToBitmap();
+
+                        if (bmp != null)
+                        {
+                            images.Add(filePath, bmp);
+                        }
+                    }
+                }
             }
 
             return bmp;

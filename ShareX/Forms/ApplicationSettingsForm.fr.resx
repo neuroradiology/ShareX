@@ -123,9 +123,6 @@
   <data name="lblProxyUsername.Text" xml:space="preserve">
     <value>Nom d'utilisateur :</value>
   </data>
-  <data name="tpExportImport.Text" xml:space="preserve">
-    <value>Exporter / Importer</value>
-  </data>
   <data name="btnOpenScreenshotsFolder.Text" xml:space="preserve">
     <value>Ouvrir...</value>
   </data>
@@ -157,7 +154,7 @@
     <value>Mémoriser la taille de la fenêtre principale</value>
   </data>
   <data name="cbTrayIconProgressEnabled.Text" xml:space="preserve">
-    <value>Afficher la progression sur l'icône de la zone de notifications</value>
+    <value>Afficher la progression sur l'icône dans la zone de notification</value>
   </data>
   <data name="tpPrint.Text" xml:space="preserve">
     <value>Imprimer</value>
@@ -199,10 +196,10 @@
     <value>Paramètres d'impression d'images...</value>
   </data>
   <data name="cbShowTray.Text" xml:space="preserve">
-    <value>Afficher l'icône dans la zone de notifications</value>
+    <value>Afficher l'icône dans la zone de notification</value>
   </data>
   <data name="cbSilentRun.Text" xml:space="preserve">
-    <value>Démarrer ShareX sous forme d'icône dans la zone de notifications</value>
+    <value>Réduire ShareX dans la zone de notification</value>
   </data>
   <data name="lblBufferSize.Text" xml:space="preserve">
     <value>Taille du buffer :</value>
@@ -212,12 +209,6 @@
   </data>
   <data name="gbSecondaryTextUploaders.Text" xml:space="preserve">
     <value>Hébergeurs de textes secondaires</value>
-  </data>
-  <data name="chkUseSecondaryUploaders.Text" xml:space="preserve">
-    <value>Utiliser de préférence le service de mise en ligne secondaire lors de la nouvelle tentative</value>
-  </data>
-  <data name="tpUploadResults.Text" xml:space="preserve">
-    <value>Résultats</value>
   </data>
   <data name="gbSecondaryImageUploaders.Text" xml:space="preserve">
     <value>Hébergeurs d'images secondaires</value>
@@ -255,9 +246,6 @@
   <data name="lblProxyPort.Text" xml:space="preserve">
     <value>Port :</value>
   </data>
-  <data name="gbClipboardFormats.Text" xml:space="preserve">
-    <value>Formats du presse-papier - ceux-ci apparaissent sous Copier dans le menu contextuel dans la fenêtre principale</value>
-  </data>
   <data name="cbSteamShowInApp.Text" xml:space="preserve">
     <value>Lorsque ShareX est ouvert, afficher le statut « Dans une application » sur Steam</value>
   </data>
@@ -276,9 +264,6 @@
   <data name="btnExport.Text" xml:space="preserve">
     <value>Exporter...</value>
   </data>
-  <data name="tpUploadRetry.Text" xml:space="preserve">
-    <value>Réessayer</value>
-  </data>
   <data name="tpUpload.Text" xml:space="preserve">
     <value>Mise en ligne</value>
   </data>
@@ -295,28 +280,25 @@
     <value>Afficher les tâches récentes dans la fenêtre principale au démarrage</value>
   </data>
   <data name="cbRecentTasksShowInTrayMenu.Text" xml:space="preserve">
-    <value>Afficher les tâches récentes dans la zone de notifications</value>
+    <value>Afficher les tâches récentes dans la zone de notification</value>
   </data>
   <data name="cbHistorySaveTasks.Text" xml:space="preserve">
     <value>Enregistrer les tâches dans l'historique</value>
   </data>
   <data name="cbRecentTasksTrayMenuMostRecentFirst.Text" xml:space="preserve">
-    <value>Dans la zone de notifications, afficher les tâches les plus récentes en premier</value>
+    <value>Dans le menu de l'icône dans zone de notifications, afficher les tâches les plus récentes en premier</value>
   </data>
   <data name="lblRecentTasksMaxCount.Text" xml:space="preserve">
     <value>Nombre maximum de tâches à enregistrer :</value>
   </data>
   <data name="lblTrayLeftClickAction.Text" xml:space="preserve">
-    <value>Lors d'un clic gauche sur l'icône :</value>
+    <value>Lors d'un clic gauche sur l'icône dans la zone de notification :</value>
   </data>
   <data name="lblTrayLeftDoubleClickAction.Text" xml:space="preserve">
-    <value>Lors d'un double clic gauche sur l'icône :</value>
+    <value>Lors d'un double clic gauche sur l'icône dans la zone de notification :</value>
   </data>
   <data name="lblTrayMiddleClickAction.Text" xml:space="preserve">
-    <value>Lors d'un clic de la molette sur l'icône :</value>
-  </data>
-  <data name="cbCheckPreReleaseUpdates.Text" xml:space="preserve">
-    <value>Vérifier des mises à jour de pré-version</value>
+    <value>Lors d'un clic de la molette sur l'icône dans la zone de notification :</value>
   </data>
   <data name="btnFirefoxOpenAddonPage.Text" xml:space="preserve">
     <value>Installer l'extension ShareX pour Firefox...</value>
@@ -363,23 +345,14 @@
   <data name="cbEditWithShareX.Text" xml:space="preserve">
     <value>Afficher le bouton "Modifier avec ShareX" dans le menu contextuel de l'explorateur Windows</value>
   </data>
-  <data name="cbExperimentalCustomTheme.Text" xml:space="preserve">
-    <value>Appliquer un thème personnalisé à toutes les fenêtres</value>
-  </data>
   <data name="btnThemeReset.Text" xml:space="preserve">
-    <value>Réinitialiser</value>
+    <value>Réinitialiser...</value>
   </data>
   <data name="btnThemeRemove.Text" xml:space="preserve">
     <value>Supprimer</value>
   </data>
   <data name="btnThemeAdd.Text" xml:space="preserve">
     <value>Ajouter</value>
-  </data>
-  <data name="btnApplyTheme.Text" xml:space="preserve">
-    <value>Appliquer thème</value>
-  </data>
-  <data name="cbUseCustomTheme.Text" xml:space="preserve">
-    <value>Utiliser un thème personnalisé</value>
   </data>
   <data name="tpTheme.Text" xml:space="preserve">
     <value>Thème</value>
@@ -392,5 +365,77 @@
   </data>
   <data name="lblExportImportNote.Text" xml:space="preserve">
     <value>Note : ne partagez le fichier exporté avec personne car il pourrait contenir des informations privées comme les détails de votre compte et votre historique de mises en ligne.</value>
+  </data>
+  <data name="tpSettings.Text" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="lblUpdateChannel.Text" xml:space="preserve">
+    <value>Canal de mise à jour :</value>
+  </data>
+  <data name="lblSaveImageSubFolderPatternWindow.Text" xml:space="preserve">
+    <value>Schéma de sous-dossier pour fenêtre :</value>
+  </data>
+  <data name="cbAutomaticallyCleanupLogFiles.Text" xml:space="preserve">
+    <value>Nettoyer automatiquement les anciens fichiers de journaux</value>
+  </data>
+  <data name="lblCleanupKeepFileCount.Text" xml:space="preserve">
+    <value>Nombre de fichiers à conserver :</value>
+  </data>
+  <data name="cbAutomaticallyCleanupBackupFiles.Text" xml:space="preserve">
+    <value>Nettoyer automatiquement les anciens fichiers de sauvegarde</value>
+  </data>
+  <data name="lblListViewImagePreviewLocation.Text" xml:space="preserve">
+    <value>Emplacement de l'aperçu d'une image :</value>
+  </data>
+  <data name="lblListViewImagePreviewVisibility.Text" xml:space="preserve">
+    <value>Visibilité de l'aperçu d'une image :</value>
+  </data>
+  <data name="cbListViewShowColumns.Text" xml:space="preserve">
+    <value>Afficher les colonnes</value>
+  </data>
+  <data name="gbListView.Text" xml:space="preserve">
+    <value>Aspect de la liste</value>
+  </data>
+  <data name="btnThumbnailViewThumbnailSizeReset.Text" xml:space="preserve">
+    <value>Réinitialiser</value>
+  </data>
+  <data name="lblThumbnailViewThumbnailClickAction.Text" xml:space="preserve">
+    <value>Action du clic sur la miniature :</value>
+  </data>
+  <data name="lblThumbnailViewThumbnailSize.Text" xml:space="preserve">
+    <value>Taille de la miniature :</value>
+  </data>
+  <data name="lblThumbnailViewTitleLocation.Text" xml:space="preserve">
+    <value>Emplacement du titre :</value>
+  </data>
+  <data name="cbThumbnailViewShowTitle.Text" xml:space="preserve">
+    <value>Afficher le titre</value>
+  </data>
+  <data name="gbThumbnailView.Text" xml:space="preserve">
+    <value>Aspect de la miniature</value>
+  </data>
+  <data name="cbMainWindowShowMenu.Text" xml:space="preserve">
+    <value>Afficher le menu</value>
+  </data>
+  <data name="lblMainWindowTaskViewMode.Text" xml:space="preserve">
+    <value>Mode d'affichage d'une tâche :</value>
+  </data>
+  <data name="tpMainWindow.Text" xml:space="preserve">
+    <value>Fenêtre principale</value>
+  </data>
+  <data name="lblClipboardFormatsTip.Text" xml:space="preserve">
+    <value>Ces formats apparaîtrons dans le sous-menu "Copier" du menu contextuel de la fenêtre principale.</value>
+  </data>
+  <data name="tpClipboardFormats.Text" xml:space="preserve">
+    <value>Format du presse-papier</value>
+  </data>
+  <data name="cbUseSecondaryUploaders.Text" xml:space="preserve">
+    <value>Utiliser l'ordre de préférence secondaire des hébergeurs lors d'une nouvelle tentative</value>
+  </data>
+  <data name="lblDefaultPrinterOverride.Text" xml:space="preserve">
+    <value>Valeur forcée d'impression par défaut :</value>
+  </data>
+  <data name="cbAutoCheckUpdate.Text" xml:space="preserve">
+    <value>Vérifier automatiquement les mises à jour</value>
   </data>
 </root>

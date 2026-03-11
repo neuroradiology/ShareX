@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -42,16 +42,17 @@ namespace ShareX
             WatchFolder = watchFolder;
 
             InitializeComponent();
-            ShareXResources.ApplyTheme(this);
+            ShareXResources.ApplyTheme(this, true);
 
             txtFolderPath.Text = watchFolder.FolderPath ?? "";
             txtFilter.Text = watchFolder.Filter ?? "";
             cbIncludeSubdirectories.Checked = watchFolder.IncludeSubdirectories;
+            cbMoveToScreenshotsFolder.Checked = watchFolder.MoveFilesToScreenshotsFolder;
         }
 
         private void btnPathBrowse_Click(object sender, EventArgs e)
         {
-            Helpers.BrowseFolder(txtFolderPath, "", true);
+            FileHelpers.BrowseFolder(txtFolderPath, "", true);
         }
 
         private void btnOK_Click(object sender, EventArgs e)
@@ -59,6 +60,7 @@ namespace ShareX
             WatchFolder.FolderPath = txtFolderPath.Text;
             WatchFolder.Filter = txtFilter.Text;
             WatchFolder.IncludeSubdirectories = cbIncludeSubdirectories.Checked;
+            WatchFolder.MoveFilesToScreenshotsFolder = cbMoveToScreenshotsFolder.Checked;
 
             DialogResult = DialogResult.OK;
             Close();

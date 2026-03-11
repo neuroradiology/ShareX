@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -52,7 +52,8 @@ namespace ShareX.UploadersLib.FileUploaders
             {
                 IsPublic = config.GoogleDriveIsPublic,
                 DirectLink = config.GoogleDriveDirectLink,
-                FolderID = config.GoogleDriveUseFolder ? config.GoogleDriveFolderID : null
+                FolderID = config.GoogleDriveUseFolder ? config.GoogleDriveFolderID : null,
+                DriveID = config.GoogleDriveSelectedDrive?.id
             };
         }
 
@@ -71,50 +72,63 @@ namespace ShareX.UploadersLib.FileUploaders
 
     public sealed class GoogleDrive : FileUploader, IOAuth2
     {
-        private GoogleOAuth2 GoogleAuth { get; set; }
+        public GoogleOAuth2 OAuth2 { get; private set; }
+        public OAuth2Info AuthInfo => OAuth2.AuthInfo;
         public bool IsPublic { get; set; }
         public bool DirectLink { get; set; }
         public string FolderID { get; set; }
+        public string DriveID { get; set; }
+
+        public static GoogleDriveSharedDrive MyDrive = new GoogleDriveSharedDrive
+        {
+            id = "", // empty defaults to user drive
+            name = Resources.GoogleDrive_MyDrive_My_drive
+        };
 
         public GoogleDrive(OAuth2Info oauth)
         {
-            GoogleAuth = new GoogleOAuth2(oauth, this)
+            OAuth2 = new GoogleOAuth2(oauth, this)
             {
-                Scope = "https://www.googleapis.com/auth/drive"
+                Scope = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.profile"
             };
         }
 
-        public OAuth2Info AuthInfo => GoogleAuth.AuthInfo;
-
         public bool RefreshAccessToken()
         {
-            return GoogleAuth.RefreshAccessToken();
+            return OAuth2.RefreshAccessToken();
         }
 
         public bool CheckAuthorization()
         {
-            return GoogleAuth.CheckAuthorization();
+            return OAuth2.CheckAuthorization();
         }
 
         public string GetAuthorizationURL()
         {
-            return GoogleAuth.GetAuthorizationURL();
+            return OAuth2.GetAuthorizationURL();
         }
 
         public bool GetAccessToken(string code)
         {
-            return GoogleAuth.GetAccessToken(code);
+            return OAuth2.GetAccessToken(code);
         }
 
-        private string GetMetadata(string name, string parentID)
+        private string GetMetadata(string name, string parentID, string driveID = "")
         {
             object metadata;
+
+            // If there's no parent folder, the drive behaves as parent
+            if (string.IsNullOrEmpty(parentID))
+            {
+                parentID = driveID;
+            }
 
             if (!string.IsNullOrEmpty(parentID))
             {
                 metadata = new
                 {
                     name = name,
+                    driveId = driveID,
                     parents = new[]
                     {
                         parentID
@@ -136,7 +150,7 @@ namespace ShareX.UploadersLib.FileUploaders
         {
             if (!CheckAuthorization()) return;
 
-            string url = string.Format("https://www.googleapis.com/drive/v3/files/{0}/permissions", fileID);
+            string url = string.Format("https://www.googleapis.com/drive/v3/files/{0}/permissions?supportsAllDrives=true", fileID);
 
             string json = JsonConvert.SerializeObject(new
             {
@@ -145,10 +159,10 @@ namespace ShareX.UploadersLib.FileUploaders
                 allowFileDiscovery = allowFileDiscovery.ToString()
             });
 
-            string response = SendRequest(HttpMethod.POST, url, json, RequestHelpers.ContentTypeJSON, null, GoogleAuth.GetAuthHeaders());
+            SendRequest(HttpMethod.POST, url, json, RequestHelpers.ContentTypeJSON, null, OAuth2.GetAuthHeaders());
         }
 
-        public List<GoogleDriveFile> GetFolders(bool trashed = false, bool writer = true)
+        public List<GoogleDriveFile> GetFolders(string driveID = "", bool trashed = false, bool writer = true)
         {
             if (!CheckAuthorization()) return null;
 
@@ -159,7 +173,7 @@ namespace ShareX.UploadersLib.FileUploaders
                 query += " and trashed = false";
             }
 
-            if (writer)
+            if (writer && string.IsNullOrEmpty(driveID))
             {
                 query += " and 'me' in writers";
             }
@@ -167,6 +181,13 @@ namespace ShareX.UploadersLib.FileUploaders
             Dictionary<string, string> args = new Dictionary<string, string>();
             args.Add("q", query);
             args.Add("fields", "nextPageToken,files(id,name,description)");
+            if (!string.IsNullOrEmpty(driveID))
+            {
+                args.Add("driveId", driveID);
+                args.Add("corpora", "drive");
+                args.Add("supportsAllDrives", "true");
+                args.Add("includeItemsFromAllDrives", "true");
+            }
 
             List<GoogleDriveFile> folders = new List<GoogleDriveFile>();
             string pageToken = "";
@@ -175,7 +196,7 @@ namespace ShareX.UploadersLib.FileUploaders
             do
             {
                 args["pageToken"] = pageToken;
-                string response = SendRequest(HttpMethod.GET, "https://www.googleapis.com/drive/v3/files", args, GoogleAuth.GetAuthHeaders());
+                string response = SendRequest(HttpMethod.GET, "https://www.googleapis.com/drive/v3/files", args, OAuth2.GetAuthHeaders());
                 pageToken = "";
 
                 if (!string.IsNullOrEmpty(response))
@@ -194,14 +215,45 @@ namespace ShareX.UploadersLib.FileUploaders
             return folders;
         }
 
+        public List<GoogleDriveSharedDrive> GetDrives()
+        {
+            if (!CheckAuthorization()) return null;
+
+            Dictionary<string, string> args = new Dictionary<string, string>();
+            List<GoogleDriveSharedDrive> drives = new List<GoogleDriveSharedDrive>();
+            string pageToken = "";
+
+            // Make sure we get all the pages of results
+            do
+            {
+                args["pageToken"] = pageToken;
+                string response = SendRequest(HttpMethod.GET, "https://www.googleapis.com/drive/v3/drives", args, OAuth2.GetAuthHeaders());
+                pageToken = "";
+
+                if (!string.IsNullOrEmpty(response))
+                {
+                    GoogleDriveSharedDriveList driveList = JsonConvert.DeserializeObject<GoogleDriveSharedDriveList>(response);
+
+                    if (driveList != null)
+                    {
+                        drives.AddRange(driveList.drives);
+                        pageToken = driveList.nextPageToken;
+                    }
+                }
+            }
+            while (!string.IsNullOrEmpty(pageToken));
+
+            return drives;
+        }
+
         public override UploadResult Upload(Stream stream, string fileName)
         {
             if (!CheckAuthorization()) return null;
 
-            string metadata = GetMetadata(fileName, FolderID);
+            string metadata = GetMetadata(fileName, FolderID, DriveID);
 
-            UploadResult result = SendRequestFile("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,webContentLink", stream, fileName,
-                "file", headers: GoogleAuth.GetAuthHeaders(), contentType: "multipart/related", relatedData: metadata);
+            UploadResult result = SendRequestFile("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink,webContentLink&supportsAllDrives=true",
+                stream, fileName, "file", headers: OAuth2.GetAuthHeaders(), contentType: "multipart/related", relatedData: metadata);
 
             if (!string.IsNullOrEmpty(result.Response))
             {
@@ -250,6 +302,23 @@ namespace ShareX.UploadersLib.FileUploaders
     public class GoogleDriveFileList
     {
         public List<GoogleDriveFile> files { get; set; }
+        public string nextPageToken { get; set; }
+    }
+
+    public class GoogleDriveSharedDrive
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+
+        public override string ToString()
+        {
+            return name;
+        }
+    }
+
+    public class GoogleDriveSharedDriveList
+    {
+        public List<GoogleDriveSharedDrive> drives { get; set; }
         public string nextPageToken { get; set; }
     }
 }

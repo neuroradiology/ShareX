@@ -38,6 +38,7 @@
             this.cbIncludeSubdirectories = new System.Windows.Forms.CheckBox();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOK = new System.Windows.Forms.Button();
+            this.cbMoveToScreenshotsFolder = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnPathBrowse
@@ -92,13 +93,19 @@
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
+            // cbMoveToScreenshotsFolder
+            // 
+            resources.ApplyResources(this.cbMoveToScreenshotsFolder, "cbMoveToScreenshotsFolder");
+            this.cbMoveToScreenshotsFolder.Name = "cbMoveToScreenshotsFolder";
+            this.cbMoveToScreenshotsFolder.UseVisualStyleBackColor = true;
+            // 
             // WatchFolderForm
             // 
             this.AcceptButton = this.btnOK;
             resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.CancelButton = this.btnCancel;
+            this.Controls.Add(this.cbMoveToScreenshotsFolder);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.cbIncludeSubdirectories);
@@ -127,5 +134,6 @@
         private System.Windows.Forms.CheckBox cbIncludeSubdirectories;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnOK;
+        private System.Windows.Forms.CheckBox cbMoveToScreenshotsFolder;
     }
 }

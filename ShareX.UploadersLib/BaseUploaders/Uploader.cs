@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ namespace ShareX.UploadersLib
         public event Action<string> EarlyURLCopyRequested;
 
         public bool IsUploading { get; protected set; }
-        public List<string> Errors { get; private set; } = new List<string>();
+        public UploaderErrorManager Errors { get; private set; } = new UploaderErrorManager();
         public bool IsError => !StopUploadRequested && Errors != null && Errors.Count > 0;
         public int BufferSize { get; set; } = 8192;
 
@@ -53,19 +53,9 @@ namespace ShareX.UploadersLib
 
         private HttpWebRequest currentWebRequest;
 
-        public static void UpdateServicePointManager()
-        {
-            ServicePointManager.DefaultConnectionLimit = 25;
-            ServicePointManager.Expect100Continue = false;
-            ServicePointManager.UseNagleAlgorithm = false;
-        }
-
         protected void OnProgressChanged(ProgressManager progress)
         {
-            if (ProgressChanged != null)
-            {
-                ProgressChanged(progress);
-            }
+            ProgressChanged?.Invoke(progress);
         }
 
         protected void OnEarlyURLCopyRequested(string url)
@@ -106,7 +96,7 @@ namespace ShareX.UploadersLib
             }
         }
 
-        protected string SendRequest(HttpMethod method, string url, Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null)
+        internal string SendRequest(HttpMethod method, string url, Dictionary<string, string> args = null, NameValueCollection headers = null, CookieCollection cookies = null)
         {
             return SendRequest(method, url, (Stream)null, null, args, headers, cookies);
         }
@@ -219,7 +209,8 @@ namespace ShareX.UploadersLib
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-                    result.Response = ProcessWebResponseText(response);
+                    result.ResponseInfo = ProcessWebResponse(response);
+                    result.Response = result.ResponseInfo?.ResponseText;
                 }
 
                 result.IsSuccess = true;
@@ -263,7 +254,7 @@ namespace ShareX.UploadersLib
                 }
                 contentLength = Math.Min(contentLength, data.Length - contentPosition);
 
-                string contentType = RequestHelpers.GetMimeType(fileName);
+                string contentType = MimeTypes.GetMimeTypeFromFileName(fileName);
 
                 if (headers == null)
                 {
@@ -286,7 +277,8 @@ namespace ShareX.UploadersLib
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-                    result.Response = ProcessWebResponseText(response);
+                    result.ResponseInfo = ProcessWebResponse(response);
+                    result.Response = result.ResponseInfo?.ResponseText;
                 }
 
                 result.IsSuccess = true;
@@ -472,7 +464,7 @@ namespace ShareX.UploadersLib
 
                 string errorText = sb.ToString();
 
-                if (Errors == null) Errors = new List<string>();
+                if (Errors == null) Errors = new UploaderErrorManager();
                 Errors.Add(errorText);
 
                 DebugHelper.WriteLine("Error:\r\n" + errorText);

@@ -2,7 +2,7 @@
 
 /*
     ShareX - A program that allows you to take screenshots and share any file type
-    Copyright (c) 2007-2020 ShareX Team
+    Copyright (c) 2007-2026 ShareX Team
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ namespace ShareX.HelpersLib
                 {
                     if (value < 0)
                     {
-                        throw new ArgumentOutOfRangeException("Minimum");
+                        throw new ArgumentOutOfRangeException(nameof(Minimum));
                     }
 
                     if (maximum < value)
@@ -81,7 +81,7 @@ namespace ShareX.HelpersLib
                 {
                     if (value < 0)
                     {
-                        throw new ArgumentOutOfRangeException("Maximum");
+                        throw new ArgumentOutOfRangeException(nameof(Maximum));
                     }
 
                     if (minimum > value)
@@ -114,9 +114,9 @@ namespace ShareX.HelpersLib
             {
                 if (this.value != value)
                 {
-                    if ((value < minimum) || (value > maximum))
+                    if (value < minimum || value > maximum)
                     {
-                        throw new ArgumentOutOfRangeException("Value");
+                        throw new ArgumentOutOfRangeException(nameof(Value));
                     }
 
                     this.value = value;
